@@ -6,12 +6,12 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    open: '/quux_hidden_app.html',
+    open: '/.quux_hidden_app.html',
   },
   build: {
     rollupOptions: {
       input: {
-        app: '.quux_hidden_app.html',
+        app: './quux_hidden_app.html',
       },
     },
   },
