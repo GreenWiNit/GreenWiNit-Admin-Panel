@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
+import path from 'node:path'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -9,15 +10,17 @@ export default defineConfig({
     tanstackRouter({
       target: 'react',
       autoCodeSplitting: true,
-      // routeFilePrefix: 'quux_hidden_app',
-      // addExtensions: true,
     }),
     react(),
     tailwindcss(),
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   server: {
-    // open: './quux_hidden_app.html',
-    // base: '/quux_hidden_app',
+    open: './quux_hidden_app.html',
   },
   build: {
     rollupOptions: {
