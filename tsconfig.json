@@ -7,5 +7,13 @@
     {
       "path": "./tsconfig.node.json"
     }
-  ]
+  ],
+  "compilerOptions": {
+    // https://ui.shadcn.com/docs/installation/vite
+    "baseUrl": ".",
+    "paths": {
+      // https://ui.shadcn.com/docs/installation/vite
+      "@/*": ["./src/*"]
+    }
+  }
 }
