@@ -15,7 +15,7 @@ export default defineConfig({
     }),
     react(),
     tailwindcss(),
-    renameIndexHtmlPlugin('quux_hidden_app.html#'),
+    renameIndexHtmlPlugin('quux_hidden_app.html'),
   ],
   resolve: {
     alias: {
