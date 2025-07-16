@@ -25,7 +25,13 @@
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    // https://ui.shadcn.com/docs/installation/vite
+    "baseUrl": ".",
+    "paths": {
+      // https://ui.shadcn.com/docs/installation/vite
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src"]
 }
