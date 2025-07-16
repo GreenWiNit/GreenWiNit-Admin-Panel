@@ -32,11 +32,14 @@ function renameIndexHtmlPlugin(newName: string) {
       outDir = resolvedConfig.build.outDir || 'dist'
     },
     closeBundle() {
+      console.log('p', process.env.NODE_ENV)
       // 빌드 모드에서만 동작
       if (process.env.NODE_ENV !== 'production') return
+      console.log('outDir', outDir)
       const oldPath = path.join(outDir, 'index.html')
       const newPath = path.join(outDir, newName)
       if (fs.existsSync(oldPath)) {
+        console.log('rename', oldPath, newPath)
         fs.renameSync(oldPath, newPath)
       }
     },
