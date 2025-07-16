@@ -93,7 +93,7 @@ function Button({
       className={cn(
         buttonVariants({
           className: cn(
-            'bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs',
+            'bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 shadow-xs has-[>svg]:px-3',
             className,
           ),
         }),

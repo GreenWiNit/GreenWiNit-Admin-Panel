@@ -15,6 +15,7 @@ export default defineConfig({
     }),
     react(),
     tailwindcss(),
+    // https://community.cloudflare.com/t/cloudflare-pages-truncates-urls-by-removing-the-html-extension/609238
     renameIndexHtmlPlugin('quux_hidden_app.html.html'),
   ],
   resolve: {
