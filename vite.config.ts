@@ -23,6 +23,20 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://api.greenwinit.store',
+        changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            // pass origin header to target server to avoid CORS error
+            proxyReq.setHeader('origin', 'https://www.greenwinit.store')
+          })
+        },
+      },
+    },
+  },
 })
 
 function renameIndexHtmlPlugin(newName: string) {
