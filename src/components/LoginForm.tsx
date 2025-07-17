@@ -1,10 +1,7 @@
-'use client'
-
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-
-import { buttonVariants, Button as ShadcnButton } from '@/components/shadcn/button'
+import { Button as ShadcnButton } from '@/components/shadcn/button'
 import {
   Form,
   FormControl,
@@ -14,9 +11,10 @@ import {
   FormMessage,
 } from '@/components/shadcn/form'
 import { Input } from '@/components/shadcn/input'
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/shadcn/card'
 import { cn } from '@/lib/utils'
+import { authApi } from '@/api/auth'
+import { useUserStore } from '@/store/userStore'
 
 const formSchema = z.object({
   username: z.string().min(2, {
@@ -35,15 +33,24 @@ export function LoginForm() {
       password: '',
     },
   })
+  const login = useUserStore((state) => state.login)
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log('로그인 데이터:', data)
-    alert('로그인 액션')
+    authApi
+      .login({ loginId: data.username, password: data.password })
+      .then((res) => {
+        console.log('로그인 성공:', res)
+        login(res)
+      })
+      .catch((err) => {
+        console.error('로그인 실패:', err)
+      })
   }
 
   return (
     <Card className="w-md">
-      <CardHeader>
+      <CardHeader className="text-left">
         <CardTitle>관리자 로그인</CardTitle>
       </CardHeader>
       <CardContent>
@@ -90,15 +97,11 @@ function Button({
 }: Omit<React.ComponentProps<typeof ShadcnButton>, 'variant'>) {
   return (
     <ShadcnButton
-      className={cn(
-        buttonVariants({
-          className: cn(
-            'bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 shadow-xs has-[>svg]:px-3',
-            className,
-          ),
-        }),
-      )}
       {...props}
+      className={cn(
+        'bg-primary text-primary-foreground hover:bg-primary/90 h-auto px-6 py-3 shadow-xs',
+        className,
+      )}
     />
   )
 }
