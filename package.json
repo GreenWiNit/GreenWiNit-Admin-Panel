@@ -15,8 +15,11 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^5.1.1",
     "@lukemorales/query-key-factory": "^1.3.4",
+    "@mui/material": "^7.2.0",
     "@mui/x-data-grid": "^8.9.1",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
