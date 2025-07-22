@@ -22,23 +22,25 @@ function RouteComponent() {
       <GlobalNavigation />
       <div className="flex flex-col gap-4">
         <PageTitle className="self-start">개인 챌린지 목록</PageTitle>
-        <DataGrid
-          rows={
-            data?.challenges?.map((challenge) => ({
-              ...challenge,
-              period: `${challenge.beginDateTime} ~ ${challenge.endDateTime}`,
-              point: `${challenge.point}p`,
-              createdAt: new Date(challenge.createdAt).toLocaleDateString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-              }),
-            })) ?? []
-          }
-          columns={columns}
-          checkboxSelection
-          disableRowSelectionOnClick
-        />
+        <div className="flex w-full">
+          <DataGrid
+            rows={
+              data?.challenges?.map((challenge) => ({
+                ...challenge,
+                period: `${challenge.beginDateTime} ~ ${challenge.endDateTime}`,
+                point: `${challenge.point}p`,
+                createdAt: new Date(challenge.createdAt).toLocaleDateString('ko-KR', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                }),
+              })) ?? []
+            }
+            columns={columns}
+            checkboxSelection
+            disableRowSelectionOnClick
+          />
+        </div>
       </div>
     </PageContainer>
   )
