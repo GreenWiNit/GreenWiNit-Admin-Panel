@@ -1,7 +1,9 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import '../index.css'
-import { Fragment } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
 
 export const Route = createRootRoute({
   beforeLoad: async () => {
@@ -16,9 +18,9 @@ export const Route = createRootRoute({
     return worker.start()
   },
   component: () => (
-    <Fragment>
+    <QueryClientProvider client={queryClient}>
       <Outlet />
       <TanStackRouterDevtools />
-    </Fragment>
+    </QueryClientProvider>
   ),
 })
