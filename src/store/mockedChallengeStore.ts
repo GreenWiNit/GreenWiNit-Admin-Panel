@@ -23,10 +23,23 @@ export interface Challenge {
   imageUrl: string
   point: number
   /**
-   * NOT_LOGGED_IN ?
+   * JOINED, NOT_JOINED
    */
-  participationStatus: string
+  // participationStatus?: 'JOINED' | 'NOT_JOINED'
+  displayStatus: 'HIDDEN' | 'VISIBLE'
   createdAt: string
+}
+
+export interface IndividualChallenge extends Challenge {
+  participants: Participant[]
+  type: 'individual'
+}
+
+export interface Participant {
+  id: string
+  memberKey: string
+  email: string
+  phone: string
 }
 
 interface MockedChallengeStoreState {
@@ -34,7 +47,9 @@ interface MockedChallengeStoreState {
   setChallenges: (challenges: Challenge[]) => void
 }
 
-const generateChallenge = (): Challenge => {
+const generateChallenge = () => {
+  const isIndividual = faker.datatype.boolean()
+
   return {
     id: faker.number.int(),
     code: `CH-P-${faker.date.past().toISOString().split('T')[0]}-${faker.number.int({ min: 1, max: 1000 })}`,
@@ -43,16 +58,28 @@ const generateChallenge = (): Challenge => {
     endDateTime: faker.date.future().toISOString(),
     imageUrl: 'https://example.com/image.png',
     point: 100,
-    participationStatus: 'ACTIVE',
+    // participationStatus: 'ACTIVE',
     createdAt: '2021-01-01T00:00:00Z',
-  } satisfies Challenge
+    displayStatus: faker.helpers.arrayElement(['HIDDEN', 'VISIBLE']),
+    ...(isIndividual
+      ? {
+          participants: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => ({
+            id: faker.string.uuid(),
+            memberKey: faker.string.uuid(),
+            email: faker.internet.email(),
+            phone: faker.phone.number(),
+          })),
+          type: 'individual',
+        }
+      : {}),
+  } satisfies Challenge | IndividualChallenge
 }
 
 export const mockedChallengeStore = create<MockedChallengeStoreState>()(
   devtools(
     persist(
       (set) => ({
-        challenges: Array.from({ length: 10 }, generateChallenge),
+        challenges: Array.from({ length: 100 }, generateChallenge),
         setChallenges: (challenges: Challenge[]) => {
           set({ challenges })
         },

@@ -1,3 +1,5 @@
+import GlobalNavigation from '@/components/global-navigation'
+import PageContainer from '@/components/page-container'
 import { useUserStore } from '@/store/userStore'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
@@ -15,8 +17,8 @@ export const Route = createFileRoute('/')({
 
 function Index() {
   return (
-    <div className="p-2">
-      <h3>Welcome Home!</h3>
-    </div>
+    <PageContainer>
+      <GlobalNavigation />
+    </PageContainer>
   )
 }

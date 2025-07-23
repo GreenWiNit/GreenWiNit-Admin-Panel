@@ -1,41 +1,57 @@
-import { challengeApi, challengeQueryKeys } from '@/api/challenge'
+import { useIndividualChallenges } from '@/hooks/challenges'
 import GlobalNavigation from '@/components/global-navigation'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
-import { useQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import type { Challenge } from '@/store/mockedChallengeStore'
+import dayjs from 'dayjs'
+import { Button } from '@/components/shadcn/button'
+import FilePresentIcon from '@mui/icons-material/FilePresent'
+import { Separator } from '@/components/shadcn/separator'
 
 export const Route = createFileRoute('/challenges/type/individual')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { data } = useQuery({
-    queryKey: challengeQueryKeys.challenges.individual().queryKey,
-    queryFn: challengeApi.getIndividualChallenges,
-  })
+  const { data } = useIndividualChallenges()
 
   return (
     <PageContainer>
       <GlobalNavigation />
       <div className="flex flex-col gap-4">
         <PageTitle className="self-start">개인 챌린지 목록</PageTitle>
+        <Separator />
+        <div className="flex justify-between">
+          <Button className="w-fit" asChild>
+            <Link to="/challenges/management/verify-status/individual">인증확인</Link>
+          </Button>
+          <div className="flex gap-2">
+            <Button className="w-fit">
+              <FilePresentIcon />
+              엑셀 받기
+            </Button>
+            <Button className="w-fit">생성</Button>
+          </div>
+        </div>
         <div className="flex w-full">
           <DataGrid
             rows={
               data?.challenges?.map((challenge) => ({
                 ...challenge,
-                period: `${challenge.beginDateTime} ~ ${challenge.endDateTime}`,
+                period: `${dayjs(challenge.beginDateTime).format('YYYY.MM.DD')} ~ ${dayjs(challenge.endDateTime).format('YYYY.MM.DD')}`,
                 point: `${challenge.point}p`,
-                createdAt: new Date(challenge.createdAt).toLocaleDateString('ko-KR', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                }),
+                createdAt: dayjs(challenge.createdAt).format('YYYY-MM-DD'),
               })) ?? []
             }
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 10,
+                },
+              },
+            }}
             columns={columns}
             checkboxSelection
             disableRowSelectionOnClick
@@ -47,16 +63,16 @@ function RouteComponent() {
 }
 
 const columns: GridColDef<Omit<Challenge, 'point'> & { period: string; point: string }>[] = [
-  { field: 'code', headerName: '챌린지 코드', width: 150 },
+  { field: 'code', headerName: '챌린지 코드', width: 200 },
   {
     field: 'title',
     headerName: '챌린지 제목',
-    width: 150,
+    width: 300,
   },
   {
     field: 'period',
     headerName: '진행기간',
-    width: 150,
+    width: 300,
   },
   {
     field: 'point',
@@ -64,7 +80,7 @@ const columns: GridColDef<Omit<Challenge, 'point'> & { period: string; point: st
     width: 150,
   },
   {
-    field: 'participationStatus',
+    field: 'displayStatus',
     headerName: '전시여부',
     width: 150,
   },
