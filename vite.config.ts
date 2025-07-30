@@ -31,7 +31,7 @@ export default defineConfig({
         configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq) => {
             // pass origin header to target server to avoid CORS error
-            proxyReq.setHeader('origin', 'https://www.greenwinit.store')
+            proxyReq.setHeader('Origin', 'https://www.greenwinit.store')
           })
         },
       },
