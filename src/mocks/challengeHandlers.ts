@@ -4,13 +4,6 @@ import { API_URL } from '@/api/constant'
 
 const challenges = mockedChallengeStore.getState().challenges
 export const challengeHandlers = [
-  http.get(`${API_URL}/admin/challenges/type/individual`, () => {
-    return HttpResponse.json({
-      challenges: challenges.filter(
-        (challenge) => 'type' in challenge && challenge.type === 'individual',
-      ),
-    })
-  }),
   http.get(
     `${API_URL}/admin/challenges/type/individual/:challengeId/participants`,
     ({ params }) => {

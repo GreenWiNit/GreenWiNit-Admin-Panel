@@ -14,7 +14,7 @@ import { Input } from '@/components/shadcn/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/shadcn/card'
 import { cn } from '@/lib/utils'
 import { authApi } from '@/api/auth'
-import { useUserStore } from '@/store/userStore'
+import { userStore } from '@/store/userStore'
 import { useNavigate } from '@tanstack/react-router'
 
 const formSchema = z.object({
@@ -34,7 +34,7 @@ export function LoginForm() {
       password: '',
     },
   })
-  const login = useUserStore((state) => state.login)
+  const login = userStore((state) => state.login)
   const navigate = useNavigate()
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {

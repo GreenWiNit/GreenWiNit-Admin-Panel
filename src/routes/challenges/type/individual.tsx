@@ -4,7 +4,7 @@ import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
-import type { Challenge } from '@/store/mockedChallengeStore'
+import type { IndividualChallenge } from '@/api/challenge'
 import dayjs from 'dayjs'
 import { Button } from '@/components/shadcn/button'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
@@ -38,11 +38,11 @@ function RouteComponent() {
         <div className="flex w-full">
           <DataGrid
             rows={
-              data?.challenges?.map((challenge) => ({
+              data?.result.content.map((challenge) => ({
                 ...challenge,
                 period: `${dayjs(challenge.beginDateTime).format('YYYY.MM.DD')} ~ ${dayjs(challenge.endDateTime).format('YYYY.MM.DD')}`,
-                point: `${challenge.point}p`,
-                createdAt: dayjs(challenge.createdAt).format('YYYY-MM-DD'),
+                point: `${challenge.challengePoint}p`,
+                createdAt: dayjs(challenge.createdDate).format('YYYY-MM-DD'),
               })) ?? []
             }
             initialState={{
@@ -62,10 +62,12 @@ function RouteComponent() {
   )
 }
 
-const columns: GridColDef<Omit<Challenge, 'point'> & { period: string; point: string }>[] = [
-  { field: 'code', headerName: '챌린지 코드', width: 200 },
+const columns: GridColDef<
+  Omit<IndividualChallenge, 'point'> & { period: string; point: string }
+>[] = [
+  { field: 'challengeCode', headerName: '챌린지 코드', width: 200 },
   {
-    field: 'title',
+    field: 'challengeName',
     headerName: '챌린지 제목',
     width: 300,
   },
@@ -75,7 +77,7 @@ const columns: GridColDef<Omit<Challenge, 'point'> & { period: string; point: st
     width: 300,
   },
   {
-    field: 'point',
+    field: 'challengePoint',
     headerName: '포인트',
     width: 150,
   },
@@ -85,7 +87,7 @@ const columns: GridColDef<Omit<Challenge, 'point'> & { period: string; point: st
     width: 150,
   },
   {
-    field: 'createdAt',
+    field: 'createdDate',
     headerName: '생성일',
     width: 150,
   },

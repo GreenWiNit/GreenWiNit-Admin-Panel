@@ -58,9 +58,9 @@ function RouteComponent() {
                       <SelectValue placeholder="전체" />
                     </SelectTrigger>
                     <SelectContent>
-                      {challenges?.challenges.map((challenge) => (
+                      {challenges?.result.content.map((challenge) => (
                         <SelectItem key={challenge.id} value={challenge.id.toString()}>
-                          <span className="w-48 truncate">{challenge.title}</span>
+                          <span className="w-48 truncate">{challenge.challengeName}</span>
                         </SelectItem>
                       ))}
                     </SelectContent>
