@@ -46,7 +46,7 @@ export const challengeApi = {
     )
   },
   getIndividualChallengeParticipants: async (challengeId?: number | null) => {
-    return await fetch(`${API_URL}/admin/challenges/type/individual/${challengeId}/participants`, {
+    return await fetch(`${API_URL}/admin/challenges/${challengeId}/participants`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
