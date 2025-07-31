@@ -18,7 +18,7 @@ function RouteComponent() {
   const { data } = useIndividualChallenges()
 
   return (
-    <PageContainer>
+    <PageContainer className="flex-row">
       <GlobalNavigation />
       <div className="flex flex-col gap-4">
         <PageTitle className="self-start">개인 챌린지 목록</PageTitle>
@@ -32,7 +32,9 @@ function RouteComponent() {
               <FilePresentIcon />
               엑셀 받기
             </Button>
-            <Button className="w-fit">생성</Button>
+            <Button className="w-fit" asChild>
+              <Link to="/challenges/create">생성</Link>
+            </Button>
           </div>
         </div>
         <div className="flex w-full">

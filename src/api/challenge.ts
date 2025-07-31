@@ -2,6 +2,7 @@ import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from '@/constant/network'
 import { stringify } from '@/lib/query-string'
 
+export type DisplayStatus = 'VISIBLE' | 'HIDDEN'
 export interface IndividualChallenge {
   id: number
   /**
@@ -18,7 +19,7 @@ export interface IndividualChallenge {
    * '2025-07-26T13:27:21.147'
    */
   endDateTime: string
-  displayStatus: 'VISIBLE' | 'HIDDEN'
+  displayStatus: DisplayStatus
   /**
    * '2025-07-26T13:27:21.147311'
    */
@@ -156,6 +157,33 @@ export const challengeApi = {
             nextCursor: string | null
             content: Array<IndividualChallengeWithVerifyStatus>
           }
+        }>,
+    )
+  },
+  createIndividualChallenge: async (params: {
+    challengeName: string
+    challengePoint: number
+    challengeType: 'PERSONAL' | 'TEAM'
+    beginDateTime: string
+    endDateTime: string
+    displayStatus: DisplayStatus
+    challengeImageUrl: string
+    challengeContent: string
+    maxGroupCount: number
+  }) => {
+    return await fetch(`${API_URL}/admin/challenges`, {
+      method: 'POST',
+      body: JSON.stringify(params),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(
+      (res) =>
+        res.json() as Promise<{
+          success: boolean
+          message: string
+          /** inserted id */
+          result?: number
         }>,
     )
   },

@@ -9,7 +9,7 @@ export const Route = createFileRoute('/challenges/type/team')({
 
 function RouteComponent() {
   return (
-    <PageContainer>
+    <PageContainer className="flex-row">
       <GlobalNavigation />
       <PageTitle>팀 챌린지 목록</PageTitle>
     </PageContainer>
