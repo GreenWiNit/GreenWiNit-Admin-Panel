@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import fetchIntercept, { type FetchInterceptorResponse } from 'fetch-intercept'
 import { API_URL } from '@/api/constant'
 import { userStore } from '@/store/userStore'
+import { initHistoryAndLocation } from '@/lib/utils'
 
 const queryClient = new QueryClient()
 
@@ -58,6 +59,7 @@ fetchIntercept.register({
           response.json().then((body) => {
             if (body.message === '접근이 거부되었습니다.') {
               userStore.getState().setAccessToken(null)
+              initHistoryAndLocation()
             }
           })
         }
