@@ -1,7 +1,9 @@
-import { useUserStore } from '@/store/userStore'
+import GlobalNavigation from '@/components/global-navigation'
+import PageContainer from '@/components/page-container'
+import { userStore } from '@/store/userStore'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
-const loggedIn = useUserStore.getState().loggedIn
+const loggedIn = userStore.getState().loggedIn
 export const Route = createFileRoute('/')({
   component: Index,
   loader: () => {
@@ -15,8 +17,8 @@ export const Route = createFileRoute('/')({
 
 function Index() {
   return (
-    <div className="p-2">
-      <h3>Welcome Home!</h3>
-    </div>
+    <PageContainer>
+      <GlobalNavigation />
+    </PageContainer>
   )
 }
