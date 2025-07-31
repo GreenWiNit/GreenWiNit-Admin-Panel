@@ -1,5 +1,6 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from '@/constant/network'
+import { stringify } from '@/lib/query-string'
 
 export interface IndividualChallenge {
   id: number
@@ -37,6 +38,22 @@ export interface Participant {
   teamCode: string
   teamSelectionDate: string
   certificationCount: number
+}
+
+export type VerifyStatus = 'PENDING' | 'PAID' | 'REJECTED'
+
+export interface IndividualChallengeWithVerifyStatus {
+  id: number
+  /**
+   * ex) google foo
+   */
+  memberKey: string
+  memberNickname: string
+  memberEmail: string
+  certificationImageUrl: string
+  certificationReview: string
+  certifiedDate: string
+  status: VerifyStatus
 }
 
 export const challengeApi = {
@@ -118,11 +135,38 @@ export const challengeApi = {
         }>,
     )
   },
+  getIndividualChallengeWithVerifyStatus: async (params: {
+    callengeId: number | null
+    memberKey: number | null
+    statuses: VerifyStatus[] | readonly VerifyStatus[] | null
+    cursor: number | null
+  }) => {
+    return await fetch(`${API_URL}/admin/personal-certifications?${stringify(params)}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(
+      (res) =>
+        res.json() as Promise<{
+          success: boolean
+          message: string
+          result: {
+            hasNext: boolean
+            nextCursor: string | null
+            content: Array<IndividualChallengeWithVerifyStatus>
+          }
+        }>,
+    )
+  },
 }
 
 const challengeKey = createQueryKeys('challenges', {
   individual: () => ['individual'],
   individualTitles: () => ['individual', 'titles'] as const,
+  individualWithVerifyStatus: (
+    params: Parameters<typeof challengeApi.getIndividualChallengeWithVerifyStatus>[0],
+  ) => ['individual', 'with-verify-status', params] as const,
   individualParticipants: (challengeId?: number) =>
     ['individual', challengeId, 'participants'] as const,
   individualParticipantKeys: (challengeId?: number) =>
