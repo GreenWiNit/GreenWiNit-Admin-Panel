@@ -53,7 +53,10 @@ fetchIntercept.register({
   },
 
   response: function (response: FetchInterceptorResponse) {
-    if (response.url.startsWith(API_URL) && !response.ok) {
+    const isApiUrl = API_URL.startsWith('/')
+      ? new URL(response.url).pathname.startsWith(API_URL)
+      : response.url.startsWith(API_URL)
+    if (isApiUrl && !response.ok) {
       if (response.status >= 400 && response.status < 500) {
         if (response.headers.get('content-type')?.includes('json')) {
           response.json().then((body) => {
