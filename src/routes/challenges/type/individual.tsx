@@ -41,8 +41,8 @@ function RouteComponent() {
               data?.result.content.map((challenge) => ({
                 ...challenge,
                 period: `${dayjs(challenge.beginDateTime).format('YYYY.MM.DD')} ~ ${dayjs(challenge.endDateTime).format('YYYY.MM.DD')}`,
-                point: `${challenge.challengePoint}p`,
-                createdAt: dayjs(challenge.createdDate).format('YYYY-MM-DD'),
+                challengePoint: `${challenge.challengePoint}p`,
+                createdDate: dayjs(challenge.createdDate).format('YYYY-MM-DD'),
               })) ?? []
             }
             initialState={{
@@ -63,7 +63,7 @@ function RouteComponent() {
 }
 
 const columns: GridColDef<
-  Omit<IndividualChallenge, 'point'> & { period: string; point: string }
+  Omit<IndividualChallenge, 'challengePoint'> & { period: string; challengePoint: string }
 >[] = [
   { field: 'challengeCode', headerName: '챌린지 코드', width: 200 },
   {
