@@ -116,15 +116,29 @@ function RouteComponent() {
             <tr>
               <th>카테고리</th>
               <td>
-                <Select {...form.register('type')}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="individual">개인</SelectItem>
-                    <SelectItem value="team">팀</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <Select {...field} onValueChange={(value) => field.onChange(value)}>
+                      <SelectTrigger
+                        className={cn(
+                          'w-[180px]',
+                          form.formState.errors.type ? 'border-red-500' : null,
+                        )}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="individual">개인</SelectItem>
+                        <SelectItem value="team">팀</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                  rules={{
+                    required: true,
+                  }}
+                />
               </td>
             </tr>
             <tr>
