@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import { mockedChallengeStore, type IndividualChallenge } from '@/store/mockedChallengeStore'
-import { API_URL } from '@/api/constant'
+import { API_URL } from '@/constant/network'
 
 const challenges = mockedChallengeStore.getState().challenges
 export const challengeHandlers = [

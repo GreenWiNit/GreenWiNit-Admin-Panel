@@ -3,7 +3,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import '../index.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import fetchIntercept, { type FetchInterceptorResponse } from 'fetch-intercept'
-import { API_URL } from '@/api/constant'
+import { API_URL } from '@/constant/network'
 import { userStore } from '@/store/userStore'
 import { initHistoryAndLocation } from '@/lib/utils'
 

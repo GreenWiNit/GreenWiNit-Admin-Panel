@@ -1,5 +1,5 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
-import { API_URL } from './constant'
+import { API_URL } from '@/constant/network'
 import type { Participant } from '@/store/mockedChallengeStore'
 
 export interface IndividualChallenge {
