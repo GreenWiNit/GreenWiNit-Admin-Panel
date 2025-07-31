@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/shadcn/select'
 import { Separator } from '@/components/shadcn/separator'
-import { useIndividualChallenges } from '@/hooks/challenges'
+import { useIndividualChallengeTitles } from '@/hooks/useChallenge'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -23,15 +23,15 @@ export const Route = createFileRoute('/challenges/management/verify-status/indiv
 })
 
 function RouteComponent() {
-  const { data: challenges } = useIndividualChallenges()
+  const { data: challenges } = useIndividualChallengeTitles()
   const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(null)
   const selectedChallengeIdNumber = selectedChallengeId ? Number(selectedChallengeId) : null
   const { data: participants } = useQuery({
-    queryKey: challengeQueryKeys.challenges.individualParticipants(
+    queryKey: challengeQueryKeys.challenges.individualParticipantKeys(
       selectedChallengeIdNumber ?? undefined,
     ).queryKey,
-    queryFn: () => challengeApi.getIndividualChallengeParticipants(selectedChallengeIdNumber),
-    select: (data) => data.participants,
+    queryFn: () => challengeApi.getIndividualChallengeParticipantKeys(selectedChallengeIdNumber),
+    select: (data) => data.result,
     enabled: !!selectedChallengeId,
   })
   const [selectedParticipantId, setSelectedParticipantId] = useState<string | null>(null)
@@ -58,8 +58,14 @@ function RouteComponent() {
                       <SelectValue placeholder="전체" />
                     </SelectTrigger>
                     <SelectContent>
-                      {challenges?.result.content.map((challenge) => (
-                        <SelectItem key={challenge.id} value={challenge.id.toString()}>
+                      <SelectItem value="all">
+                        <span className="w-48 truncate">전체</span>
+                      </SelectItem>
+                      {challenges?.result?.map((challenge) => (
+                        <SelectItem
+                          key={challenge.challengeId}
+                          value={challenge.challengeId.toString()}
+                        >
                           <span className="w-48 truncate">{challenge.challengeName}</span>
                         </SelectItem>
                       ))}
@@ -78,9 +84,12 @@ function RouteComponent() {
                       <SelectValue placeholder="전체" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="all">
+                        <span className="w-48 truncate">전체</span>
+                      </SelectItem>
                       {participants?.map((participant) => (
-                        <SelectItem key={participant.id} value={participant.id}>
-                          <span className="w-48 truncate">{participant.email}</span>
+                        <SelectItem key={participant.memberKey} value={participant.memberKey}>
+                          <span className="w-48 truncate">{participant.nickname}</span>
                         </SelectItem>
                       ))}
                     </SelectContent>

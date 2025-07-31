@@ -1,6 +1,5 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from '@/constant/network'
-import type { Participant } from '@/store/mockedChallengeStore'
 
 export interface IndividualChallenge {
   id: number
@@ -23,6 +22,21 @@ export interface IndividualChallenge {
    * '2025-07-26T13:27:21.147311'
    */
   createdDate: string
+}
+
+export interface Participant {
+  memberId: number
+  /**
+   * ex) google_3421
+   */
+  memberKey: string
+  participationDate: string
+  /**
+   * ex) T-20250109-143523-C8NQ
+   */
+  teamCode: string
+  teamSelectionDate: string
+  certificationCount: number
 }
 
 export const challengeApi = {
@@ -51,14 +65,68 @@ export const challengeApi = {
       headers: {
         'Content-Type': 'application/json',
       },
-    }).then((res) => res.json() as Promise<{ participants: Participant[] }>)
+    }).then(
+      (res) =>
+        res.json() as Promise<{
+          success: true
+          message: 'string'
+          result: {
+            hasNext: true
+            nextCursor: 12345
+            content: Array<Participant>
+          }
+        }>,
+    )
+  },
+  getIndividualChallengeParticipantKeys: async (challengeId?: number | null) => {
+    return await fetch(`${API_URL}/admin/challenges/${challengeId}/participants-memberkeys`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(
+      (res) =>
+        res.json() as Promise<{
+          success: true
+          message: 'string'
+          result: Array<{
+            memberKey: string
+            nickname: string
+          }>
+        }>,
+    )
+  },
+  getIndividualChallengeTitles: async () => {
+    return await fetch(`${API_URL}/admin/challenges/personal-titles`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(
+      (res) =>
+        res.json() as Promise<{
+          success: true
+          message: 'string'
+          result: Array<{
+            challengeId: number
+            challengeName: string
+            /**
+             * @deprecated 의미없으니 사용하지 말것
+             */
+            challengeType: 'PERSONAL'
+          }>
+        }>,
+    )
   },
 }
 
 const challengeKey = createQueryKeys('challenges', {
   individual: () => ['individual'],
+  individualTitles: () => ['individual', 'titles'] as const,
   individualParticipants: (challengeId?: number) =>
     ['individual', challengeId, 'participants'] as const,
+  individualParticipantKeys: (challengeId?: number) =>
+    ['individual', challengeId, 'participants', 'keys'] as const,
 })
 
 export const challengeQueryKeys = mergeQueryKeys(challengeKey)

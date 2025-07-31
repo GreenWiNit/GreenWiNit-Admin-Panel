@@ -1,4 +1,4 @@
-import { useIndividualChallenges } from '@/hooks/challenges'
+import { useIndividualChallenges } from '@/hooks/useChallenge'
 import GlobalNavigation from '@/components/global-navigation'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'

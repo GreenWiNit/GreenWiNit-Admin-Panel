@@ -7,3 +7,10 @@ export const useIndividualChallenges = () => {
     queryFn: challengeApi.getIndividualChallenges,
   })
 }
+
+export const useIndividualChallengeTitles = () => {
+  return useQuery({
+    queryKey: challengeQueryKeys.challenges.individualTitles().queryKey,
+    queryFn: challengeApi.getIndividualChallengeTitles,
+  })
+}
