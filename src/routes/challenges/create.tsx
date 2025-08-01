@@ -61,7 +61,7 @@ function RouteComponent() {
     mutationFn: challengeApi.createIndividualChallenge,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.individual().queryKey,
+        queryKey: challengeQueryKeys.challenges.individual.queryKey,
       })
       if (canGoBack) {
         router.history.back()

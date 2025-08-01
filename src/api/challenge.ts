@@ -97,31 +97,6 @@ export const challengeApi = {
         }>,
     )
   },
-  getChallengesParticipants: async (challengeId?: number | null) => {
-    return await fetch(`${API_URL}/admin/challenges/${challengeId}/participants`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(
-      (res) =>
-        res.json() as Promise<{
-          success: true
-          message: 'string'
-          result:
-            | {
-                hasNext: true
-                nextCursor: number
-                content: Participant[]
-              }
-            | {
-                hasNext: false
-                nextCursor: null
-                content: Participant[]
-              }
-        }>,
-    )
-  },
   getIndividualChallengeParticipantKeys: async (challengeId?: number | null) => {
     return await fetch(`${API_URL}/admin/challenges/${challengeId}/participants-memberkeys`, {
       method: 'GET',
@@ -186,6 +161,20 @@ export const challengeApi = {
         }>,
     )
   },
+  getChallenge: async (challengeId: number) => {
+    return await fetch(`${API_URL}/admin/challenges/${challengeId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then((res) => {
+      return res.json() as Promise<{
+        success: boolean
+        message: string
+        result: Challenge
+      }>
+    })
+  },
   createIndividualChallenge: async (params: {
     challengeName: string
     challengePoint: number
@@ -213,25 +202,36 @@ export const challengeApi = {
         }>,
     )
   },
-  getChallenge: async (challengeId: number) => {
-    return await fetch(`${API_URL}/admin/challenges/${challengeId}`, {
+  getChallengesParticipants: async (challengeId?: number | null) => {
+    return await fetch(`${API_URL}/admin/challenges/${challengeId}/participants`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-    }).then((res) => {
-      return res.json() as Promise<{
-        success: boolean
-        message: string
-        result: Challenge
-      }>
-    })
+    }).then(
+      (res) =>
+        res.json() as Promise<{
+          success: true
+          message: 'string'
+          result:
+            | {
+                hasNext: true
+                nextCursor: number
+                content: Participant[]
+              }
+            | {
+                hasNext: false
+                nextCursor: null
+                content: Participant[]
+              }
+        }>,
+    )
   },
 }
 
 const challengeKey = createQueryKeys('challenges', {
-  individual: () => ['individual'],
-  individualTitles: () => ['individual', 'titles'] as const,
+  individual: ['individual'],
+  individualTitles: ['individual', 'titles'],
   individualWithVerifyStatus: (
     params: Parameters<typeof challengeApi.getIndividualChallengeWithVerifyStatus>[0],
   ) => ['individual', 'with-verify-status', params] as const,
