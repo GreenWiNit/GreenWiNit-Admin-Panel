@@ -14,3 +14,17 @@ export const useIndividualChallengeTitles = () => {
     queryFn: challengeApi.getIndividualChallengeTitles,
   })
 }
+
+export const useChallenge = (challengeId: number) => {
+  return useQuery({
+    queryKey: challengeQueryKeys.challenges.challenge(challengeId).queryKey,
+    queryFn: () => challengeApi.getChallenge(challengeId),
+  })
+}
+
+export const useChallengesParticipants = (challengeId: number) => {
+  return useQuery({
+    queryKey: challengeQueryKeys.challenges.challengesParticipants(challengeId).queryKey,
+    queryFn: () => challengeApi.getChallengesParticipants(challengeId),
+  })
+}

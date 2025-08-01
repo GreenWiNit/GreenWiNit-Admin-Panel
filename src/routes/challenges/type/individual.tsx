@@ -2,7 +2,7 @@ import { useIndividualChallenges } from '@/hooks/useChallenge'
 import GlobalNavigation from '@/components/global-navigation'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import type { IndividualChallenge } from '@/api/challenge'
 import dayjs from 'dayjs'
@@ -16,6 +16,7 @@ export const Route = createFileRoute('/challenges/type/individual')({
 
 function RouteComponent() {
   const { data } = useIndividualChallenges()
+  const navigate = useNavigate()
 
   return (
     <PageContainer className="flex-row">
@@ -57,6 +58,17 @@ function RouteComponent() {
             columns={columns}
             checkboxSelection
             disableRowSelectionOnClick
+            onRowClick={(params) => {
+              navigate({
+                to: '/challenges/$id',
+                params: { id: params.row.id },
+              })
+            }}
+            sx={{
+              '& .MuiDataGrid-row': {
+                cursor: 'pointer',
+              },
+            }}
           />
         </div>
       </div>

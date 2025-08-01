@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChallengesIndexRouteImport } from './routes/challenges/index'
 import { Route as ChallengesCreateRouteImport } from './routes/challenges/create'
+import { Route as ChallengesIdIndexRouteImport } from './routes/challenges/$id/index'
 import { Route as ChallengesTypeTeamRouteImport } from './routes/challenges/type/team'
 import { Route as ChallengesTypeIndividualRouteImport } from './routes/challenges/type/individual'
 import { Route as ChallengesManagementVerifyStatusIndividualRouteImport } from './routes/challenges/management/verify-status/individual'
@@ -43,6 +44,11 @@ const ChallengesCreateRoute = ChallengesCreateRouteImport.update({
   path: '/challenges/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChallengesIdIndexRoute = ChallengesIdIndexRouteImport.update({
+  id: '/challenges/$id/',
+  path: '/challenges/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChallengesTypeTeamRoute = ChallengesTypeTeamRouteImport.update({
   id: '/challenges/type/team',
   path: '/challenges/type/team',
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/challenges': typeof ChallengesIndexRoute
   '/challenges/type/individual': typeof ChallengesTypeIndividualRoute
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
+  '/challenges/$id': typeof ChallengesIdIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
 }
 export interface FileRoutesByTo {
@@ -79,6 +86,7 @@ export interface FileRoutesByTo {
   '/challenges': typeof ChallengesIndexRoute
   '/challenges/type/individual': typeof ChallengesTypeIndividualRoute
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
+  '/challenges/$id': typeof ChallengesIdIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
 }
 export interface FileRoutesById {
@@ -90,6 +98,7 @@ export interface FileRoutesById {
   '/challenges/': typeof ChallengesIndexRoute
   '/challenges/type/individual': typeof ChallengesTypeIndividualRoute
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
+  '/challenges/$id/': typeof ChallengesIdIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
 }
 export interface FileRouteTypes {
@@ -102,6 +111,7 @@ export interface FileRouteTypes {
     | '/challenges'
     | '/challenges/type/individual'
     | '/challenges/type/team'
+    | '/challenges/$id'
     | '/challenges/management/verify-status/individual'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -112,6 +122,7 @@ export interface FileRouteTypes {
     | '/challenges'
     | '/challenges/type/individual'
     | '/challenges/type/team'
+    | '/challenges/$id'
     | '/challenges/management/verify-status/individual'
   id:
     | '__root__'
@@ -122,6 +133,7 @@ export interface FileRouteTypes {
     | '/challenges/'
     | '/challenges/type/individual'
     | '/challenges/type/team'
+    | '/challenges/$id/'
     | '/challenges/management/verify-status/individual'
   fileRoutesById: FileRoutesById
 }
@@ -133,6 +145,7 @@ export interface RootRouteChildren {
   ChallengesIndexRoute: typeof ChallengesIndexRoute
   ChallengesTypeIndividualRoute: typeof ChallengesTypeIndividualRoute
   ChallengesTypeTeamRoute: typeof ChallengesTypeTeamRoute
+  ChallengesIdIndexRoute: typeof ChallengesIdIndexRoute
   ChallengesManagementVerifyStatusIndividualRoute: typeof ChallengesManagementVerifyStatusIndividualRoute
 }
 
@@ -173,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChallengesCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/challenges/$id/': {
+      id: '/challenges/$id/'
+      path: '/challenges/$id'
+      fullPath: '/challenges/$id'
+      preLoaderRoute: typeof ChallengesIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/challenges/type/team': {
       id: '/challenges/type/team'
       path: '/challenges/type/team'
@@ -205,6 +225,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChallengesIndexRoute: ChallengesIndexRoute,
   ChallengesTypeIndividualRoute: ChallengesTypeIndividualRoute,
   ChallengesTypeTeamRoute: ChallengesTypeTeamRoute,
+  ChallengesIdIndexRoute: ChallengesIdIndexRoute,
   ChallengesManagementVerifyStatusIndividualRoute:
     ChallengesManagementVerifyStatusIndividualRoute,
 }

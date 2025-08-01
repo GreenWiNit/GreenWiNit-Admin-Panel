@@ -3,13 +3,16 @@ import { API_URL } from '@/constant/network'
 import { stringify } from '@/lib/query-string'
 
 export type DisplayStatus = 'VISIBLE' | 'HIDDEN'
-export interface IndividualChallenge {
+
+export interface Challenge {
   id: number
   /**
    * 'CH-P-20250726-132731-699N'
    */
   challengeCode: string
   challengeName: string
+  challengeStatus: 'PROCEEDING'
+  challengeType: 'PERSONAL' | 'TEAM'
   challengePoint: number
   /**
    * '2025-07-26T13:27:21.147'
@@ -20,11 +23,28 @@ export interface IndividualChallenge {
    */
   endDateTime: string
   displayStatus: DisplayStatus
+  challengeImage: string
+  /**
+   * 참여방법
+   */
+  challengeContent: string
   /**
    * '2025-07-26T13:27:21.147311'
    */
   createdDate: string
 }
+
+export type IndividualChallenge = Pick<
+  Challenge,
+  | 'id'
+  | 'challengeCode'
+  | 'challengeName'
+  | 'challengePoint'
+  | 'beginDateTime'
+  | 'endDateTime'
+  | 'displayStatus'
+  | 'createdDate'
+>
 
 export interface Participant {
   memberId: number
@@ -36,8 +56,8 @@ export interface Participant {
   /**
    * ex) T-20250109-143523-C8NQ
    */
-  teamCode: string
-  teamSelectionDate: string
+  teamCode: string | null
+  teamSelectionDate: string | null
   certificationCount: number
 }
 
@@ -77,7 +97,7 @@ export const challengeApi = {
         }>,
     )
   },
-  getIndividualChallengeParticipants: async (challengeId?: number | null) => {
+  getChallengesParticipants: async (challengeId?: number | null) => {
     return await fetch(`${API_URL}/admin/challenges/${challengeId}/participants`, {
       method: 'GET',
       headers: {
@@ -88,11 +108,17 @@ export const challengeApi = {
         res.json() as Promise<{
           success: true
           message: 'string'
-          result: {
-            hasNext: true
-            nextCursor: 12345
-            content: Array<Participant>
-          }
+          result:
+            | {
+                hasNext: true
+                nextCursor: number
+                content: Participant[]
+              }
+            | {
+                hasNext: false
+                nextCursor: null
+                content: Participant[]
+              }
         }>,
     )
   },
@@ -187,6 +213,20 @@ export const challengeApi = {
         }>,
     )
   },
+  getChallenge: async (challengeId: number) => {
+    return await fetch(`${API_URL}/admin/challenges/${challengeId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then((res) => {
+      return res.json() as Promise<{
+        success: boolean
+        message: string
+        result: Challenge
+      }>
+    })
+  },
 }
 
 const challengeKey = createQueryKeys('challenges', {
@@ -195,10 +235,10 @@ const challengeKey = createQueryKeys('challenges', {
   individualWithVerifyStatus: (
     params: Parameters<typeof challengeApi.getIndividualChallengeWithVerifyStatus>[0],
   ) => ['individual', 'with-verify-status', params] as const,
-  individualParticipants: (challengeId?: number) =>
-    ['individual', challengeId, 'participants'] as const,
   individualParticipantKeys: (challengeId?: number) =>
     ['individual', challengeId, 'participants', 'keys'] as const,
+  challenge: (challengeId: number) => [challengeId] as const,
+  challengesParticipants: (challengeId?: number) => [challengeId, 'participants'] as const,
 })
 
 export const challengeQueryKeys = mergeQueryKeys(challengeKey)

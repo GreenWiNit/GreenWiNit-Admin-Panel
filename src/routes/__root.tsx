@@ -27,6 +27,12 @@ export const Route = createRootRoute({
       <TanStackRouterDevtools />
     </QueryClientProvider>
   ),
+  notFoundComponent: () => {
+    return <p>This setting page doesn&apos;t exist!</p>
+  },
+  errorComponent: ({ error }) => {
+    return <div>Error: {error.message}</div>
+  },
 })
 
 fetchIntercept.register({
