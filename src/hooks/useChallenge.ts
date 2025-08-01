@@ -15,6 +15,13 @@ export const useIndividualChallengeTitles = () => {
   })
 }
 
+export const useTeamChallenges = (cursor?: number | null) => {
+  return useQuery({
+    queryKey: challengeQueryKeys.challenges.teamChallenges(cursor).queryKey,
+    queryFn: () => challengeApi.getTeamChallenges(cursor),
+  })
+}
+
 export const useChallenge = (challengeId: number) => {
   return useQuery({
     queryKey: challengeQueryKeys.challenges.challenge(challengeId).queryKey,

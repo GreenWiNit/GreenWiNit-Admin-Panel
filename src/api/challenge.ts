@@ -34,7 +34,7 @@ export interface Challenge {
   createdDate: string
 }
 
-export type IndividualChallenge = Pick<
+export type GetIndividualChallengesResponseElement = Pick<
   Challenge,
   | 'id'
   | 'challengeCode'
@@ -45,6 +45,12 @@ export type IndividualChallenge = Pick<
   | 'displayStatus'
   | 'createdDate'
 >
+
+export type GetTeamChallengesResponseElement = Challenge & {
+  participantCount: number
+  currentGroupCount: number
+  maxGroupCount: number
+}
 
 export interface Participant {
   memberId: number
@@ -91,7 +97,7 @@ export const challengeApi = {
           result: {
             hasNext: boolean
             nextCursor: string | null
-            content: Array<IndividualChallenge>
+            content: Array<GetIndividualChallengesResponseElement>
           }
           success: boolean
         }>,
@@ -160,6 +166,30 @@ export const challengeApi = {
           }
         }>,
     )
+  },
+  getTeamChallenges: async (cursor?: number | null) => {
+    return await fetch(`${API_URL}/admin/challenges/team?${stringify({ cursor })}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then((res) => {
+      return res.json() as Promise<{
+        success: boolean
+        message: string
+        result:
+          | {
+              hasNext: true
+              nextCursor: number
+              content: GetTeamChallengesResponseElement[]
+            }
+          | {
+              hasNext: false
+              nextCursor: null
+              content: GetTeamChallengesResponseElement[]
+            }
+      }>
+    })
   },
   getChallenge: async (challengeId: number) => {
     return await fetch(`${API_URL}/admin/challenges/${challengeId}`, {
@@ -237,6 +267,8 @@ const challengeKey = createQueryKeys('challenges', {
   ) => ['individual', 'with-verify-status', params] as const,
   individualParticipantKeys: (challengeId?: number) =>
     ['individual', challengeId, 'participants', 'keys'] as const,
+  team: ['team'],
+  teamChallenges: (cursor?: number | null) => ['team', cursor ?? undefined] as const,
   challenge: (challengeId: number) => [challengeId] as const,
   challengesParticipants: (challengeId?: number) => [challengeId, 'participants'] as const,
 })

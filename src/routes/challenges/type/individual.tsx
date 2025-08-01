@@ -4,17 +4,17 @@ import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
-import type { IndividualChallenge } from '@/api/challenge'
+import type { GetIndividualChallengesResponseElement } from '@/api/challenge'
 import dayjs from 'dayjs'
 import { Button } from '@/components/shadcn/button'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@/components/shadcn/separator'
 
 export const Route = createFileRoute('/challenges/type/individual')({
-  component: RouteComponent,
+  component: IndividualChallenges,
 })
 
-function RouteComponent() {
+function IndividualChallenges() {
   const { data } = useIndividualChallenges()
   const navigate = useNavigate()
 
@@ -77,7 +77,10 @@ function RouteComponent() {
 }
 
 const columns: GridColDef<
-  Omit<IndividualChallenge, 'challengePoint'> & { period: string; challengePoint: string }
+  Omit<GetIndividualChallengesResponseElement, 'challengePoint'> & {
+    period: string
+    challengePoint: string
+  }
 >[] = [
   { field: 'challengeCode', headerName: '챌린지 코드', width: 200 },
   {
