@@ -83,6 +83,21 @@ export interface IndividualChallengeWithVerifyStatus {
   status: VerifyStatus
 }
 
+export interface TeamChallengeWithVerifyStatus {
+  id: number
+  /**
+   * ex) google foo
+   * @CHECK swagger에서는 memberId
+   */
+  memberKey: string
+  memberNickname: string
+  memberEmail: string
+  certificationImageUrl: string
+  certificationReview: string
+  certifiedDate: string
+  status: VerifyStatus
+}
+
 export const challengeApi = {
   getIndividualChallenges: async () => {
     return await fetch(`${API_URL}/admin/challenges/personal`, {
@@ -191,6 +206,78 @@ export const challengeApi = {
       }>
     })
   },
+  getTeamChallengeTitles: async () => {
+    return await fetch(`${API_URL}/admin/challenges/team-titles`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(
+      (res) =>
+        res.json() as Promise<{
+          success: true
+          message: 'string'
+          result: Array<{
+            challengeId: number
+            challengeName: string
+            /**
+             * @deprecated 의미없으니 사용하지 말것
+             */
+            challengeType: 'TEAM'
+          }>
+        }>,
+    )
+  },
+  getTeamChallengeTeams: async (challengeId: number) => {
+    return await fetch(`${API_URL}/admin/challenges/${challengeId}/group-codes`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((res) => {
+        return res.json() as Promise<{
+          success: boolean
+          message: string
+          result: Array<{
+            groupCode: string
+            groupName: string
+            participantCount: number
+          }>
+        }>
+      })
+      .then((res) => {
+        return res.result.map((item) => ({
+          ...item,
+          teamCode: item.groupCode,
+          teamName: item.groupName,
+        }))
+      })
+  },
+  getTeamChallengeWithVerifyStatus: async (params: {
+    callengeId: number | null
+    teamCode: string | null
+    statuses: VerifyStatus[] | readonly VerifyStatus[] | null
+    cursor: number | null
+  }) => {
+    return await fetch(`${API_URL}/admin/team-certifications?${stringify(params)}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(
+      (res) =>
+        res.json() as Promise<{
+          success: boolean
+          message: string
+          result: {
+            hasNext: boolean
+            nextCursor: string | null
+            content: Array<TeamChallengeWithVerifyStatus>
+          }
+        }>,
+    )
+  },
   getChallenge: async (challengeId: number) => {
     return await fetch(`${API_URL}/admin/challenges/${challengeId}`, {
       method: 'GET',
@@ -269,6 +356,11 @@ const challengeKey = createQueryKeys('challenges', {
     ['individual', challengeId, 'participants', 'keys'] as const,
   team: ['team'],
   teamChallenges: (cursor?: number | null) => ['team', cursor ?? undefined] as const,
+  teamTitles: ['team', 'titles'] as const,
+  teamChallengeTeams: (challengeId?: number) => ['team', challengeId, 'teams'] as const,
+  teamChallengeWithVerifyStatus: (
+    params: Parameters<typeof challengeApi.getTeamChallengeWithVerifyStatus>[0],
+  ) => ['team', 'with-verify-status', params] as const,
   challenge: (challengeId: number) => [challengeId] as const,
   challengesParticipants: (challengeId?: number) => [challengeId, 'participants'] as const,
 })

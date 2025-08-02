@@ -27,8 +27,7 @@ function TeamChallenges() {
         <Separator />
         <div className="flex justify-between">
           <Button className="w-fit" asChild>
-            {/* @TODO: toggle it */}
-            {/* <Link to="/challenges/management/verify-status/team">인증확인</Link> */}
+            <Link to="/challenges/management/verify-status/team">인증확인</Link>
           </Button>
           <div className="flex gap-2">
             <Button className="w-fit">

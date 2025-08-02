@@ -17,6 +17,7 @@ import { Route as ChallengesCreateRouteImport } from './routes/challenges/create
 import { Route as ChallengesIdIndexRouteImport } from './routes/challenges/$id/index'
 import { Route as ChallengesTypeTeamRouteImport } from './routes/challenges/type/team'
 import { Route as ChallengesTypeIndividualRouteImport } from './routes/challenges/type/individual'
+import { Route as ChallengesManagementVerifyStatusTeamRouteImport } from './routes/challenges/management/verify-status/team'
 import { Route as ChallengesManagementVerifyStatusIndividualRouteImport } from './routes/challenges/management/verify-status/individual'
 
 const LoginRoute = LoginRouteImport.update({
@@ -60,6 +61,12 @@ const ChallengesTypeIndividualRoute =
     path: '/challenges/type/individual',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ChallengesManagementVerifyStatusTeamRoute =
+  ChallengesManagementVerifyStatusTeamRouteImport.update({
+    id: '/challenges/management/verify-status/team',
+    path: '/challenges/management/verify-status/team',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ChallengesManagementVerifyStatusIndividualRoute =
   ChallengesManagementVerifyStatusIndividualRouteImport.update({
     id: '/challenges/management/verify-status/individual',
@@ -77,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
   '/challenges/$id': typeof ChallengesIdIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
+  '/challenges/management/verify-status/team': typeof ChallengesManagementVerifyStatusTeamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -88,6 +96,7 @@ export interface FileRoutesByTo {
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
   '/challenges/$id': typeof ChallengesIdIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
+  '/challenges/management/verify-status/team': typeof ChallengesManagementVerifyStatusTeamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -100,6 +109,7 @@ export interface FileRoutesById {
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
   '/challenges/$id/': typeof ChallengesIdIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
+  '/challenges/management/verify-status/team': typeof ChallengesManagementVerifyStatusTeamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
     | '/challenges/type/team'
     | '/challenges/$id'
     | '/challenges/management/verify-status/individual'
+    | '/challenges/management/verify-status/team'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -124,6 +135,7 @@ export interface FileRouteTypes {
     | '/challenges/type/team'
     | '/challenges/$id'
     | '/challenges/management/verify-status/individual'
+    | '/challenges/management/verify-status/team'
   id:
     | '__root__'
     | '/'
@@ -135,6 +147,7 @@ export interface FileRouteTypes {
     | '/challenges/type/team'
     | '/challenges/$id/'
     | '/challenges/management/verify-status/individual'
+    | '/challenges/management/verify-status/team'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -147,6 +160,7 @@ export interface RootRouteChildren {
   ChallengesTypeTeamRoute: typeof ChallengesTypeTeamRoute
   ChallengesIdIndexRoute: typeof ChallengesIdIndexRoute
   ChallengesManagementVerifyStatusIndividualRoute: typeof ChallengesManagementVerifyStatusIndividualRoute
+  ChallengesManagementVerifyStatusTeamRoute: typeof ChallengesManagementVerifyStatusTeamRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -207,6 +221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChallengesTypeIndividualRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/challenges/management/verify-status/team': {
+      id: '/challenges/management/verify-status/team'
+      path: '/challenges/management/verify-status/team'
+      fullPath: '/challenges/management/verify-status/team'
+      preLoaderRoute: typeof ChallengesManagementVerifyStatusTeamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/challenges/management/verify-status/individual': {
       id: '/challenges/management/verify-status/individual'
       path: '/challenges/management/verify-status/individual'
@@ -228,6 +249,8 @@ const rootRouteChildren: RootRouteChildren = {
   ChallengesIdIndexRoute: ChallengesIdIndexRoute,
   ChallengesManagementVerifyStatusIndividualRoute:
     ChallengesManagementVerifyStatusIndividualRoute,
+  ChallengesManagementVerifyStatusTeamRoute:
+    ChallengesManagementVerifyStatusTeamRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
