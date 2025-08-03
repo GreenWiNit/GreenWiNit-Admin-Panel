@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/shadcn/select'
 import { Separator } from '@/components/shadcn/separator'
-import { useTeamChallengeTeams, useTeamChallengeTitles } from '@/hooks/useChallenge'
+import { useTeamChallengeTeams, useTeamChallengeTitles } from '@/hooks/use-challenge'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
