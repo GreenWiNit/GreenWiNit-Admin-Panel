@@ -188,6 +188,7 @@ const columns: GridColDef<IndividualChallengeWithVerifyStatus>[] = [
     width: 300,
   },
   { field: 'challengeCode', headerName: '챌린지 코드', width: 200 },
+  { field: 'teamCode', headerName: '팀 코드', width: 200 },
   {
     field: 'memberKey',
     headerName: 'MemberKey',
@@ -198,6 +199,7 @@ const columns: GridColDef<IndividualChallengeWithVerifyStatus>[] = [
     headerName: '인증하기 날짜',
     width: 150,
   },
+  // @TODO define cell component, touchable and open new window when clicking
   {
     field: 'certificationImageUrl',
     headerName: '인증 이미지',
@@ -210,7 +212,7 @@ const columns: GridColDef<IndividualChallengeWithVerifyStatus>[] = [
   },
   {
     field: 'status',
-    headerName: '포인트',
+    headerName: '포인트 지급 여부',
     width: 150,
   },
 ]

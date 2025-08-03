@@ -45,16 +45,20 @@ function ChallengeDetail() {
         headerName: '참여한 날짜',
         flex: 1,
       },
-      {
-        field: 'certificationCount',
-        headerName: '인증횟수',
-        flex: 1,
-      },
+      ...(!isTeamChallenge
+        ? [
+            {
+              field: 'certificationCount',
+              headerName: '인증횟수',
+              flex: 1,
+            },
+          ]
+        : []),
       ...(isTeamChallenge
         ? [
             {
               field: 'teamSelectionDate',
-              headerName: '팀 선택 및 등록날짜',
+              headerName: '팀 선택 및 등록 날짜',
               flex: 1,
             },
           ]

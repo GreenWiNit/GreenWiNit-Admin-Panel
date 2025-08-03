@@ -210,6 +210,7 @@ const columns: GridColDef<IndividualChallengeWithVerifyStatus>[] = [
     headerName: '인증하기 날짜',
     width: 150,
   },
+  // @TODO define cell component, touchable and open new window when clicking
   {
     field: 'certificationImageUrl',
     headerName: '인증 이미지',

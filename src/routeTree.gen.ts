@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChallengesIndexRouteImport } from './routes/challenges/index'
+import { Route as ChallengesTeamsRouteImport } from './routes/challenges/teams'
 import { Route as ChallengesCreateRouteImport } from './routes/challenges/create'
 import { Route as ChallengesIdIndexRouteImport } from './routes/challenges/$id/index'
 import { Route as ChallengesTypeTeamRouteImport } from './routes/challenges/type/team'
@@ -38,6 +39,11 @@ const IndexRoute = IndexRouteImport.update({
 const ChallengesIndexRoute = ChallengesIndexRouteImport.update({
   id: '/challenges/',
   path: '/challenges/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChallengesTeamsRoute = ChallengesTeamsRouteImport.update({
+  id: '/challenges/teams',
+  path: '/challenges/teams',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChallengesCreateRoute = ChallengesCreateRouteImport.update({
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/challenges/create': typeof ChallengesCreateRoute
+  '/challenges/teams': typeof ChallengesTeamsRoute
   '/challenges': typeof ChallengesIndexRoute
   '/challenges/type/individual': typeof ChallengesTypeIndividualRoute
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/challenges/create': typeof ChallengesCreateRoute
+  '/challenges/teams': typeof ChallengesTeamsRoute
   '/challenges': typeof ChallengesIndexRoute
   '/challenges/type/individual': typeof ChallengesTypeIndividualRoute
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/challenges/create': typeof ChallengesCreateRoute
+  '/challenges/teams': typeof ChallengesTeamsRoute
   '/challenges/': typeof ChallengesIndexRoute
   '/challenges/type/individual': typeof ChallengesTypeIndividualRoute
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/challenges/create'
+    | '/challenges/teams'
     | '/challenges'
     | '/challenges/type/individual'
     | '/challenges/type/team'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/challenges/create'
+    | '/challenges/teams'
     | '/challenges'
     | '/challenges/type/individual'
     | '/challenges/type/team'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/challenges/create'
+    | '/challenges/teams'
     | '/challenges/'
     | '/challenges/type/individual'
     | '/challenges/type/team'
@@ -155,6 +167,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   LoginRoute: typeof LoginRoute
   ChallengesCreateRoute: typeof ChallengesCreateRoute
+  ChallengesTeamsRoute: typeof ChallengesTeamsRoute
   ChallengesIndexRoute: typeof ChallengesIndexRoute
   ChallengesTypeIndividualRoute: typeof ChallengesTypeIndividualRoute
   ChallengesTypeTeamRoute: typeof ChallengesTypeTeamRoute
@@ -191,6 +204,13 @@ declare module '@tanstack/react-router' {
       path: '/challenges'
       fullPath: '/challenges'
       preLoaderRoute: typeof ChallengesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/challenges/teams': {
+      id: '/challenges/teams'
+      path: '/challenges/teams'
+      fullPath: '/challenges/teams'
+      preLoaderRoute: typeof ChallengesTeamsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/challenges/create': {
@@ -243,6 +263,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   LoginRoute: LoginRoute,
   ChallengesCreateRoute: ChallengesCreateRoute,
+  ChallengesTeamsRoute: ChallengesTeamsRoute,
   ChallengesIndexRoute: ChallengesIndexRoute,
   ChallengesTypeIndividualRoute: ChallengesTypeIndividualRoute,
   ChallengesTypeTeamRoute: ChallengesTypeTeamRoute,
