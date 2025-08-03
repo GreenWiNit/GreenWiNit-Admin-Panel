@@ -5,7 +5,7 @@ import PageTitle from '@/components/page-title'
 import { Button } from '@/components/shadcn/button'
 import { Separator } from '@/components/shadcn/separator'
 import { DataGrid, type GridColDef, type GridRowSelectionModel } from '@mui/x-data-grid'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
@@ -22,10 +22,22 @@ function Posts() {
     queryFn: () => postApi.getPosts(page, size),
   })
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel | null>(null)
+  const queryClient = useQueryClient()
 
+  const { mutate: deletePost } = useMutation({
+    mutationFn: (id: string) => postApi.deletePost(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: postsQueryKeys.getPosts(page, size).queryKey })
+    },
+  })
   const handleDelete = () => {
-    if (!selectedRows) return
-    console.log(selectedRows)
+    console.log('handleDelete', selectedRows)
+    if (!selectedRows) {
+      return
+    }
+    for (const id of selectedRows.ids) {
+      deletePost(id.toString())
+    }
   }
 
   return (
@@ -37,12 +49,19 @@ function Posts() {
         <div className="flex w-full flex-col gap-4">
           <div className="flex justify-between self-end">
             <div className="flex gap-2">
-              <Button className="w-fit">
+              <Button
+                className="w-fit"
+                onClick={() => {
+                  postApi.downloadExcel()
+                }}
+              >
                 <FilePresentIcon />
                 엑셀 받기
               </Button>
               <Button className="w-fit" asChild>
-                <Link to="/posts/upsert">생성</Link>
+                <Link to="/posts/upsert" search={{ id: undefined }}>
+                  생성
+                </Link>
               </Button>
               <Button className="w-fit" onClick={handleDelete}>
                 삭제
@@ -50,6 +69,7 @@ function Posts() {
             </div>
           </div>
           <DataGrid
+            checkboxSelection
             columns={columns}
             rows={
               data?.result.content?.map(
@@ -65,7 +85,6 @@ function Posts() {
               setPage(model.page)
               setSize(model.pageSize)
             }}
-            rowSelection
             onRowSelectionModelChange={(model) => {
               setSelectedRows(model)
             }}

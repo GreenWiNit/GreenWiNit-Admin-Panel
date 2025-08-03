@@ -72,6 +72,35 @@ export const postApi = {
       body: JSON.stringify(data),
     })
   },
+  downloadExcel: async () => {
+    return await fetch(`${API_URL}/admin/info/excel`, {
+      method: 'GET',
+    })
+      .then((res) => {
+        const header = res.headers.get('Content-Disposition')
+        const parts = header?.split(';')
+        const filename = parts?.[1]?.split('=')?.[1]?.replaceAll('"', '') ?? ''
+
+        return [res.blob(), filename] as const
+      })
+      .then(async ([blobPromise, filename]) => {
+        const blob = await blobPromise
+        if (blob != null) {
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = filename
+          document.body.appendChild(a)
+          a.click()
+          a.remove()
+        }
+      })
+  },
+  deletePost: async (id: string) => {
+    return await fetch(`${API_URL}/admin/info/${id}`, {
+      method: 'DELETE',
+    })
+  },
 }
 
 export const postsQueryKeys = createQueryKeys('posts', {

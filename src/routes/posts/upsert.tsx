@@ -1,6 +1,7 @@
 import { postApi, postsQueryKeys } from '@/api/post'
 import DatePickerSingle from '@/components/date-picker-single'
 import GlobalNavigation from '@/components/global-navigation'
+import InputImage from '@/components/input-image'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { Button } from '@/components/shadcn/button'
@@ -39,7 +40,7 @@ function UpsertPost() {
     enabled: !!id,
   })
   const post = data?.result
-  const { register, handleSubmit, control } = useForm<FormState>({
+  const { register, handleSubmit, control, setValue } = useForm<FormState>({
     defaultValues: {
       title: post?.title ?? '',
       content: post?.content ?? '',
@@ -105,7 +106,14 @@ function UpsertPost() {
               <tr>
                 <th>이미지</th>
                 <td colSpan={3}>
-                  <Input {...register('imageUrl')} type="file" />
+                  <InputImage
+                    {...register('imageUrl')}
+                    purpose="profile"
+                    value={post?.imageurl ?? null}
+                    onChange={(src) => {
+                      setValue('imageUrl', src ?? '')
+                    }}
+                  />
                 </td>
               </tr>
               <tr>
