@@ -12,6 +12,9 @@ export const Route = createFileRoute('/')({
         to: '/login',
       })
     }
+    throw redirect({
+      to: '/challenges',
+    })
   },
 })
 

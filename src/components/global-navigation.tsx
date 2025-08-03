@@ -16,6 +16,7 @@ const GlobalNavigation = () => {
             <NavigationItem to="/challenges/type/team">&gt; 팀 챌린지</NavigationItem>
           </NavigationGroup>
         )}
+        <NavigationItem to="/posts">정보공유관리</NavigationItem>
       </NavigationGroup>
     </nav>
   )
