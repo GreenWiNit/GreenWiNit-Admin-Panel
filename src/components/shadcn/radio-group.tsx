@@ -21,46 +21,13 @@ function RadioGroupItem({
   className,
   ...props
 }: React.ComponentProps<typeof RadioGroupPrimitive.Item>) {
-  const itemRef = React.useRef<HTMLButtonElement>(null)
-
-  // aria-hidden 문제 해결을 위한 useEffect
-  React.useEffect(() => {
-    const element = itemRef.current
-    if (element) {
-      // aria-hidden 속성이 설정되면 제거
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
-            const target = mutation.target as HTMLElement
-            if (target.getAttribute('aria-hidden') === 'true') {
-              target.removeAttribute('aria-hidden')
-            }
-          }
-        })
-      })
-
-      observer.observe(element, {
-        attributes: true,
-        attributeFilter: ['aria-hidden'],
-      })
-
-      return () => observer.disconnect()
-    }
-  }, [])
-
   return (
     <RadioGroupPrimitive.Item
-      ref={itemRef}
       data-slot="radio-group-item"
       className={cn(
         'border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 aspect-square size-4 shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50',
-        // aria-hidden 문제 해결을 위한 추가 스타일
-        'focus-visible:outline-ring focus-visible:outline-2 focus-visible:outline-offset-2',
         className,
       )}
-      // 접근성 개선을 위한 추가 속성
-      tabIndex={0}
-      role="radio"
       {...props}
     >
       <RadioGroupPrimitive.Indicator
