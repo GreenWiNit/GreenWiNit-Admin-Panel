@@ -292,7 +292,7 @@ export const challengeApi = {
       }>
     })
   },
-  createIndividualChallenge: async (params: {
+  createChallenge: async (params: {
     challengeName: string
     challengePoint: number
     challengeType: 'PERSONAL' | 'TEAM'
@@ -311,12 +311,20 @@ export const challengeApi = {
       },
     }).then(
       (res) =>
-        res.json() as Promise<{
-          success: boolean
-          message: string
-          /** inserted id */
-          result?: number
-        }>,
+        res.json() as Promise<
+          | {
+              success: true
+              message: string
+              /** inserted id */
+              result: number
+            }
+          | {
+              success: false
+              message: string
+              /** inserted id */
+              result: null | 0
+            }
+        >,
     )
   },
   getChallengesParticipants: async (challengeId?: number | null) => {

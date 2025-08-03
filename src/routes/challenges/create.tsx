@@ -57,11 +57,18 @@ function RouteComponent() {
   const queryClient = useQueryClient()
   const router = useRouter()
   const canGoBack = useCanGoBack()
-  const { mutate: createIndividualChallenge } = useMutation({
-    mutationFn: challengeApi.createIndividualChallenge,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+  const { mutate: createChallenge } = useMutation({
+    mutationFn: challengeApi.createChallenge,
+    onSuccess: async (result) => {
+      if (!result.success) {
+        throw new Error(result.message)
+      }
+
+      await queryClient.invalidateQueries({
         queryKey: challengeQueryKeys.challenges.individual.queryKey,
+      })
+      await queryClient.invalidateQueries({
+        queryKey: challengeQueryKeys.challenges.challenge(result.result).queryKey,
       })
       if (canGoBack) {
         router.history.back()
@@ -78,7 +85,7 @@ function RouteComponent() {
       form.setError('period', { message: '진행기간을 선택해주세요.' })
       return
     }
-    createIndividualChallenge({
+    createChallenge({
       challengeName: data.title,
       challengePoint: data.point,
       challengeType: data.type === 'individual' ? 'PERSONAL' : 'TEAM',
