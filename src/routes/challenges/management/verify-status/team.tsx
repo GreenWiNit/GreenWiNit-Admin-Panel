@@ -17,54 +17,45 @@ import {
   SelectValue,
 } from '@/components/shadcn/select'
 import { Separator } from '@/components/shadcn/separator'
-import { useIndividualChallengeTitles } from '@/hooks/use-challenge'
+import { useTeamChallengeTeams, useTeamChallengeTitles } from '@/hooks/use-challenge'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 
-export const Route = createFileRoute('/challenges/management/verify-status/individual')({
-  component: RouteComponent,
+export const Route = createFileRoute('/challenges/management/verify-status/team')({
+  component: TeamVerifyStatus,
 })
 
-function RouteComponent() {
-  const { data: challenges } = useIndividualChallengeTitles()
+function TeamVerifyStatus() {
+  const { data: challenges } = useTeamChallengeTitles()
   const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(null)
   const selectedChallengeIdNumber = selectedChallengeId ? Number(selectedChallengeId) : null
-  const { data: participants } = useQuery({
-    queryKey: challengeQueryKeys.challenges.individualParticipantKeys(
-      selectedChallengeIdNumber ?? undefined,
-    ).queryKey,
-    queryFn: () => challengeApi.getIndividualChallengeParticipantKeys(selectedChallengeIdNumber),
-    select: (data) => data.result,
-    enabled: !!selectedChallengeId,
-  })
-  const [selectedParticipantId, setSelectedParticipantId] = useState<string | null>(null)
+  const { data: teams } = useTeamChallengeTeams(selectedChallengeIdNumber ?? undefined)
+  const [selectedTeamCode, setTeamCode] = useState<string | null>(null)
   const queryClient = useQueryClient()
 
   const [selectedStatuses, setSelectedStatuses] = useState<VerifyStatus[]>([])
   const searchOptions = useMemo(() => {
-    const queryListMemberKey =
-      selectedParticipantId == null || selectedParticipantId === 'all'
-        ? null
-        : Number(selectedParticipantId)
+    const queryListTeamCode =
+      selectedTeamCode == null || selectedTeamCode === 'all' ? null : selectedTeamCode
     return {
       callengeId: selectedChallengeIdNumber,
-      memberKey: queryListMemberKey,
+      teamCode: queryListTeamCode,
       statuses: selectedStatuses,
       cursor: 0,
     } as const
-  }, [selectedChallengeIdNumber, selectedParticipantId, selectedStatuses])
+  }, [selectedChallengeIdNumber, selectedTeamCode, selectedStatuses])
 
   const { data: verifyStatuses } = useQuery({
-    queryKey: challengeQueryKeys.challenges.individualWithVerifyStatus(searchOptions).queryKey,
-    queryFn: () => challengeApi.getIndividualChallengeWithVerifyStatus(searchOptions),
+    queryKey: challengeQueryKeys.challenges.teamChallengeWithVerifyStatus(searchOptions).queryKey,
+    queryFn: () => challengeApi.getTeamChallengeWithVerifyStatus(searchOptions),
   })
 
   return (
     <PageContainer>
       <div className="flex w-full flex-col gap-4">
-        <PageTitle className="self-start">개인 챌린지 인증확인</PageTitle>
+        <PageTitle className="self-start">팀 챌린지 인증확인</PageTitle>
         <Separator />
         <form
           className="flex flex-row gap-4"
@@ -72,20 +63,20 @@ function RouteComponent() {
             e.preventDefault()
             queryClient.invalidateQueries({
               queryKey:
-                challengeQueryKeys.challenges.individualWithVerifyStatus(searchOptions).queryKey,
+                challengeQueryKeys.challenges.teamChallengeWithVerifyStatus(searchOptions).queryKey,
             })
           }}
         >
           <table className="table-auto border-collapse border border-amber-500">
             <tbody className="[&_td,th]:border [&_td,th]:px-1 [&_td,th]:py-2 [&_td,th]:text-sm [&_th]:text-center">
               <tr>
-                <th>개인 챌린지 제목</th>
+                <th>팀 챌린지 제목</th>
                 <td>
                   <Select
                     value={selectedChallengeId ?? ''}
                     onValueChange={(nextValue) => {
                       setSelectedChallengeId(nextValue)
-                      setSelectedParticipantId(null)
+                      setTeamCode(null)
                     }}
                   >
                     <SelectTrigger className="w-60 truncate">
@@ -108,12 +99,9 @@ function RouteComponent() {
                 </td>
               </tr>
               <tr>
-                <th>참여자 목록</th>
+                <th>팀 코드</th>
                 <td>
-                  <Select
-                    value={selectedParticipantId ?? ''}
-                    onValueChange={setSelectedParticipantId}
-                  >
+                  <Select value={selectedTeamCode ?? ''} onValueChange={setTeamCode}>
                     <SelectTrigger className="w-60 truncate text-left">
                       <SelectValue placeholder="전체" />
                     </SelectTrigger>
@@ -121,9 +109,9 @@ function RouteComponent() {
                       <SelectItem value="all">
                         <span className="w-48 truncate">전체</span>
                       </SelectItem>
-                      {participants?.map((participant) => (
-                        <SelectItem key={participant.memberKey} value={participant.memberKey}>
-                          <span className="w-48 truncate">{participant.nickname}</span>
+                      {teams?.map((team) => (
+                        <SelectItem key={team.teamCode} value={team.teamCode}>
+                          <span className="w-48 truncate">{team.teamName}</span>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -200,6 +188,7 @@ const columns: GridColDef<IndividualChallengeWithVerifyStatus>[] = [
     width: 300,
   },
   { field: 'challengeCode', headerName: '챌린지 코드', width: 200 },
+  { field: 'teamCode', headerName: '팀 코드', width: 200 },
   {
     field: 'memberKey',
     headerName: 'MemberKey',
@@ -223,7 +212,7 @@ const columns: GridColDef<IndividualChallengeWithVerifyStatus>[] = [
   },
   {
     field: 'status',
-    headerName: '포인트',
+    headerName: '포인트 지급 여부',
     width: 150,
   },
 ]

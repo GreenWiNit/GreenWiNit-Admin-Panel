@@ -10,23 +10,18 @@ import { initHistoryAndLocation } from '@/lib/utils'
 const queryClient = new QueryClient()
 
 export const Route = createRootRoute({
-  beforeLoad: async () => {
-    if (import.meta.env.MODE === 'production') {
-      return
-    }
-
-    const { worker } = await import('../mocks/browser')
-
-    // `worker.start()` returns a Promise that resolves
-    // once the Service Worker is up and ready to intercept requests.
-    return worker.start()
-  },
   component: () => (
     <QueryClientProvider client={queryClient}>
       <Outlet />
       <TanStackRouterDevtools />
     </QueryClientProvider>
   ),
+  notFoundComponent: () => {
+    return <p>This setting page doesn&apos;t exist!</p>
+  },
+  errorComponent: ({ error }) => {
+    return <div>Error: {error.message}</div>
+  },
 })
 
 fetchIntercept.register({
@@ -60,7 +55,7 @@ fetchIntercept.register({
       if (response.status >= 400 && response.status < 500) {
         if (response.headers.get('content-type')?.includes('json')) {
           response.json().then((body) => {
-            if (body.message === '접근이 거부되었습니다.') {
+            if (body.message === '접근이 거부되었습니다.' || body.message.includes('JWT 토큰')) {
               userStore.getState().setAccessToken(null)
               initHistoryAndLocation()
             }

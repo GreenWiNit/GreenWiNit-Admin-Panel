@@ -1,24 +1,25 @@
-import { useIndividualChallenges } from '@/hooks/useChallenge'
+import { useIndividualChallenges } from '@/hooks/use-challenge'
 import GlobalNavigation from '@/components/global-navigation'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
-import type { IndividualChallenge } from '@/api/challenge'
+import type { GetIndividualChallengesResponseElement } from '@/api/challenge'
 import dayjs from 'dayjs'
 import { Button } from '@/components/shadcn/button'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@/components/shadcn/separator'
 
 export const Route = createFileRoute('/challenges/type/individual')({
-  component: RouteComponent,
+  component: IndividualChallenges,
 })
 
-function RouteComponent() {
+function IndividualChallenges() {
   const { data } = useIndividualChallenges()
+  const navigate = useNavigate()
 
   return (
-    <PageContainer>
+    <PageContainer className="flex-row">
       <GlobalNavigation />
       <div className="flex flex-col gap-4">
         <PageTitle className="self-start">개인 챌린지 목록</PageTitle>
@@ -32,7 +33,9 @@ function RouteComponent() {
               <FilePresentIcon />
               엑셀 받기
             </Button>
-            <Button className="w-fit">생성</Button>
+            <Button className="w-fit" asChild>
+              <Link to="/challenges/create">생성</Link>
+            </Button>
           </div>
         </div>
         <div className="flex w-full">
@@ -55,6 +58,17 @@ function RouteComponent() {
             columns={columns}
             checkboxSelection
             disableRowSelectionOnClick
+            onRowClick={(params) => {
+              navigate({
+                to: '/challenges/$id',
+                params: { id: params.row.id },
+              })
+            }}
+            sx={{
+              '& .MuiDataGrid-row': {
+                cursor: 'pointer',
+              },
+            }}
           />
         </div>
       </div>
@@ -63,7 +77,10 @@ function RouteComponent() {
 }
 
 const columns: GridColDef<
-  Omit<IndividualChallenge, 'challengePoint'> & { period: string; challengePoint: string }
+  Omit<GetIndividualChallengesResponseElement, 'challengePoint'> & {
+    period: string
+    challengePoint: string
+  }
 >[] = [
   { field: 'challengeCode', headerName: '챌린지 코드', width: 200 },
   {

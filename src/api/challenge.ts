@@ -2,13 +2,17 @@ import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from '@/constant/network'
 import { stringify } from '@/lib/query-string'
 
-export interface IndividualChallenge {
+export type DisplayStatus = 'VISIBLE' | 'HIDDEN'
+
+export interface Challenge {
   id: number
   /**
    * 'CH-P-20250726-132731-699N'
    */
   challengeCode: string
   challengeName: string
+  challengeStatus: 'PROCEEDING'
+  challengeType: 'PERSONAL' | 'TEAM'
   challengePoint: number
   /**
    * '2025-07-26T13:27:21.147'
@@ -18,11 +22,34 @@ export interface IndividualChallenge {
    * '2025-07-26T13:27:21.147'
    */
   endDateTime: string
-  displayStatus: 'VISIBLE' | 'HIDDEN'
+  displayStatus: DisplayStatus
+  challengeImage: string
+  /**
+   * 참여방법
+   */
+  challengeContent: string
   /**
    * '2025-07-26T13:27:21.147311'
    */
   createdDate: string
+}
+
+export type GetIndividualChallengesResponseElement = Pick<
+  Challenge,
+  | 'id'
+  | 'challengeCode'
+  | 'challengeName'
+  | 'challengePoint'
+  | 'beginDateTime'
+  | 'endDateTime'
+  | 'displayStatus'
+  | 'createdDate'
+>
+
+export type GetTeamChallengesResponseElement = Challenge & {
+  participantCount: number
+  currentGroupCount: number
+  maxGroupCount: number
 }
 
 export interface Participant {
@@ -35,8 +62,8 @@ export interface Participant {
   /**
    * ex) T-20250109-143523-C8NQ
    */
-  teamCode: string
-  teamSelectionDate: string
+  teamCode: string | null
+  teamSelectionDate: string | null
   certificationCount: number
 }
 
@@ -46,6 +73,21 @@ export interface IndividualChallengeWithVerifyStatus {
   id: number
   /**
    * ex) google foo
+   */
+  memberKey: string
+  memberNickname: string
+  memberEmail: string
+  certificationImageUrl: string
+  certificationReview: string
+  certifiedDate: string
+  status: VerifyStatus
+}
+
+export interface TeamChallengeWithVerifyStatus {
+  id: number
+  /**
+   * ex) google foo
+   * @CHECK swagger에서는 memberId
    */
   memberKey: string
   memberNickname: string
@@ -70,28 +112,9 @@ export const challengeApi = {
           result: {
             hasNext: boolean
             nextCursor: string | null
-            content: Array<IndividualChallenge>
+            content: Array<GetIndividualChallengesResponseElement>
           }
           success: boolean
-        }>,
-    )
-  },
-  getIndividualChallengeParticipants: async (challengeId?: number | null) => {
-    return await fetch(`${API_URL}/admin/challenges/${challengeId}/participants`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(
-      (res) =>
-        res.json() as Promise<{
-          success: true
-          message: 'string'
-          result: {
-            hasNext: true
-            nextCursor: 12345
-            content: Array<Participant>
-          }
         }>,
     )
   },
@@ -159,18 +182,222 @@ export const challengeApi = {
         }>,
     )
   },
+  getTeamChallenges: async (cursor?: number | null) => {
+    return await fetch(`${API_URL}/admin/challenges/team?${stringify({ cursor })}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then((res) => {
+      return res.json() as Promise<{
+        success: boolean
+        message: string
+        result:
+          | {
+              hasNext: true
+              nextCursor: number
+              content: GetTeamChallengesResponseElement[]
+            }
+          | {
+              hasNext: false
+              nextCursor: null
+              content: GetTeamChallengesResponseElement[]
+            }
+      }>
+    })
+  },
+  getTeamChallengeTitles: async () => {
+    return await fetch(`${API_URL}/admin/challenges/team-titles`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(
+      (res) =>
+        res.json() as Promise<{
+          success: true
+          message: 'string'
+          result: Array<{
+            challengeId: number
+            challengeName: string
+            /**
+             * @deprecated 의미없으니 사용하지 말것
+             */
+            challengeType: 'TEAM'
+          }>
+        }>,
+    )
+  },
+  getTeamChallengeTeams: async (challengeId: number) => {
+    return await fetch(`${API_URL}/admin/challenges/${challengeId}/group-codes`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((res) => {
+        return res.json() as Promise<{
+          success: boolean
+          message: string
+          result: Array<{
+            groupCode: string
+            groupName: string
+            participantCount: number
+          }>
+        }>
+      })
+      .then((res) => {
+        return res.result.map((item) => ({
+          ...item,
+          teamCode: item.groupCode,
+          teamName: item.groupName,
+        }))
+      })
+  },
+  getTeamChallengeWithVerifyStatus: async (params: {
+    callengeId: number | null
+    teamCode: string | null
+    statuses: VerifyStatus[] | readonly VerifyStatus[] | null
+    cursor: number | null
+  }) => {
+    return await fetch(`${API_URL}/admin/team-certifications?${stringify(params)}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(
+      (res) =>
+        res.json() as Promise<{
+          success: boolean
+          message: string
+          result: {
+            hasNext: boolean
+            nextCursor: string | null
+            content: Array<TeamChallengeWithVerifyStatus>
+          }
+        }>,
+    )
+  },
+  getChallenge: async (challengeId: number) => {
+    return await fetch(`${API_URL}/admin/challenges/${challengeId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then((res) => {
+      return res.json() as Promise<{
+        success: boolean
+        message: string
+        result: Challenge
+      }>
+    })
+  },
+  createChallenge: async (params: {
+    challengeName: string
+    challengePoint: number
+    challengeType: 'PERSONAL' | 'TEAM'
+    beginDateTime: string
+    endDateTime: string
+    displayStatus: DisplayStatus
+    challengeImageUrl: string
+    challengeContent: string
+    maxGroupCount: number
+  }) => {
+    return await fetch(`${API_URL}/admin/challenges`, {
+      method: 'POST',
+      body: JSON.stringify(params),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(
+      (res) =>
+        res.json() as Promise<
+          | {
+              success: true
+              message: string
+              /** inserted id */
+              result: number
+            }
+          | {
+              success: false
+              message: string
+              /** inserted id */
+              result: null | 0
+            }
+        >,
+    )
+  },
+  updateChallenge: async (params: {
+    id: number
+    challengeName: string
+    challengePoint: number
+    beginDateTime: string
+    endDateTime: string
+    challengeContent: string
+    /**
+     * @CHECK 화면상에서 존재하지 않는 값인데 여기서 받는게 이상함. 백엔드 확인필요
+     */
+    maxGroupCount: number
+  }) => {
+    return await fetch(`${API_URL}/admin/challenges/${params.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(params),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(
+      (res) =>
+        res.json() as Promise<{
+          success: boolean
+          message: string
+          result: null
+        }>,
+    )
+  },
+  getChallengesParticipants: async (challengeId?: number | null) => {
+    return await fetch(`${API_URL}/admin/challenges/${challengeId}/participants`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(
+      (res) =>
+        res.json() as Promise<{
+          success: true
+          message: 'string'
+          result:
+            | {
+                hasNext: true
+                nextCursor: number
+                content: Participant[]
+              }
+            | {
+                hasNext: false
+                nextCursor: null
+                content: Participant[]
+              }
+        }>,
+    )
+  },
 }
 
 const challengeKey = createQueryKeys('challenges', {
-  individual: () => ['individual'],
-  individualTitles: () => ['individual', 'titles'] as const,
+  individual: ['individual'],
+  individualTitles: ['individual', 'titles'],
   individualWithVerifyStatus: (
     params: Parameters<typeof challengeApi.getIndividualChallengeWithVerifyStatus>[0],
   ) => ['individual', 'with-verify-status', params] as const,
-  individualParticipants: (challengeId?: number) =>
-    ['individual', challengeId, 'participants'] as const,
   individualParticipantKeys: (challengeId?: number) =>
     ['individual', challengeId, 'participants', 'keys'] as const,
+  team: ['team'],
+  teamChallenges: (cursor?: number | null) => ['team', cursor ?? undefined] as const,
+  teamTitles: ['team', 'titles'] as const,
+  teamChallengeTeams: (challengeId?: number) => ['team', challengeId, 'teams'] as const,
+  teamChallengeWithVerifyStatus: (
+    params: Parameters<typeof challengeApi.getTeamChallengeWithVerifyStatus>[0],
+  ) => ['team', 'with-verify-status', params] as const,
+  challenge: (challengeId: number) => [challengeId] as const,
+  challengesParticipants: (challengeId?: number) => [challengeId, 'participants'] as const,
 })
 
 export const challengeQueryKeys = mergeQueryKeys(challengeKey)
