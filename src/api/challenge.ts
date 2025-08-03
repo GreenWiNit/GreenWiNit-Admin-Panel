@@ -327,6 +327,33 @@ export const challengeApi = {
         >,
     )
   },
+  updateChallenge: async (params: {
+    id: number
+    challengeName: string
+    challengePoint: number
+    beginDateTime: string
+    endDateTime: string
+    challengeContent: string
+    /**
+     * @CHECK 화면상에서 존재하지 않는 값인데 여기서 받는게 이상함. 백엔드 확인필요
+     */
+    maxGroupCount: number
+  }) => {
+    return await fetch(`${API_URL}/admin/challenges/${params.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(params),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(
+      (res) =>
+        res.json() as Promise<{
+          success: boolean
+          message: string
+          result: null
+        }>,
+    )
+  },
   getChallengesParticipants: async (challengeId?: number | null) => {
     return await fetch(`${API_URL}/admin/challenges/${challengeId}/participants`, {
       method: 'GET',

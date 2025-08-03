@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/shadcn/radio-group'
 import { Separator } from '@/components/shadcn/separator'
 import { useChallenge, useChallengesParticipants } from '@/hooks/use-challenge'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import dayjs from 'dayjs'
 import { useId, useMemo } from 'react'
 
@@ -69,7 +69,7 @@ function ChallengeDetail() {
   if (isLoading) {
     return <div>Loading...</div>
   }
-  console.log('data', data)
+
   if (!data || !challenge) {
     throw new Error('useChallenge response is falsy')
   }
@@ -83,7 +83,11 @@ function ChallengeDetail() {
       <div className="flex items-center justify-between">
         <h4>기본정보</h4>
         <div className="flex gap-2">
-          <Button>수정</Button>
+          <Button className="w-fit" asChild>
+            <Link to="/challenges/$id/update" params={{ id }}>
+              수정
+            </Link>
+          </Button>
           <Button>삭제</Button>
         </div>
       </div>
