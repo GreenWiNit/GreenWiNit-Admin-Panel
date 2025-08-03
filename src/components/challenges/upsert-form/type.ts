@@ -13,6 +13,7 @@ export interface FormState {
    * 참여방법
    */
   content: string
+  // @TODO fix to string
   imageUrl: File | null
   displayStatus: DisplayStatus
 }

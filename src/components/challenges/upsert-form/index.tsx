@@ -168,16 +168,26 @@ function UpsertForm({
                         value="VISIBLE"
                         id={radioInputIdVisible}
                         checked={field.value === 'VISIBLE'}
+                        onClick={() => {
+                          field.onChange('VISIBLE')
+                        }}
                       />
-                      <Label htmlFor={radioInputIdVisible}>전시</Label>
+                      <Label htmlFor={radioInputIdVisible} className="cursor-pointer">
+                        전시
+                      </Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem
                         value="HIDDEN"
                         id={radioInputIdHidden}
                         checked={field.value === 'HIDDEN'}
+                        onClick={() => {
+                          field.onChange('HIDDEN')
+                        }}
                       />
-                      <Label htmlFor={radioInputIdHidden}>전시중지</Label>
+                      <Label htmlFor={radioInputIdHidden} className="cursor-pointer">
+                        전시중지
+                      </Label>
                     </div>
                   </RadioGroup>
                 )}

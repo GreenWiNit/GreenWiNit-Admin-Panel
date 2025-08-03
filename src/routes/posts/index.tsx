@@ -6,7 +6,6 @@ import { Button } from '@/components/shadcn/button'
 import { Separator } from '@/components/shadcn/separator'
 import { DataGrid, type GridColDef, type GridRowSelectionModel } from '@mui/x-data-grid'
 import { useQuery } from '@tanstack/react-query'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
@@ -43,7 +42,7 @@ function Posts() {
                 엑셀 받기
               </Button>
               <Button className="w-fit" asChild>
-                {/* <Link to="/posts/create">생성</Link> */}
+                <Link to="/posts/upsert">생성</Link>
               </Button>
               <Button className="w-fit" onClick={handleDelete}>
                 삭제

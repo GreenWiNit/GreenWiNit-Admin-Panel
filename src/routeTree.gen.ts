@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
 import { Route as ChallengesIndexRouteImport } from './routes/challenges/index'
+import { Route as PostsUpsertRouteImport } from './routes/posts/upsert'
 import { Route as ChallengesTeamsRouteImport } from './routes/challenges/teams'
 import { Route as ChallengesCreateRouteImport } from './routes/challenges/create'
 import { Route as ChallengesIdIndexRouteImport } from './routes/challenges/$id/index'
@@ -46,6 +47,11 @@ const PostsIndexRoute = PostsIndexRouteImport.update({
 const ChallengesIndexRoute = ChallengesIndexRouteImport.update({
   id: '/challenges/',
   path: '/challenges/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PostsUpsertRoute = PostsUpsertRouteImport.update({
+  id: '/posts/upsert',
+  path: '/posts/upsert',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChallengesTeamsRoute = ChallengesTeamsRouteImport.update({
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/challenges/create': typeof ChallengesCreateRoute
   '/challenges/teams': typeof ChallengesTeamsRoute
+  '/posts/upsert': typeof PostsUpsertRoute
   '/challenges': typeof ChallengesIndexRoute
   '/posts': typeof PostsIndexRoute
   '/challenges/$id/update': typeof ChallengesIdUpdateRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/challenges/create': typeof ChallengesCreateRoute
   '/challenges/teams': typeof ChallengesTeamsRoute
+  '/posts/upsert': typeof PostsUpsertRoute
   '/challenges': typeof ChallengesIndexRoute
   '/posts': typeof PostsIndexRoute
   '/challenges/$id/update': typeof ChallengesIdUpdateRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/challenges/create': typeof ChallengesCreateRoute
   '/challenges/teams': typeof ChallengesTeamsRoute
+  '/posts/upsert': typeof PostsUpsertRoute
   '/challenges/': typeof ChallengesIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/challenges/$id/update': typeof ChallengesIdUpdateRoute
@@ -146,6 +155,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/challenges/create'
     | '/challenges/teams'
+    | '/posts/upsert'
     | '/challenges'
     | '/posts'
     | '/challenges/$id/update'
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/challenges/create'
     | '/challenges/teams'
+    | '/posts/upsert'
     | '/challenges'
     | '/posts'
     | '/challenges/$id/update'
@@ -176,6 +187,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/challenges/create'
     | '/challenges/teams'
+    | '/posts/upsert'
     | '/challenges/'
     | '/posts/'
     | '/challenges/$id/update'
@@ -192,6 +204,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ChallengesCreateRoute: typeof ChallengesCreateRoute
   ChallengesTeamsRoute: typeof ChallengesTeamsRoute
+  PostsUpsertRoute: typeof PostsUpsertRoute
   ChallengesIndexRoute: typeof ChallengesIndexRoute
   PostsIndexRoute: typeof PostsIndexRoute
   ChallengesIdUpdateRoute: typeof ChallengesIdUpdateRoute
@@ -237,6 +250,13 @@ declare module '@tanstack/react-router' {
       path: '/challenges'
       fullPath: '/challenges'
       preLoaderRoute: typeof ChallengesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/posts/upsert': {
+      id: '/posts/upsert'
+      path: '/posts/upsert'
+      fullPath: '/posts/upsert'
+      preLoaderRoute: typeof PostsUpsertRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/challenges/teams': {
@@ -304,6 +324,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ChallengesCreateRoute: ChallengesCreateRoute,
   ChallengesTeamsRoute: ChallengesTeamsRoute,
+  PostsUpsertRoute: PostsUpsertRoute,
   ChallengesIndexRoute: ChallengesIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
   ChallengesIdUpdateRoute: ChallengesIdUpdateRoute,
