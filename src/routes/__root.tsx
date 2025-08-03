@@ -66,7 +66,7 @@ fetchIntercept.register({
       if (response.status >= 400 && response.status < 500) {
         if (response.headers.get('content-type')?.includes('json')) {
           response.json().then((body) => {
-            if (body.message === '접근이 거부되었습니다.' || body.message.include('JWT 토큰')) {
+            if (body.message === '접근이 거부되었습니다.' || body.message.includes('JWT 토큰')) {
               userStore.getState().setAccessToken(null)
               initHistoryAndLocation()
             }
