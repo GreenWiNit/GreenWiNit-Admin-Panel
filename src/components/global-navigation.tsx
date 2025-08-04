@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 import { Link, useRouterState } from '@tanstack/react-router'
-import type { ComponentProps } from 'react'
+import { Fragment, type ComponentProps } from 'react'
 import { omit } from 'es-toolkit'
 
 const GlobalNavigation = () => {
@@ -11,12 +11,13 @@ const GlobalNavigation = () => {
       <NavigationGroup>
         <NavigationItem to="/challenges">챌린지관리</NavigationItem>
         {state.location.pathname.startsWith('/challenges') && (
-          <NavigationGroup>
+          <Fragment>
             <NavigationItem to="/challenges/type/individual">&gt; 개인 챌린지</NavigationItem>
             <NavigationItem to="/challenges/type/team">&gt; 팀 챌린지</NavigationItem>
-          </NavigationGroup>
+          </Fragment>
         )}
         <NavigationItem to="/posts">정보공유관리</NavigationItem>
+        <NavigationItem to="/products">상품관리</NavigationItem>
       </NavigationGroup>
     </nav>
   )
