@@ -1,11 +1,13 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import '../index.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import fetchIntercept, { type FetchInterceptorResponse } from 'fetch-intercept'
 import { API_URL } from '@/constant/network'
 import { userStore } from '@/store/userStore'
 import { initHistoryAndLocation } from '@/lib/utils'
+import { Toaster } from '@/components/shadcn/sonner'
 
 const queryClient = new QueryClient()
 
@@ -13,7 +15,9 @@ export const Route = createRootRoute({
   component: () => (
     <QueryClientProvider client={queryClient}>
       <Outlet />
+      <Toaster />
       <TanStackRouterDevtools />
+      <ReactQueryDevtools />
     </QueryClientProvider>
   ),
   notFoundComponent: () => {
@@ -54,12 +58,15 @@ fetchIntercept.register({
     if (isApiUrl && !response.ok) {
       if (response.status >= 400 && response.status < 500) {
         if (response.headers.get('content-type')?.includes('json')) {
-          response.json().then((body) => {
-            if (body.message === '접근이 거부되었습니다.' || body.message.includes('JWT 토큰')) {
-              userStore.getState().setAccessToken(null)
-              initHistoryAndLocation()
-            }
-          })
+          response
+            .clone()
+            .json()
+            .then((body) => {
+              if (body.message === '접근이 거부되었습니다.' || body.message.includes('JWT 토큰')) {
+                userStore.getState().setAccessToken(null)
+                initHistoryAndLocation()
+              }
+            })
         }
       }
     }

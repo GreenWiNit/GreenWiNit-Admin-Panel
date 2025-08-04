@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import { omit } from 'es-toolkit'
 
 interface InputComponentProps extends Omit<ComponentProps<'input'>, 'src' | 'value' | 'onChange'> {
-  value: string | null
+  localFileName: string | null
   onChange: (src: string | null) => void
   onChangePreview?: (src: string) => void
   purpose: Parameters<typeof imagesApi.uploadImage>[0]
@@ -32,8 +32,9 @@ function InputComponent({ onChange, onChangePreview, purpose, ...restProps }: In
       type="file"
       accept="image/*"
       onChange={handleFileChange}
-      {...restProps}
-      value={restProps.value ?? undefined}
+      {...omit(restProps, ['localFileName'])}
+      value={restProps.localFileName ?? undefined}
+      className={cn(restProps.className, 'cursor-pointer')}
     />
   )
 }
@@ -45,7 +46,7 @@ type InputImageProps = Omit<React.ComponentProps<'input'>, 'value' | 'onChange'>
 }
 
 const InputImage = (props: InputImageProps) => {
-  const source = props.value ?? null
+  const source = props.value
   const [preview, setPreview] = useState<string | null>(source)
   const inputRef = useRef<HTMLInputElement>(
     props.ref && typeof props.ref === 'object' && 'current' in props.ref ? props.ref.current : null,
@@ -72,12 +73,20 @@ const InputImage = (props: InputImageProps) => {
         <img src={preview} alt="uploaded" className="min-h-[15vh]" />
       )}
       <InputComponent
-        value={source}
-        onChangePreview={setPreview}
         {...omit(props, ['value'])}
+        localFileName={
+          source &&
+          (source?.startsWith('file://') || source?.startsWith('blob:') || source?.startsWith('/'))
+            ? source
+            : null
+        }
+        onChangePreview={setPreview}
         onChange={props.onChange}
         purpose={props.purpose}
         ref={mergedRef}
+        onClick={(e) => {
+          e.stopPropagation()
+        }}
       />
     </div>
   )
