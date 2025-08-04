@@ -1,12 +1,12 @@
 import { API_URL } from '@/constant/network'
-import { throwResponseStatusThenChaining } from '@/lib/network'
+import { downloadExcel, throwResponseStatusThenChaining } from '@/lib/network'
 import { stringify } from '@/lib/query-string'
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import { omit } from 'es-toolkit'
 
 export const productApi = {
   getProducts: async (params: {
-    status: 'exchangeable' | 'sold-out' | null
+    status: SellingStatus | null
     keyword: string | null
     page: number | null
     size: number | null
@@ -86,6 +86,14 @@ export const productApi = {
       },
     ).then(throwResponseStatusThenChaining)
   },
+  downloadProductsExcel: async (params: {
+    keyword?: string | null
+    status?: SellingStatus | null
+  }) => {
+    return await fetch(`${API_URL}/admin/point-products/excel?${stringify(params)}`, {
+      method: 'GET',
+    }).then(downloadExcel)
+  },
   getProductsOrders: async ({ id, page, size }: { id: number; page?: number; size?: number }) => {
     return await fetch(
       `${API_URL}/admin/point-products/${id}/orders?${stringify({ page, size })}`,
@@ -148,6 +156,9 @@ export const productApi = {
     ).then(throwResponseStatusThenChaining)
   },
 }
+
+export type SellingStatus = 'exchangeable' | 'sold-out'
+export type SellingStatusKo = '교환가능' | '판매완료'
 
 export interface ProductsResponseElement {
   // @TODO fix it when backend is ready
@@ -229,7 +240,7 @@ export const productsQueryKeys = createQueryKeys('products', {
   }: {
     page: number | null
     size: number | null
-    status: 'exchangeable' | 'sold-out' | null
+    status: SellingStatus | null
     keyword: string | null
   }) => [{ page, size, status, keyword }] as const,
   getProduct: (id?: number | null) => [id ?? undefined] as const,

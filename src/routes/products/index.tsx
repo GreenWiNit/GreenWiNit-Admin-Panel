@@ -113,7 +113,15 @@ function Products() {
           <Button type="submit">검색</Button>
         </form>
         <div className="flex gap-2 self-end">
-          <Button className="w-fit">
+          <Button
+            className="w-fit"
+            onClick={() => {
+              productApi.downloadProductsExcel({
+                keyword: searchForm.watch('keyword'),
+                status: searchForm.watch('status'),
+              })
+            }}
+          >
             <FilePresentIcon />
             엑셀 받기
           </Button>
