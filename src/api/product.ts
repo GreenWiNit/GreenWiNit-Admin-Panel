@@ -107,6 +107,46 @@ export const productApi = {
       }>
     })
   },
+  getOrders: async ({
+    page,
+    size,
+    status,
+    keyword,
+  }: {
+    page?: number
+    size?: number
+    status?: DeliveryStatus
+    keyword?: string
+  }) => {
+    return await fetch(
+      `${API_URL}/admin/orders/point-products?${stringify({ page, size, status, keyword })}`,
+      {
+        method: 'GET',
+      },
+    ).then((res) => {
+      return res.json() as Promise<{
+        success: boolean
+        message: string
+        result?: {
+          totalElements: number
+          totalPages: number
+          currentPage: number
+          pageSize: number
+          hasNext: true
+          content: OrdersResponseElement[]
+        }
+      }>
+    })
+  },
+  changeOrderStatus: async (orderId: number, status: DeliveryStatus) => {
+    return await fetch(
+      `${API_URL}/admin/orders/${orderId}/${status === '배송완료' ? 'complete' : status === '배송중' ? 'shipping' : ''}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      },
+    ).then(throwResponseStatusThenChaining)
+  },
 }
 
 export interface ProductsResponseElement {
@@ -156,8 +196,29 @@ export interface ProductsOrdersResponseElement {
    * '2025-08-04T17:07:34.243Z'
    */
   exchangedAt: string
+  /**
+   * '상품 신청' | '배송중' | '배송완료'
+   */
   deliveryStatus: string
 }
+
+export interface OrdersResponseElement {
+  // https://github.com/GreenWiNit/backend/issues/192
+  memberKey?: string
+
+  id: number
+  exchangedAt: string
+  memberEmail: string
+  pointProductCode: string
+  quantity: number
+  totalPrice: number
+  recipientName: string
+  recipientPhoneNumber: string
+  fullAddress: string
+  status: DeliveryStatus
+}
+
+export type DeliveryStatus = '상품 신청' | '배송중' | '배송완료'
 
 export const productsQueryKeys = createQueryKeys('products', {
   getProducts: ({
@@ -172,6 +233,7 @@ export const productsQueryKeys = createQueryKeys('products', {
     keyword: string | null
   }) => [{ page, size, status, keyword }] as const,
   getProduct: (id?: number | null) => [id ?? undefined] as const,
+  orders: ['orders'] as const,
   getProductsOrders: ({ id, page, size }: { id?: number; page?: number; size?: number }) =>
-    [{ id, page, size }] as const,
+    ['orders', { id, page, size }] as const,
 })

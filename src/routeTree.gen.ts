@@ -19,6 +19,7 @@ import { Route as ProductsCreateRouteImport } from './routes/products/create'
 import { Route as PostsUpsertRouteImport } from './routes/posts/upsert'
 import { Route as ChallengesTeamsRouteImport } from './routes/challenges/teams'
 import { Route as ChallengesCreateRouteImport } from './routes/challenges/create'
+import { Route as ProductsOrdersIndexRouteImport } from './routes/products/orders/index'
 import { Route as ProductsIdIndexRouteImport } from './routes/products/$id/index'
 import { Route as ChallengesIdIndexRouteImport } from './routes/challenges/$id/index'
 import { Route as ProductsIdUpdateRouteImport } from './routes/products/$id/update'
@@ -76,6 +77,11 @@ const ChallengesTeamsRoute = ChallengesTeamsRouteImport.update({
 const ChallengesCreateRoute = ChallengesCreateRouteImport.update({
   id: '/challenges/create',
   path: '/challenges/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsOrdersIndexRoute = ProductsOrdersIndexRouteImport.update({
+  id: '/products/orders/',
+  path: '/products/orders/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsIdIndexRoute = ProductsIdIndexRouteImport.update({
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/products/$id/update': typeof ProductsIdUpdateRoute
   '/challenges/$id': typeof ChallengesIdIndexRoute
   '/products/$id': typeof ProductsIdIndexRoute
+  '/products/orders': typeof ProductsOrdersIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
   '/challenges/management/verify-status/team': typeof ChallengesManagementVerifyStatusTeamRoute
 }
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/products/$id/update': typeof ProductsIdUpdateRoute
   '/challenges/$id': typeof ChallengesIdIndexRoute
   '/products/$id': typeof ProductsIdIndexRoute
+  '/products/orders': typeof ProductsOrdersIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
   '/challenges/management/verify-status/team': typeof ChallengesManagementVerifyStatusTeamRoute
 }
@@ -180,6 +188,7 @@ export interface FileRoutesById {
   '/products/$id/update': typeof ProductsIdUpdateRoute
   '/challenges/$id/': typeof ChallengesIdIndexRoute
   '/products/$id/': typeof ProductsIdIndexRoute
+  '/products/orders/': typeof ProductsOrdersIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
   '/challenges/management/verify-status/team': typeof ChallengesManagementVerifyStatusTeamRoute
 }
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
     | '/products/$id/update'
     | '/challenges/$id'
     | '/products/$id'
+    | '/products/orders'
     | '/challenges/management/verify-status/individual'
     | '/challenges/management/verify-status/team'
   fileRoutesByTo: FileRoutesByTo
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/products/$id/update'
     | '/challenges/$id'
     | '/products/$id'
+    | '/products/orders'
     | '/challenges/management/verify-status/individual'
     | '/challenges/management/verify-status/team'
   id:
@@ -242,6 +253,7 @@ export interface FileRouteTypes {
     | '/products/$id/update'
     | '/challenges/$id/'
     | '/products/$id/'
+    | '/products/orders/'
     | '/challenges/management/verify-status/individual'
     | '/challenges/management/verify-status/team'
   fileRoutesById: FileRoutesById
@@ -263,6 +275,7 @@ export interface RootRouteChildren {
   ProductsIdUpdateRoute: typeof ProductsIdUpdateRoute
   ChallengesIdIndexRoute: typeof ChallengesIdIndexRoute
   ProductsIdIndexRoute: typeof ProductsIdIndexRoute
+  ProductsOrdersIndexRoute: typeof ProductsOrdersIndexRoute
   ChallengesManagementVerifyStatusIndividualRoute: typeof ChallengesManagementVerifyStatusIndividualRoute
   ChallengesManagementVerifyStatusTeamRoute: typeof ChallengesManagementVerifyStatusTeamRoute
 }
@@ -337,6 +350,13 @@ declare module '@tanstack/react-router' {
       path: '/challenges/create'
       fullPath: '/challenges/create'
       preLoaderRoute: typeof ChallengesCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/orders/': {
+      id: '/products/orders/'
+      path: '/products/orders'
+      fullPath: '/products/orders'
+      preLoaderRoute: typeof ProductsOrdersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products/$id/': {
@@ -415,6 +435,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsIdUpdateRoute: ProductsIdUpdateRoute,
   ChallengesIdIndexRoute: ChallengesIdIndexRoute,
   ProductsIdIndexRoute: ProductsIdIndexRoute,
+  ProductsOrdersIndexRoute: ProductsOrdersIndexRoute,
   ChallengesManagementVerifyStatusIndividualRoute:
     ChallengesManagementVerifyStatusIndividualRoute,
   ChallengesManagementVerifyStatusTeamRoute:

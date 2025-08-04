@@ -21,7 +21,7 @@ const GlobalNavigation = () => {
         {state.location.pathname.startsWith('/products') && (
           <Fragment>
             <NavigationItem to="/products">&gt; 상품목록</NavigationItem>
-            <NavigationItem to="/products/create">&gt; 상품등록</NavigationItem>
+            <NavigationItem to="/products/orders">&gt; 상품교환신청내역</NavigationItem>
           </Fragment>
         )}
       </NavigationGroup>
