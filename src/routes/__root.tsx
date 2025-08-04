@@ -1,5 +1,6 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import '../index.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import fetchIntercept, { type FetchInterceptorResponse } from 'fetch-intercept'
@@ -14,6 +15,7 @@ export const Route = createRootRoute({
     <QueryClientProvider client={queryClient}>
       <Outlet />
       <TanStackRouterDevtools />
+      <ReactQueryDevtools />
     </QueryClientProvider>
   ),
   notFoundComponent: () => {
@@ -35,6 +37,8 @@ fetchIntercept.register({
         },
       }
 
+      console.log('request2', url, nextConfig)
+
       return [
         url,
         {
@@ -43,6 +47,7 @@ fetchIntercept.register({
       ]
     }
 
+    console.log('request', url, config)
     // Modify the url or config here
     return [url, config]
   },
