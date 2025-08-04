@@ -38,7 +38,7 @@ export const productApi = {
       return res.json() as Promise<{
         success: true
         message: string
-        result: ProductsResponseElement
+        result: ProductDetailResponse
       }>
     })
   },
@@ -73,6 +73,40 @@ export const productApi = {
       body: JSON.stringify(omit(params, ['id'])),
     }).then(throwResponseStatusThenChaining)
   },
+  deleteProduct: async (id: number) => {
+    return await fetch(`${API_URL}/admin/point-products/${id}`, {
+      method: 'DELETE',
+    }).then(throwResponseStatusThenChaining)
+  },
+  toggleDisplayStatus: async (id: number, status: string) => {
+    return await fetch(
+      `${API_URL}/admin/point-products/${id}/display-status/${status === '전시' ? 'show' : 'hide'}`,
+      {
+        method: 'PATCH',
+      },
+    ).then(throwResponseStatusThenChaining)
+  },
+  getProductsOrders: async ({ id, page, size }: { id: number; page?: number; size?: number }) => {
+    return await fetch(
+      `${API_URL}/admin/point-products/${id}/orders?${stringify({ page, size })}`,
+      {
+        method: 'GET',
+      },
+    ).then((res) => {
+      return res.json() as Promise<{
+        success: boolean
+        message: string
+        result: {
+          totalElements: number
+          totalPages: number
+          currentPage: number
+          pageSize: number
+          hasNext: boolean
+          content: ProductsOrdersResponseElement[]
+        }
+      }>
+    })
+  },
 }
 
 export interface ProductsResponseElement {
@@ -100,6 +134,31 @@ export interface ProductsResponseElement {
   createdDate: string
 }
 
+export interface ProductDetailResponse {
+  // https://github.com/GreenWiNit/backend/issues/191
+  pointProductCode?: string
+  sellingStatus?: '교환가능' | '판매완료'
+  displayStatus?: '전시' | '미전시'
+
+  pointProductId: number
+  pointProductName: string
+  description: string
+  thumbnailUrl: string
+  pointPrice: number
+  stockQuantity: number
+}
+
+export interface ProductsOrdersResponseElement {
+  // https://github.com/GreenWiNit/backend/issues/192
+  memberKey?: string
+  memberEmail: string
+  /**
+   * '2025-08-04T17:07:34.243Z'
+   */
+  exchangedAt: string
+  deliveryStatus: string
+}
+
 export const productsQueryKeys = createQueryKeys('products', {
   getProducts: ({
     page,
@@ -112,5 +171,7 @@ export const productsQueryKeys = createQueryKeys('products', {
     status: 'exchangeable' | 'sold-out' | null
     keyword: string | null
   }) => [{ page, size, status, keyword }] as const,
-  getProduct: (id: number) => [id] as const,
+  getProduct: (id?: number | null) => [id ?? undefined] as const,
+  getProductsOrders: ({ id, page, size }: { id?: number; page?: number; size?: number }) =>
+    [{ id, page, size }] as const,
 })

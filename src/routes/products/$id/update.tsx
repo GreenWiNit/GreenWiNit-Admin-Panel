@@ -4,7 +4,8 @@ import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import type { UpsertFormProps } from '@/components/products/type'
 import UpsertForm from '@/components/products/upsert-form'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import useProduct from '@/hooks/use-product'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 
@@ -18,10 +19,7 @@ function UpdateProduct() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-  const { data } = useQuery({
-    queryKey: productsQueryKeys.getProduct(id).queryKey,
-    queryFn: () => productApi.getProduct(id),
-  })
+  const { data } = useProduct(id)
 
   const { mutate: updateProduct } = useMutation({
     mutationFn: productApi.updateProduct,

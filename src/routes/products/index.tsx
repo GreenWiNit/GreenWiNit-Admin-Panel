@@ -149,7 +149,7 @@ const columns: GridColDef<ProductsResponseElement>[] = [
     renderCell(params) {
       return (
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        <Link to={`/products/$id/update`} params={{ id: params.row.id! }}>
+        <Link to={`/products/$id`} params={{ id: params.row.id! }}>
           {params.row.id}
         </Link>
       )
