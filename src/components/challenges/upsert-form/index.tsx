@@ -35,7 +35,7 @@ function UpsertForm({
   const radioInputIdHidden = useId()
 
   const onSubmit: SubmitHandler<FormState> = (data) => {
-    console.log(data)
+    console.debug('onSubmit', data)
     if (data.period.start === null || data.period.end === null) {
       setFocus('period')
       setError('period', { message: '진행기간을 선택해주세요.' })

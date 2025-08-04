@@ -17,6 +17,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
+import { Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/products/')({
   component: Products,
@@ -116,10 +117,17 @@ function Products() {
             <FilePresentIcon />
             엑셀 받기
           </Button>
-          <Button>등록</Button>
+          <Button asChild>
+            <Link to="/products/create">등록</Link>
+          </Button>
         </div>
         <DataGrid
-          rows={data?.result.content ?? []}
+          rows={
+            data?.result.content?.map((item) => ({
+              ...item,
+              id: item.code,
+            })) ?? []
+          }
           columns={columns}
           paginationModel={{ page: searchForm.watch('page'), pageSize: searchForm.watch('size') }}
           pageSizeOptions={[10, 20, 50, 100]}
@@ -134,11 +142,23 @@ function Products() {
 }
 
 const columns: GridColDef<ProductsResponseElement>[] = [
-  { field: 'code', headerName: '상품코드' },
-  { field: 'name', headerName: '상품명' },
-  { field: 'pointPrice', headerName: '교환 포인트' },
-  { field: 'stockQuantity', headerName: '수량' },
-  { field: 'sellingStatusKo', headerName: '판매상태' },
-  { field: 'displayStatusKo', headerName: '전시상태' },
-  { field: 'createdDate', headerName: '등록일' },
+  {
+    field: 'code',
+    headerName: '상품코드',
+    flex: 1,
+    renderCell(params) {
+      return (
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        <Link to={`/products/$id/update`} params={{ id: params.row.id! }}>
+          {params.row.id}
+        </Link>
+      )
+    },
+  },
+  { field: 'name', headerName: '상품명', flex: 1 },
+  { field: 'pointPrice', headerName: '교환 포인트', flex: 1 },
+  { field: 'stockQuantity', headerName: '수량', flex: 1 },
+  { field: 'sellingStatus', headerName: '판매상태', flex: 1 },
+  { field: 'displayStatus', headerName: '전시상태', flex: 1 },
+  { field: 'createdDate', headerName: '등록일', flex: 1 },
 ]

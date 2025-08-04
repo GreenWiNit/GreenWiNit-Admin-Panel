@@ -15,10 +15,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsIndexRouteImport } from './routes/products/index'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
 import { Route as ChallengesIndexRouteImport } from './routes/challenges/index'
+import { Route as ProductsCreateRouteImport } from './routes/products/create'
 import { Route as PostsUpsertRouteImport } from './routes/posts/upsert'
 import { Route as ChallengesTeamsRouteImport } from './routes/challenges/teams'
 import { Route as ChallengesCreateRouteImport } from './routes/challenges/create'
 import { Route as ChallengesIdIndexRouteImport } from './routes/challenges/$id/index'
+import { Route as ProductsIdUpdateRouteImport } from './routes/products/$id/update'
 import { Route as ChallengesTypeTeamRouteImport } from './routes/challenges/type/team'
 import { Route as ChallengesTypeIndividualRouteImport } from './routes/challenges/type/individual'
 import { Route as ChallengesIdUpdateRouteImport } from './routes/challenges/$id/update'
@@ -55,6 +57,11 @@ const ChallengesIndexRoute = ChallengesIndexRouteImport.update({
   path: '/challenges/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductsCreateRoute = ProductsCreateRouteImport.update({
+  id: '/products/create',
+  path: '/products/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PostsUpsertRoute = PostsUpsertRouteImport.update({
   id: '/posts/upsert',
   path: '/posts/upsert',
@@ -73,6 +80,11 @@ const ChallengesCreateRoute = ChallengesCreateRouteImport.update({
 const ChallengesIdIndexRoute = ChallengesIdIndexRouteImport.update({
   id: '/challenges/$id/',
   path: '/challenges/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsIdUpdateRoute = ProductsIdUpdateRouteImport.update({
+  id: '/products/$id/update',
+  path: '/products/$id/update',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChallengesTypeTeamRoute = ChallengesTypeTeamRouteImport.update({
@@ -111,12 +123,14 @@ export interface FileRoutesByFullPath {
   '/challenges/create': typeof ChallengesCreateRoute
   '/challenges/teams': typeof ChallengesTeamsRoute
   '/posts/upsert': typeof PostsUpsertRoute
+  '/products/create': typeof ProductsCreateRoute
   '/challenges': typeof ChallengesIndexRoute
   '/posts': typeof PostsIndexRoute
   '/products': typeof ProductsIndexRoute
   '/challenges/$id/update': typeof ChallengesIdUpdateRoute
   '/challenges/type/individual': typeof ChallengesTypeIndividualRoute
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
+  '/products/$id/update': typeof ProductsIdUpdateRoute
   '/challenges/$id': typeof ChallengesIdIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
   '/challenges/management/verify-status/team': typeof ChallengesManagementVerifyStatusTeamRoute
@@ -128,12 +142,14 @@ export interface FileRoutesByTo {
   '/challenges/create': typeof ChallengesCreateRoute
   '/challenges/teams': typeof ChallengesTeamsRoute
   '/posts/upsert': typeof PostsUpsertRoute
+  '/products/create': typeof ProductsCreateRoute
   '/challenges': typeof ChallengesIndexRoute
   '/posts': typeof PostsIndexRoute
   '/products': typeof ProductsIndexRoute
   '/challenges/$id/update': typeof ChallengesIdUpdateRoute
   '/challenges/type/individual': typeof ChallengesTypeIndividualRoute
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
+  '/products/$id/update': typeof ProductsIdUpdateRoute
   '/challenges/$id': typeof ChallengesIdIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
   '/challenges/management/verify-status/team': typeof ChallengesManagementVerifyStatusTeamRoute
@@ -146,12 +162,14 @@ export interface FileRoutesById {
   '/challenges/create': typeof ChallengesCreateRoute
   '/challenges/teams': typeof ChallengesTeamsRoute
   '/posts/upsert': typeof PostsUpsertRoute
+  '/products/create': typeof ProductsCreateRoute
   '/challenges/': typeof ChallengesIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/challenges/$id/update': typeof ChallengesIdUpdateRoute
   '/challenges/type/individual': typeof ChallengesTypeIndividualRoute
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
+  '/products/$id/update': typeof ProductsIdUpdateRoute
   '/challenges/$id/': typeof ChallengesIdIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
   '/challenges/management/verify-status/team': typeof ChallengesManagementVerifyStatusTeamRoute
@@ -165,12 +183,14 @@ export interface FileRouteTypes {
     | '/challenges/create'
     | '/challenges/teams'
     | '/posts/upsert'
+    | '/products/create'
     | '/challenges'
     | '/posts'
     | '/products'
     | '/challenges/$id/update'
     | '/challenges/type/individual'
     | '/challenges/type/team'
+    | '/products/$id/update'
     | '/challenges/$id'
     | '/challenges/management/verify-status/individual'
     | '/challenges/management/verify-status/team'
@@ -182,12 +202,14 @@ export interface FileRouteTypes {
     | '/challenges/create'
     | '/challenges/teams'
     | '/posts/upsert'
+    | '/products/create'
     | '/challenges'
     | '/posts'
     | '/products'
     | '/challenges/$id/update'
     | '/challenges/type/individual'
     | '/challenges/type/team'
+    | '/products/$id/update'
     | '/challenges/$id'
     | '/challenges/management/verify-status/individual'
     | '/challenges/management/verify-status/team'
@@ -199,12 +221,14 @@ export interface FileRouteTypes {
     | '/challenges/create'
     | '/challenges/teams'
     | '/posts/upsert'
+    | '/products/create'
     | '/challenges/'
     | '/posts/'
     | '/products/'
     | '/challenges/$id/update'
     | '/challenges/type/individual'
     | '/challenges/type/team'
+    | '/products/$id/update'
     | '/challenges/$id/'
     | '/challenges/management/verify-status/individual'
     | '/challenges/management/verify-status/team'
@@ -217,12 +241,14 @@ export interface RootRouteChildren {
   ChallengesCreateRoute: typeof ChallengesCreateRoute
   ChallengesTeamsRoute: typeof ChallengesTeamsRoute
   PostsUpsertRoute: typeof PostsUpsertRoute
+  ProductsCreateRoute: typeof ProductsCreateRoute
   ChallengesIndexRoute: typeof ChallengesIndexRoute
   PostsIndexRoute: typeof PostsIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
   ChallengesIdUpdateRoute: typeof ChallengesIdUpdateRoute
   ChallengesTypeIndividualRoute: typeof ChallengesTypeIndividualRoute
   ChallengesTypeTeamRoute: typeof ChallengesTypeTeamRoute
+  ProductsIdUpdateRoute: typeof ProductsIdUpdateRoute
   ChallengesIdIndexRoute: typeof ChallengesIdIndexRoute
   ChallengesManagementVerifyStatusIndividualRoute: typeof ChallengesManagementVerifyStatusIndividualRoute
   ChallengesManagementVerifyStatusTeamRoute: typeof ChallengesManagementVerifyStatusTeamRoute
@@ -272,6 +298,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChallengesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/products/create': {
+      id: '/products/create'
+      path: '/products/create'
+      fullPath: '/products/create'
+      preLoaderRoute: typeof ProductsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/posts/upsert': {
       id: '/posts/upsert'
       path: '/posts/upsert'
@@ -298,6 +331,13 @@ declare module '@tanstack/react-router' {
       path: '/challenges/$id'
       fullPath: '/challenges/$id'
       preLoaderRoute: typeof ChallengesIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/$id/update': {
+      id: '/products/$id/update'
+      path: '/products/$id/update'
+      fullPath: '/products/$id/update'
+      preLoaderRoute: typeof ProductsIdUpdateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/challenges/type/team': {
@@ -345,12 +385,14 @@ const rootRouteChildren: RootRouteChildren = {
   ChallengesCreateRoute: ChallengesCreateRoute,
   ChallengesTeamsRoute: ChallengesTeamsRoute,
   PostsUpsertRoute: PostsUpsertRoute,
+  ProductsCreateRoute: ProductsCreateRoute,
   ChallengesIndexRoute: ChallengesIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
   ChallengesIdUpdateRoute: ChallengesIdUpdateRoute,
   ChallengesTypeIndividualRoute: ChallengesTypeIndividualRoute,
   ChallengesTypeTeamRoute: ChallengesTypeTeamRoute,
+  ProductsIdUpdateRoute: ProductsIdUpdateRoute,
   ChallengesIdIndexRoute: ChallengesIdIndexRoute,
   ChallengesManagementVerifyStatusIndividualRoute:
     ChallengesManagementVerifyStatusIndividualRoute,

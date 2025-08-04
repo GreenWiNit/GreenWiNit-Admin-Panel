@@ -1,6 +1,8 @@
 import { API_URL } from '@/constant/network'
+import { throwResponseStatusThenChaining } from '@/lib/network'
 import { stringify } from '@/lib/query-string'
 import { createQueryKeys } from '@lukemorales/query-key-factory'
+import { omit } from 'es-toolkit'
 
 export const productApi = {
   getProducts: async (params: {
@@ -9,14 +11,12 @@ export const productApi = {
     page: number | null
     size: number | null
   }) => {
-    console.log('getProducts', params, API_URL)
     return await fetch(`${API_URL}/admin/point-products?${stringify(params)}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
     }).then((res) => {
-      console.log('res', res)
       return res.json() as Promise<{
         success: true
         message: 'string'
@@ -31,9 +31,54 @@ export const productApi = {
       }>
     })
   },
+  getProduct: async (id: number) => {
+    return await fetch(`${API_URL}/admin/point-products/${id}`, {
+      method: 'GET',
+    }).then((res) => {
+      return res.json() as Promise<{
+        success: true
+        message: string
+        result: ProductsResponseElement
+      }>
+    })
+  },
+  createProduct: async (params: {
+    code: string
+    name: string
+    description: string
+    thumbnailUrl: string
+    price: number
+    stock: number
+  }) => {
+    return await fetch(`${API_URL}/admin/point-products`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    }).then(throwResponseStatusThenChaining)
+  },
+  updateProduct: async (params: {
+    id: number
+    code: string
+    name: string
+    description: string
+    thumbnailUrl: string
+  }) => {
+    return await fetch(`${API_URL}/admin/point-products/${params.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(omit(params, ['id'])),
+    }).then(throwResponseStatusThenChaining)
+  },
 }
 
 export interface ProductsResponseElement {
+  // @TODO fix it when backend is ready
+  // https://github.com/GreenWiNit/backend/issues/190
+  id?: string
   /**
    * 'PRD-AA-001'
    */
@@ -67,4 +112,5 @@ export const productsQueryKeys = createQueryKeys('products', {
     status: 'exchangeable' | 'sold-out' | null
     keyword: string | null
   }) => [{ page, size, status, keyword }] as const,
+  getProduct: (id: number) => [id] as const,
 })
