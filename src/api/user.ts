@@ -1,7 +1,6 @@
 import { API_URL } from '@/constant/network'
 import type { ActiveUser } from '@/types/user'
 
-/* 포인트 전체 조회 할 때 유저 정보가 필요 */
 export const usersApi = {
   getUsers: async (page: number, size: number) => {
     return await fetch(`${API_URL}/admin/members?page=${page}&size=${size}`, {
