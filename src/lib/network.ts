@@ -1,3 +1,5 @@
+import { ApiErrorHasErrors } from './error'
+
 export async function throwResponseStatusThenChaining(response: Response) {
   if (response.ok) {
     return response
@@ -7,6 +9,9 @@ export async function throwResponseStatusThenChaining(response: Response) {
     .clone()
     .json()
     .then((body) => {
+      if ('errors' in body) {
+        throw new ApiErrorHasErrors(body.message, body.errors)
+      }
       throw new Error(body.message || `HTTP ${response.status}: ${response.statusText}`)
     })
 }
