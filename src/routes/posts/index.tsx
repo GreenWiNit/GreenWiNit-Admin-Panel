@@ -97,8 +97,24 @@ function Posts() {
 
 const columns: GridColDef<PostsElement & { isDisplayKo: '전시' | '미전시' }>[] = [
   { field: 'infoCategoryName', headerName: '카테고리' },
-  { field: 'id', headerName: '정보공유코드' },
-  { field: 'title', headerName: '제목' },
+  {
+    field: 'id',
+    headerName: '정보공유코드',
+    renderCell: (params) => (
+      <Link to="/posts/upsert" search={{ id: params.row.id }}>
+        {params.row.id}
+      </Link>
+    ),
+  },
+  {
+    field: 'title',
+    headerName: '정보공유명',
+    renderCell: (params) => (
+      <Link to="/posts/upsert" search={{ id: params.row.id }}>
+        {params.row.title}
+      </Link>
+    ),
+  },
   { field: 'createdBy', headerName: '작성자' },
   { field: 'isDisplayKo', headerName: '전시' },
 ]
