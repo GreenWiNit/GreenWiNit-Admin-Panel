@@ -11,7 +11,7 @@ export const pointApi = {
     })
       .then(async (res) => {
         if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`)
+          throw new Error(`HTTP error! status: ${res.status} ${res.statusText}`)
         }
         const data = await res.json()
         return data as {
