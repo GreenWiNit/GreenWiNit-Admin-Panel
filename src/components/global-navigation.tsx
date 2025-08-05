@@ -17,6 +17,7 @@ const GlobalNavigation = () => {
           </NavigationGroup>
         )}
         <NavigationItem to="/posts">정보공유관리</NavigationItem>
+        <NavigationItem to="/points">포인트 관리</NavigationItem>
       </NavigationGroup>
     </nav>
   )

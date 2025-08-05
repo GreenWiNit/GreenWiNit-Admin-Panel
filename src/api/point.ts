@@ -2,7 +2,7 @@ import { API_SERVER_BASE_PATH } from '@/constant/network'
 import type { PointHistory } from '@/routes/points/type/point'
 
 export const pointApi = {
-  getUserPoint: async (id: number, page: number, size: number) => {
+  getUserPoints: async (id: number, page: number, size: number) => {
     await fetch(`${API_SERVER_BASE_PATH}/admin/points/members/${id}?page=${page}&size=${size}`, {
       method: 'GET',
       headers: {
