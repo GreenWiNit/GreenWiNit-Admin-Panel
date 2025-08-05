@@ -1,5 +1,5 @@
 import { API_URL } from '@/constant/network'
-import { downloadExcel } from '@/lib/network'
+import { downloadExcel, throwResponseStatusThenChaining } from '@/lib/network'
 import { stringify } from '@/lib/query-string'
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 
@@ -56,7 +56,7 @@ export const postApi = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
-    })
+    }).then(throwResponseStatusThenChaining)
   },
   createPost: async (data: {
     title: string
@@ -71,7 +71,7 @@ export const postApi = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
-    })
+    }).then(throwResponseStatusThenChaining)
   },
   downloadExcel: async () => {
     return await fetch(`${API_URL}/admin/info/excel`, {
