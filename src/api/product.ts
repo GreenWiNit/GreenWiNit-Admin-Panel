@@ -16,20 +16,22 @@ export const productApi = {
       headers: {
         'Content-Type': 'application/json',
       },
-    }).then((res) => {
-      return res.json() as Promise<{
-        success: true
-        message: 'string'
-        result: {
-          totalElements: number
-          totalPages: number
-          currentPage: number
-          pageSize: number
-          hasNext: boolean
-          content: ProductsResponseElement[]
-        }
-      }>
     })
+      .then(throwResponseStatusThenChaining)
+      .then((res) => {
+        return res.json() as Promise<{
+          success: true
+          message: 'string'
+          result: {
+            totalElements: number
+            totalPages: number
+            currentPage: number
+            pageSize: number
+            hasNext: boolean
+            content: ProductsResponseElement[]
+          }
+        }>
+      })
   },
   getProduct: async (id: number) => {
     return await fetch(`${API_URL}/point-products/${id}`, {
