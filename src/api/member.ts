@@ -20,6 +20,16 @@ export const memberApi = {
     const response = await fetch(`${API_URL}/admin/members/withdrawn/excel`)
     return response.json() as Promise<GetWithdrawnExcelResponse>
   },
+  deleteMemberByAdmin: async (memberKey: string) => {
+    const response = await fetch(`${API_URL}/admin/members/delete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ memberKey }),
+    })
+    return response.json() as Promise<DeleteMemberByAdminResponse>
+  },
 }
 
 type BaseResponse<T> = {
@@ -55,6 +65,8 @@ export type GetActiveMembersReponse = BaseResponse<BaseResult<MemberData[]>>
 
 export type GetWithdrawnReponse = BaseResponse<BaseResult<WithdrawnData[]>>
 
+type DeleteMemberByAdminResponse = BaseResponse<undefined>
+
 type GetActiveMembersExcelResponse = Blob | BaseResponse<undefined> // excel 파일 반환은 JSON이 아닌 바이너리 타입(Blob)을 반환한다고
 
 type GetWithdrawnExcelResponse = Blob | BaseResponse<undefined>
@@ -64,6 +76,7 @@ const memberKey = createQueryKeys('members', {
     ['active', { page: page ?? 0, pageSize: pageSize ?? 10 }] as const,
   withdrawn: (page?: number, pageSize?: number) =>
     ['withdrawn', { page: page ?? 0, pageSize: pageSize ?? 10 }] as const,
+  deleteMember: (memberKey: string) => ['delete', { memberKey: memberKey }] as const,
   activeExcel: ['active', 'excel'],
   withdrawnExcel: ['withdrawn', 'excel'],
 })

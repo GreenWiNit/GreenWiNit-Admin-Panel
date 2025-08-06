@@ -6,9 +6,10 @@ import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@radix-ui/react-select'
 import { createFileRoute } from '@tanstack/react-router'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
-import type { MemberData } from '@/api/member'
+import { memberApi, type MemberData } from '@/api/member'
 import { Button } from '@/components/shadcn/button'
 import { useActiveMembers } from '@/hooks/use-members'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/members/')({
   component: RouteComponent,
@@ -68,32 +69,47 @@ const columns: GridColDef<MemberData>[] = [
     align: 'center',
     flex: 1,
     sortable: false,
-    renderCell: () => (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          width: '100%',
-        }}
-      >
-        <button
+    renderCell: (params) => {
+      const memberKey = params.row.memberKey
+      return (
+        <div
           style={{
             display: 'flex',
-            justifyContent: 'center',
             alignItems: 'center',
-            fontSize: '12px',
-            width: '60px',
-            height: '28px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            cursor: 'pointer',
+            justifyContent: 'center',
+            height: '100%',
+            width: '100%',
           }}
         >
-          삭제
-        </button>
-      </div>
-    ),
+          <button
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              fontSize: '12px',
+              width: '60px',
+              height: '28px',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+            onClick={async (e) => {
+              e.stopPropagation()
+              if (window.confirm('정말 이 회원을 삭제하시겠습니까?')) {
+                //@TODO 여기도 modal이 있어야 하지 않을까 싶습니다.
+                const res = await memberApi.deleteMemberByAdmin(memberKey)
+                if (res.success) toast.success('회원 삭제에 성공했습니다.')
+
+                setTimeout(() => {
+                  window.location.reload()
+                }, 1500)
+              }
+            }}
+          >
+            삭제
+          </button>
+        </div>
+      )
+    },
   },
 ]
