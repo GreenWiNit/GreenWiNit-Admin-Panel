@@ -52,7 +52,7 @@ function RouteComponent() {
       callengeId: selectedChallengeIdNumber,
       memberKey: queryListMemberKey,
       statuses: selectedStatuses,
-      cursor: 0,
+      cursor: null,
     } as const
   }, [selectedChallengeIdNumber, selectedParticipantId, selectedStatuses])
 

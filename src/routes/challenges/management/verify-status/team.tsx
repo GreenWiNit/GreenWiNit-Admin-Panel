@@ -43,7 +43,7 @@ function TeamVerifyStatus() {
       callengeId: selectedChallengeIdNumber,
       teamCode: queryListTeamCode,
       statuses: selectedStatuses,
-      cursor: 0,
+      cursor: null,
     } as const
   }, [selectedChallengeIdNumber, selectedTeamCode, selectedStatuses])
 
