@@ -17,6 +17,7 @@ function InputComponent({ onChange, onChangePreview, purpose, ...restProps }: In
     if (file) {
       const processingObjectURL = URL.createObjectURL(file)
       onChangePreview?.(processingObjectURL)
+      // @TODO 로딩 중임을 UI로 표시하기
       imagesApi.uploadImage(purpose, file).then((res) => {
         URL.revokeObjectURL(processingObjectURL)
         if (!res.success) {
@@ -52,6 +53,7 @@ const InputImage = (props: InputImageProps) => {
     props.ref && typeof props.ref === 'object' && 'current' in props.ref ? props.ref.current : null,
   )
   const mergedRef = mergeRefs(props.ref, inputRef)
+  const hasRemoteImage = source?.startsWith('http://') || source?.startsWith('https://')
 
   return (
     <div
@@ -61,7 +63,9 @@ const InputImage = (props: InputImageProps) => {
       )}
       onClick={() => inputRef.current?.click()}
     >
-      {!preview ? (
+      {hasRemoteImage && source ? (
+        <img src={source} alt="uploaded" className="min-h-[15vh]" />
+      ) : !preview ? (
         <Fragment>
           <div className="rounded-full border-[2px] border-[#3A9B6E] p-2">
             <PlusIcon className="text-[#3A9B6E]" />
@@ -69,25 +73,27 @@ const InputImage = (props: InputImageProps) => {
           <span className="text-bold text-[#666666]">이미지를 업로드 해주세요.</span>
           <span className="text-sm text-[#999999]">권장 크기: 1200 x 800px</span>
         </Fragment>
-      ) : (
-        <img src={preview} alt="uploaded" className="min-h-[15vh]" />
+      ) : null}
+      {hasRemoteImage && source ? null : (
+        <InputComponent
+          {...omit(props, ['value'])}
+          localFileName={
+            source &&
+            (source?.startsWith('file://') ||
+              source?.startsWith('blob:') ||
+              source?.startsWith('/'))
+              ? source
+              : null
+          }
+          onChangePreview={setPreview}
+          onChange={props.onChange}
+          purpose={props.purpose}
+          ref={mergedRef}
+          onClick={(e) => {
+            e.stopPropagation()
+          }}
+        />
       )}
-      <InputComponent
-        {...omit(props, ['value'])}
-        localFileName={
-          source &&
-          (source?.startsWith('file://') || source?.startsWith('blob:') || source?.startsWith('/'))
-            ? source
-            : null
-        }
-        onChangePreview={setPreview}
-        onChange={props.onChange}
-        purpose={props.purpose}
-        ref={mergedRef}
-        onClick={(e) => {
-          e.stopPropagation()
-        }}
-      />
     </div>
   )
 }

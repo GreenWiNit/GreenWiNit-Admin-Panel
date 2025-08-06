@@ -9,8 +9,16 @@ import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import { Label } from '@/components/shadcn/label'
 import { RadioGroup, RadioGroupItem } from '@/components/shadcn/radio-group'
+import {
+  Select,
+  SelectItem,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/shadcn/select'
 import { Separator } from '@/components/shadcn/separator'
 import { Textarea } from '@/components/shadcn/textarea'
+import usePostCategories from '@/hooks/use-post-categoris'
 import { ApiErrorHasErrors } from '@/lib/error'
 import { ErrorMessage } from '@hookform/error-message'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -21,7 +29,8 @@ import {
   useRouter,
   useSearch,
 } from '@tanstack/react-router'
-import { useId } from 'react'
+import { omit } from 'es-toolkit'
+import { useEffect, useId } from 'react'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -37,7 +46,7 @@ export const Route = createFileRoute('/posts/upsert')({
 interface FormState {
   title: string
   content: string
-  infoCategory: string
+  categoryId: string | null
   imageUrl: string
   isDisplay: 'Y' | 'N'
 }
@@ -46,22 +55,38 @@ function UpsertPost() {
   const router = useRouter()
   const canGoBack = useCanGoBack()
   const { id } = useSearch({ from: '/posts/upsert' })
+  const { data: categories } = usePostCategories()
   const { data } = useQuery({
     queryKey: postsQueryKeys.getPost(id ?? '').queryKey,
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     queryFn: () => postApi.getPost(id!),
     enabled: !!id,
+    staleTime: 1000 * 60 * 10,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   })
   const post = data?.result
-  const { register, handleSubmit, control, setValue, setError, formState } = useForm<FormState>({
-    defaultValues: {
-      title: post?.title ?? '',
-      content: post?.content ?? '',
-      infoCategory: post?.infoCategoryName ?? 'EVENT',
-      imageUrl: post?.imageurl ?? '',
-      isDisplay: post?.isDisplay ?? 'Y',
-    },
-  })
+  const { register, handleSubmit, control, setValue, setError, formState, reset } =
+    useForm<FormState>({
+      defaultValues: {
+        title: post?.title ?? '',
+        content: post?.content ?? '',
+        categoryId: post?.infoCategoryCode ?? categories?.[0]?.id ?? null,
+        imageUrl: post?.imageurl ?? '',
+        isDisplay: post?.isDisplay ?? 'Y',
+      },
+    })
+  useEffect(() => {
+    if (post) {
+      reset({
+        title: post.title,
+        content: post.content,
+        categoryId: post.infoCategoryCode,
+        imageUrl: post.imageurl,
+        isDisplay: post.isDisplay,
+      })
+    }
+  }, [post, reset])
   const { errors } = formState
   const radioInputIdVisible = useId()
   const radioInputIdHidden = useId()
@@ -70,10 +95,21 @@ function UpsertPost() {
   const renderBackButton = Boolean(id)
 
   const { mutate: upsertPost } = useMutation({
-    mutationFn: (data: FormState) => (id ? postApi.updatePost(id, data) : postApi.createPost(data)),
+    mutationFn: (
+      data: Omit<FormState, 'categoryId'> & { categoryId: NonNullable<FormState['categoryId']> },
+    ) => {
+      const infoCategory = data.categoryId
+      const payload = {
+        ...omit(data, ['categoryId']),
+        infoCategory,
+      }
+      return id ? postApi.updatePost(id, payload) : postApi.createPost(payload)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: postsQueryKeys.getPosts(0, 10).queryKey })
-      queryClient.invalidateQueries({ queryKey: postsQueryKeys.getPost(id ?? '').queryKey })
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: postsQueryKeys.getPost(id).queryKey })
+      }
       navigate({ to: '/posts' })
     },
     onError: (error) => {
@@ -86,7 +122,7 @@ function UpsertPost() {
                 'title' satisfies keyof FormState,
                 'content' satisfies keyof FormState,
                 'imageUrl' satisfies keyof FormState,
-                'infoCategory' satisfies keyof FormState,
+                'categoryId' satisfies keyof FormState,
                 'isDisplay' satisfies keyof FormState,
               ] as string[]
             ).includes(error.fieldName)
@@ -101,7 +137,14 @@ function UpsertPost() {
     },
   })
   const onSubmit: SubmitHandler<FormState> = (data) => {
-    upsertPost(data)
+    if (data.categoryId == null) {
+      console.error('알 수 없는 에러가 발생했습니다. categoryId가 비었습니다.')
+      return
+    }
+    upsertPost({
+      ...data,
+      categoryId: data.categoryId,
+    })
   }
 
   return (
@@ -130,8 +173,26 @@ function UpsertPost() {
                 <th>카테고리</th>
                 <td>
                   <div className="flex flex-col gap-2">
-                    <Input {...register('infoCategory')} />
-                    <ErrorMessage errors={errors} name="infoCategory" render={RenderMessage} />
+                    <Controller
+                      control={control}
+                      name="categoryId"
+                      render={({ field }) => (
+                        <Select value={field.value ?? ''} onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="카테고리를 선택해주세요." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories?.map((category) => (
+                              <SelectItem key={category.id} value={category.id}>
+                                {category.ko}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                      rules={{ required: '카테고리를 선택해주세요.' }}
+                    />
+                    <ErrorMessage errors={errors} name="categoryId" render={RenderMessage} />
                   </div>
                 </td>
                 <th>등록 날짜</th>
