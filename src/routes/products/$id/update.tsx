@@ -7,6 +7,7 @@ import UpsertForm from '@/components/products/upsert-form'
 import useProduct from '@/hooks/use-product'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useMemo } from 'react'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/products/$id/update')({
@@ -19,7 +20,19 @@ function UpdateProduct() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-  const { data } = useProduct(id)
+  const { data: product } = useProduct(id)
+  const formDefaultValues = useMemo(() => {
+    if (!product) return product
+    return {
+      ...product.result,
+      code: product.result.pointProductCode ?? '',
+      name: product.result.pointProductName ?? '',
+      description: product.result.description ?? '',
+      thumbnailUrl: product.result.thumbnailUrl ?? '',
+      price: product.result.pointPrice ?? 0,
+      stock: product.result.stockQuantity ?? 0,
+    }
+  }, [product])
 
   const { mutate: updateProduct } = useMutation({
     mutationFn: productApi.updateProduct,
@@ -56,7 +69,7 @@ function UpdateProduct() {
       <GlobalNavigation />
       <div className="flex flex-col gap-4">
         <PageTitle>상품 수정 페이지</PageTitle>
-        <UpsertForm onSubmit={onSubmit} defaultValues={data?.result} />
+        <UpsertForm onSubmit={onSubmit} defaultValues={formDefaultValues} />
       </div>
     </PageContainer>
   )
