@@ -18,6 +18,9 @@ export async function throwResponseStatusThenChaining(response: Response) {
 
 export async function downloadExcel(response: Response) {
   const header = response.headers.get('Content-Disposition')
+  if (!header) {
+    throw new Error('Content-Disposition header not found')
+  }
   const parts = header?.split(';')
   const filename = parts?.[1]?.split('=')?.[1]?.replaceAll('"', '') ?? ''
 
