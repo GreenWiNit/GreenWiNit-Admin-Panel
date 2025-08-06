@@ -13,9 +13,10 @@ import {
 } from '@/components/shadcn/select'
 import { Separator } from '@/components/shadcn/separator'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
+import { useState } from 'react'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Link } from '@tanstack/react-router'
 
@@ -31,7 +32,6 @@ interface SearchForm {
 }
 
 function Products() {
-  const queryClient = useQueryClient()
   const searchForm = useForm<SearchForm>({
     defaultValues: {
       status: null,
@@ -41,12 +41,19 @@ function Products() {
     },
   })
 
+  const [searchParams, setSearchParams] = useState({
+    status: null as 'exchangeable' | 'sold-out' | null,
+    keyword: '',
+    page: 0,
+    size: 10,
+  })
+
   const { data } = useQuery({
     queryKey: productsQueryKeys.getProducts({
-      page: searchForm.watch('page'),
-      size: searchForm.watch('size'),
-      status: searchForm.watch('status'),
-      keyword: searchForm.watch('keyword'),
+      page: searchParams.page,
+      size: searchParams.size,
+      status: searchParams.status,
+      keyword: searchParams.keyword,
     }).queryKey,
     queryFn: (ctx) => {
       const [, , { page, size, status, keyword }] = ctx.queryKey
@@ -56,14 +63,7 @@ function Products() {
 
   const onSubmit: SubmitHandler<SearchForm> = async (data) => {
     console.log(data)
-    return queryClient.invalidateQueries({
-      queryKey: productsQueryKeys.getProducts({
-        page: data.page,
-        size: data.size,
-        status: data.status,
-        keyword: data.keyword,
-      }).queryKey,
-    })
+    setSearchParams(data)
   }
 
   return (
@@ -151,8 +151,7 @@ const columns: GridColDef<ProductsResponseElement>[] = [
     flex: 1,
     renderCell(params) {
       return (
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        <Link to={`/products/$id`} params={{ id: params.row.id! }}>
+        <Link to={`/products/$id`} params={{ id: params.row.id }}>
           {params.row.code}
         </Link>
       )
