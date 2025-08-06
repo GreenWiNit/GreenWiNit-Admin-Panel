@@ -16,23 +16,25 @@ export const productApi = {
       headers: {
         'Content-Type': 'application/json',
       },
-    }).then((res) => {
-      return res.json() as Promise<{
-        success: true
-        message: 'string'
-        result: {
-          totalElements: number
-          totalPages: number
-          currentPage: number
-          pageSize: number
-          hasNext: boolean
-          content: ProductsResponseElement[]
-        }
-      }>
     })
+      .then(throwResponseStatusThenChaining)
+      .then((res) => {
+        return res.json() as Promise<{
+          success: true
+          message: 'string'
+          result: {
+            totalElements: number
+            totalPages: number
+            currentPage: number
+            pageSize: number
+            hasNext: boolean
+            content: ProductsResponseElement[]
+          }
+        }>
+      })
   },
   getProduct: async (id: number) => {
-    return await fetch(`${API_URL}/admin/point-products/${id}`, {
+    return await fetch(`${API_URL}/point-products/${id}`, {
       method: 'GET',
     }).then((res) => {
       return res.json() as Promise<{
@@ -161,13 +163,11 @@ export type SellingStatus = 'exchangeable' | 'sold-out'
 export type SellingStatusKo = '교환가능' | '판매완료'
 
 export interface ProductsResponseElement {
-  // @TODO fix it when backend is ready
-  // https://github.com/GreenWiNit/backend/issues/190
-  id?: string
+  id: string
   /**
    * 'PRD-AA-001'
    */
-  code: 'PRD-AA-001'
+  code: string
   name: string
   pointPrice: number
   stockQuantity: number
