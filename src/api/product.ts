@@ -161,13 +161,11 @@ export type SellingStatus = 'exchangeable' | 'sold-out'
 export type SellingStatusKo = '교환가능' | '판매완료'
 
 export interface ProductsResponseElement {
-  // @TODO fix it when backend is ready
-  // https://github.com/GreenWiNit/backend/issues/190
-  id?: string
+  id: string
   /**
    * 'PRD-AA-001'
    */
-  code: 'PRD-AA-001'
+  code: string
   name: string
   pointPrice: number
   stockQuantity: number

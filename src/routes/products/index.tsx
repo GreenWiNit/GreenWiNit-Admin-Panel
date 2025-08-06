@@ -130,12 +130,7 @@ function Products() {
           </Button>
         </div>
         <DataGrid
-          rows={
-            data?.result.content?.map((item) => ({
-              ...item,
-              id: item.code,
-            })) ?? []
-          }
+          rows={data?.result.content ?? []}
           columns={columns}
           paginationModel={{ page: searchForm.watch('page'), pageSize: searchForm.watch('size') }}
           pageSizeOptions={[10, 20, 50, 100]}
@@ -158,7 +153,7 @@ const columns: GridColDef<ProductsResponseElement>[] = [
       return (
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         <Link to={`/products/$id`} params={{ id: params.row.id! }}>
-          {params.row.id}
+          {params.row.code}
         </Link>
       )
     },
