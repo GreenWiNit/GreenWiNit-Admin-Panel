@@ -1,7 +1,7 @@
 import {
   productApi,
   productsQueryKeys,
-  type DeliveryStatus,
+  type DeliveryStatusKo,
   type OrdersResponseElement,
 } from '@/api/product'
 import GlobalNavigation from '@/components/global-navigation'
@@ -20,28 +20,52 @@ import { Separator } from '@/components/shadcn/separator'
 import { createFileRoute } from '@tanstack/react-router'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
-import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  DataGrid,
+  type GridColDef,
+  type GridPaginationModel,
+  type GridRenderCellParams,
+} from '@mui/x-data-grid'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 
 export const Route = createFileRoute('/products/orders/')({
   component: Orders,
 })
 
 interface SearchFormState {
-  deliveryStatus: DeliveryStatus | null
+  deliveryStatus: DeliveryStatusKo | null
   searchKeyword: string
 }
 
 function Orders() {
-  const searchForm = useForm<SearchFormState>({
-    defaultValues: {
-      deliveryStatus: null,
-      searchKeyword: '',
-    },
+  const searchFormBeforeSubmitting = useForm<SearchFormState>({
+    defaultValues: DEFAULT_SEARCH_FORM,
+  })
+
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 10,
+  })
+  const [searchFormToSubmit, setSearchFormToSubmit] = useState<SearchFormState>(DEFAULT_SEARCH_FORM)
+
+  const { data } = useQuery({
+    queryKey: productsQueryKeys.getOrders({
+      ...searchFormToSubmit,
+      ...paginationModel,
+      status: searchFormToSubmit.deliveryStatus ?? undefined,
+    }).queryKey,
+    queryFn: () =>
+      productApi.getOrders({
+        ...searchFormToSubmit,
+        ...paginationModel,
+        status: searchFormToSubmit.deliveryStatus ?? undefined,
+      }),
   })
 
   const onSubmit: SubmitHandler<SearchFormState> = (data) => {
-    console.log(data)
+    console.log('onSubmit', data)
+    setSearchFormToSubmit(data)
   }
 
   return (
@@ -50,14 +74,17 @@ function Orders() {
       <div className="flex w-full flex-col gap-4">
         <PageTitle>상품 교환 신청 내역</PageTitle>
         <Separator />
-        <form onSubmit={searchForm.handleSubmit(onSubmit)} className="flex flex-row gap-2">
+        <form
+          onSubmit={searchFormBeforeSubmitting.handleSubmit(onSubmit)}
+          className="flex flex-row gap-2"
+        >
           <table className="w-full border">
             <tbody className="[&_td,th]:border [&_td,th]:px-1 [&_td,th]:py-2 [&_th]:bg-gray-50 [&_th]:text-left">
               <tr>
                 <th>상품 처리 상태</th>
                 <td>
                   <Controller
-                    control={searchForm.control}
+                    control={searchFormBeforeSubmitting.control}
                     name="deliveryStatus"
                     render={({ field }) => (
                       <Select onValueChange={field.onChange} value={field.value ?? ''}>
@@ -77,7 +104,7 @@ function Orders() {
               <tr>
                 <th>검색어</th>
                 <td>
-                  <Input {...searchForm.register('searchKeyword')} />
+                  <Input {...searchFormBeforeSubmitting.register('searchKeyword')} />
                 </td>
               </tr>
             </tbody>
@@ -91,12 +118,11 @@ function Orders() {
           엑셀 받기
         </Button>
         <DataGrid
-          rows={[]}
+          rows={data?.result?.content ?? []}
           columns={columns}
-          rowCount={0}
-          paginationModel={{ page: 0, pageSize: 10 }}
+          paginationModel={paginationModel}
           onPaginationModelChange={(model) => {
-            console.log(model)
+            setPaginationModel(model)
           }}
         />
       </div>
@@ -107,7 +133,8 @@ function Orders() {
 const DeliveryStatusCell = (params: GridRenderCellParams<OrdersResponseElement>) => {
   const queryClient = useQueryClient()
   const changeOrderStatus = useMutation({
-    mutationFn: (status: DeliveryStatus) => productApi.changeOrderStatus(params.row.id, status),
+    mutationFn: (status: 'shipping' | 'complete') =>
+      productApi.changeOrderStatus(params.row.id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.orders.queryKey })
     },
@@ -118,16 +145,16 @@ const DeliveryStatusCell = (params: GridRenderCellParams<OrdersResponseElement>)
       <Select
         value={params.value}
         onValueChange={(value) => {
-          changeOrderStatus.mutate(value as DeliveryStatus)
+          changeOrderStatus.mutate(value as 'shipping' | 'complete')
         }}
       >
         <SelectTrigger>
           <SelectValue placeholder="상품 신청" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="상품 신청">상품 신청</SelectItem>
-          <SelectItem value="배송중">배송중</SelectItem>
-          <SelectItem value="배송완료">배송완료</SelectItem>
+          {/* <SelectItem value="상품 신청">상품 신청</SelectItem> */}
+          <SelectItem value="shipping">배송중</SelectItem>
+          <SelectItem value="complete">배송완료</SelectItem>
         </SelectContent>
       </Select>
     </div>
@@ -146,3 +173,8 @@ const columns: GridColDef<OrdersResponseElement>[] = [
   { field: 'fullAddress', headerName: '주소', flex: 1 },
   { field: 'status', headerName: '상품 처리 상태', flex: 1, renderCell: DeliveryStatusCell },
 ]
+
+const DEFAULT_SEARCH_FORM: SearchFormState = {
+  deliveryStatus: null,
+  searchKeyword: '',
+}

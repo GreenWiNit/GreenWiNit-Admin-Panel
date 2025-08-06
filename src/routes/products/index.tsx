@@ -33,20 +33,10 @@ interface SearchForm {
 
 function Products() {
   const searchFormBeforeSubmitting = useForm<SearchForm>({
-    defaultValues: {
-      status: null,
-      keyword: '',
-      page: 0,
-      size: 10,
-    },
+    defaultValues: DEFAULT_SEARCH_FORM,
   })
 
-  const [searchFormToSubmit, setSearchFormToSubmit] = useState<SearchForm>({
-    status: null,
-    keyword: '',
-    page: 0,
-    size: 10,
-  })
+  const [searchFormToSubmit, setSearchFormToSubmit] = useState<SearchForm>(DEFAULT_SEARCH_FORM)
 
   const { data } = useQuery({
     queryKey: productsQueryKeys.getProducts({
@@ -166,3 +156,10 @@ const columns: GridColDef<ProductsResponseElement>[] = [
   { field: 'displayStatus', headerName: '전시상태', flex: 1 },
   { field: 'createdDate', headerName: '등록일', flex: 1 },
 ]
+
+const DEFAULT_SEARCH_FORM: SearchForm = {
+  status: null,
+  keyword: '',
+  page: 0,
+  size: 10,
+}
