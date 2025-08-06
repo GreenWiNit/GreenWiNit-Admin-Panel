@@ -9,6 +9,8 @@ const GlobalNavigation = () => {
   return (
     <nav className="flex min-w-32 items-center justify-between self-start">
       <NavigationGroup>
+        <NavigationItem to="/members">회원목록</NavigationItem>
+        <NavigationItem to="/members/withdrawn">탈퇴회원목록</NavigationItem>
         <NavigationItem to="/challenges">챌린지관리</NavigationItem>
         {state.location.pathname.startsWith('/challenges') && (
           <Fragment>
