@@ -28,6 +28,7 @@ import {
 } from '@mui/x-data-grid'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/products/orders/')({
   component: Orders,
@@ -112,7 +113,20 @@ function Orders() {
             검색
           </Button>
         </form>
-        <Button className="w-fit self-end">
+        <Button
+          className="w-fit self-end"
+          onClick={() => {
+            productApi
+              .downloadOrdersExcel({
+                ...searchFormToSubmit,
+                ...paginationModel,
+              })
+              .catch((error) => {
+                console.error(error)
+                toast.error(error.message)
+              })
+          }}
+        >
           <FilePresentIcon />
           엑셀 받기
         </Button>

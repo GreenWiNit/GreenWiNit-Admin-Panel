@@ -159,6 +159,18 @@ export const productApi = {
       body: JSON.stringify({ status }),
     }).then(throwResponseStatusThenChaining)
   },
+  downloadOrdersExcel: async (params: {
+    keyword?: string | null
+    status?: DeliveryStatusKo | null
+    page?: number | null
+    size?: number | null
+  }) => {
+    return await fetch(`${API_URL}/admin/orders/point-products/excel?${stringify(params)}`, {
+      method: 'GET',
+    })
+      .then(throwResponseStatusThenChaining)
+      .then(downloadExcel)
+  },
 }
 
 export type SellingStatus = 'exchangeable' | 'sold-out'
