@@ -153,7 +153,7 @@ function UpsertPost() {
                   <div className="flex flex-col gap-2">
                     <InputImage
                       {...register('imageUrl')}
-                      purpose="profile"
+                      purpose="info"
                       value={post?.imageurl ?? null}
                       onChange={(src) => {
                         setValue('imageUrl', src ?? '')

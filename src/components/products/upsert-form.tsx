@@ -79,9 +79,7 @@ const UpsertForm = ({
             <td>
               <InputImage
                 {...form.register('thumbnailUrl')}
-                // @TODO fix it when backend is ready
-                // purpose="product"
-                purpose="profile"
+                purpose="product"
                 value={form.watch('thumbnailUrl')}
                 onChange={(src) => {
                   form.setValue('thumbnailUrl', src, { shouldDirty: true })
