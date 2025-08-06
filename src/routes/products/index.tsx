@@ -32,7 +32,7 @@ interface SearchForm {
 }
 
 function Products() {
-  const searchForm = useForm<SearchForm>({
+  const searchFormBeforeSubmitting = useForm<SearchForm>({
     defaultValues: {
       status: null,
       keyword: '',
@@ -41,8 +41,8 @@ function Products() {
     },
   })
 
-  const [searchParams, setSearchParams] = useState({
-    status: null as 'exchangeable' | 'sold-out' | null,
+  const [searchFormToSubmit, setSearchFormToSubmit] = useState<SearchForm>({
+    status: null,
     keyword: '',
     page: 0,
     size: 10,
@@ -50,10 +50,10 @@ function Products() {
 
   const { data } = useQuery({
     queryKey: productsQueryKeys.getProducts({
-      page: searchParams.page,
-      size: searchParams.size,
-      status: searchParams.status,
-      keyword: searchParams.keyword,
+      page: searchFormToSubmit.page,
+      size: searchFormToSubmit.size,
+      status: searchFormToSubmit.status,
+      keyword: searchFormToSubmit.keyword,
     }).queryKey,
     queryFn: (ctx) => {
       const [, , { page, size, status, keyword }] = ctx.queryKey
@@ -62,8 +62,7 @@ function Products() {
   })
 
   const onSubmit: SubmitHandler<SearchForm> = async (data) => {
-    console.log(data)
-    setSearchParams(data)
+    setSearchFormToSubmit(data)
   }
 
   return (
@@ -72,14 +71,14 @@ function Products() {
       <div className="flex w-full flex-col gap-4">
         <PageTitle>상품목록</PageTitle>
         <Separator />
-        <form className="flex gap-2" onSubmit={searchForm.handleSubmit(onSubmit)}>
+        <form className="flex gap-2" onSubmit={searchFormBeforeSubmitting.handleSubmit(onSubmit)}>
           <table className="w-full max-w-120">
             <tbody className="[&_td,th]:border [&_td,th]:px-1 [&_td,th]:py-2 [&_th]:bg-gray-50 [&_th]:text-center">
               <tr>
                 <th>판매상태</th>
                 <td>
                   <Controller
-                    control={searchForm.control}
+                    control={searchFormBeforeSubmitting.control}
                     name="status"
                     render={({ field }) => (
                       <Select
@@ -103,7 +102,7 @@ function Products() {
                 <th>검색어</th>
                 <td>
                   <Input
-                    {...searchForm.register('keyword')}
+                    {...searchFormBeforeSubmitting.register('keyword')}
                     placeholder="상품코드, 상품명으로 검색이 가능합니다."
                   />
                 </td>
@@ -117,8 +116,8 @@ function Products() {
             className="w-fit"
             onClick={() => {
               productApi.downloadProductsExcel({
-                keyword: searchForm.watch('keyword'),
-                status: searchForm.watch('status'),
+                keyword: searchFormBeforeSubmitting.watch('keyword'),
+                status: searchFormBeforeSubmitting.watch('status'),
               })
             }}
           >
@@ -132,11 +131,14 @@ function Products() {
         <DataGrid
           rows={data?.result.content ?? []}
           columns={columns}
-          paginationModel={{ page: searchForm.watch('page'), pageSize: searchForm.watch('size') }}
+          paginationModel={{
+            page: searchFormBeforeSubmitting.watch('page'),
+            pageSize: searchFormBeforeSubmitting.watch('size'),
+          }}
           pageSizeOptions={[10, 20, 50, 100]}
           onPaginationModelChange={(model) => {
-            searchForm.setValue('page', model.page)
-            searchForm.setValue('size', model.pageSize)
+            searchFormBeforeSubmitting.setValue('page', model.page)
+            searchFormBeforeSubmitting.setValue('size', model.pageSize)
           }}
         />
       </div>
