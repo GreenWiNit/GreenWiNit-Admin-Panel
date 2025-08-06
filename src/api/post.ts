@@ -83,18 +83,37 @@ export const postApi = {
       method: 'DELETE',
     })
   },
+  getCategories: async () => {
+    return await fetch(`${API_URL}/admin/info/categories`, {
+      method: 'GET',
+    })
+      .then(
+        (res) =>
+          res.json() as Promise<{
+            success: boolean
+            message: string
+            result: PostCategory[]
+          }>,
+      )
+      .then((res) => {
+        return res.result.map((item) => ({
+          ko: item.infoCategoryName,
+          id: item.infoCategoryCode,
+        }))
+      })
+  },
 }
 
 export const postsQueryKeys = createQueryKeys('posts', {
   getPosts: (page: number, size: number) => [page, size] as const,
   getPost: (id: string) => [id] as const,
+  getCategories: ['categories'],
 })
 
 export interface PostsElement {
   id: string
   title: string
-  // 'EVENT' | 'NOTICE' | 'NOTICE_EVENT'
-  infoCategoryName: string
+  infoCategoryName: PostCategory['infoCategoryName']
   createdBy: string
   isDisplay: 'Y' | 'N'
   createdDate: string
@@ -106,4 +125,16 @@ export interface PostDetail extends PostsElement {
   lastModifiedBy: string
   modifiedDate: string
   createdDate: string
+  infoCategoryCode: PostCategory['infoCategoryCode']
+}
+
+interface PostCategory {
+  /**
+   * '이벤트' | '콘텐츠' | '기타'
+   */
+  infoCategoryName: string
+  /**
+   * 'EVENT' | 'CONTENTS' | 'ETC'
+   */
+  infoCategoryCode: string
 }
