@@ -5,6 +5,7 @@ import { omit } from 'es-toolkit'
 
 const GlobalNavigation = () => {
   const state = useRouterState()
+  const pathname = state.location.pathname
 
   return (
     <nav className="flex min-w-32 items-center justify-between self-start">
@@ -12,20 +13,22 @@ const GlobalNavigation = () => {
         <NavigationItem to="/members">회원목록</NavigationItem>
         <NavigationItem to="/members/withdrawn">탈퇴회원목록</NavigationItem>
         <NavigationItem to="/challenges">챌린지관리</NavigationItem>
-        {state.location.pathname.startsWith('/challenges') && (
+        {pathname.startsWith('/challenges') ||
+        pathname.startsWith('/quux_hidden_app.html/challenges') ? (
           <Fragment>
             <NavigationItem to="/challenges/type/individual">&gt; 개인 챌린지</NavigationItem>
             <NavigationItem to="/challenges/type/team">&gt; 팀 챌린지</NavigationItem>
           </Fragment>
-        )}
+        ) : null}
         <NavigationItem to="/posts">정보공유관리</NavigationItem>
         <NavigationItem to="/products">상품관리</NavigationItem>
-        {state.location.pathname.startsWith('/products') && (
+        {pathname.startsWith('/products') ||
+        pathname.startsWith('/quux_hidden_app.html/products') ? (
           <Fragment>
             <NavigationItem to="/products">&gt; 상품목록</NavigationItem>
             <NavigationItem to="/products/orders">&gt; 상품교환신청내역</NavigationItem>
           </Fragment>
-        )}
+        ) : null}
       </NavigationGroup>
     </nav>
   )

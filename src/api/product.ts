@@ -125,11 +125,16 @@ export const productApi = {
   }: {
     page?: number
     size?: number
-    status?: DeliveryStatus
+    status?: DeliveryStatusKo | undefined
     keyword?: string
   }) => {
     return await fetch(
-      `${API_URL}/admin/orders/point-products?${stringify({ page, size, status, keyword })}`,
+      `${API_URL}/admin/orders/point-products?${stringify({
+        page,
+        size,
+        status: transferDeliveryStatusKoToDeliveryStatus(status),
+        keyword,
+      })}`,
       {
         method: 'GET',
       },
@@ -148,14 +153,11 @@ export const productApi = {
       }>
     })
   },
-  changeOrderStatus: async (orderId: number, status: DeliveryStatus) => {
-    return await fetch(
-      `${API_URL}/admin/orders/${orderId}/${status === '배송완료' ? 'complete' : status === '배송중' ? 'shipping' : ''}`,
-      {
-        method: 'PATCH',
-        body: JSON.stringify({ status }),
-      },
-    ).then(throwResponseStatusThenChaining)
+  changeOrderStatus: async (orderId: number, status: 'shipping' | 'complete') => {
+    return await fetch(`${API_URL}/admin/orders/${orderId}/${status}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }).then(throwResponseStatusThenChaining)
   },
 }
 
@@ -200,8 +202,7 @@ export interface ProductDetailResponse {
 }
 
 export interface ProductsOrdersResponseElement {
-  // https://github.com/GreenWiNit/backend/issues/192
-  memberKey?: string
+  memberKey: string
   memberEmail: string
   /**
    * '2025-08-04T17:07:34.243Z'
@@ -214,9 +215,7 @@ export interface ProductsOrdersResponseElement {
 }
 
 export interface OrdersResponseElement {
-  // https://github.com/GreenWiNit/backend/issues/192
-  memberKey?: string
-
+  memberKey: string
   id: number
   exchangedAt: string
   memberEmail: string
@@ -226,10 +225,10 @@ export interface OrdersResponseElement {
   recipientName: string
   recipientPhoneNumber: string
   fullAddress: string
-  status: DeliveryStatus
+  status: DeliveryStatusKo
 }
 
-export type DeliveryStatus = '상품 신청' | '배송중' | '배송완료'
+export type DeliveryStatusKo = '상품 신청' | '배송중' | '배송완료'
 
 export const productsQueryKeys = createQueryKeys('products', {
   getProducts: ({
@@ -244,7 +243,30 @@ export const productsQueryKeys = createQueryKeys('products', {
     keyword: string | null
   }) => [{ page, size, status, keyword }] as const,
   getProduct: (id?: number | null) => [id ?? undefined] as const,
-  orders: ['orders'] as const,
+  orders: ['orders'],
+  getOrders: ({
+    page,
+    size,
+    status,
+    keyword,
+  }: {
+    page?: number
+    size?: number
+    status?: DeliveryStatusKo | undefined
+    keyword?: string
+  }) => ['orders', { page, size, status, keyword }] as const,
   getProductsOrders: ({ id, page, size }: { id?: number; page?: number; size?: number }) =>
     ['orders', { id, page, size }] as const,
 })
+
+function transferDeliveryStatusKoToDeliveryStatus(status?: DeliveryStatusKo | undefined) {
+  switch (status) {
+    case '상품 신청':
+      return 'pending-delivery'
+    case '배송중':
+      return 'shipping'
+    case '배송완료':
+      return 'delivered'
+  }
+  return ''
+}
