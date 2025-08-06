@@ -9,7 +9,7 @@ import { Separator } from '@/components/shadcn/separator'
 import useProduct from '@/hooks/use-product'
 import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useId, useState } from 'react'
 
 export const Route = createFileRoute('/products/$id/')({
@@ -18,6 +18,7 @@ export const Route = createFileRoute('/products/$id/')({
 
 function Product() {
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const params = Route.useParams()
   const id = Number(params.id)
   const visibleElementId = useId()
@@ -40,6 +41,7 @@ function Product() {
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.getProduct(id).queryKey,
       })
+      navigate({ to: '/products' })
     },
   })
 
