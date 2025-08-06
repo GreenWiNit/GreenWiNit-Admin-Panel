@@ -31,7 +31,6 @@ function Posts() {
     },
   })
   const handleDelete = () => {
-    console.log('handleDelete', selectedRows)
     if (!selectedRows) {
       return
     }
