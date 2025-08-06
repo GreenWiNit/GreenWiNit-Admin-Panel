@@ -32,7 +32,7 @@ export const productApi = {
     })
   },
   getProduct: async (id: number) => {
-    return await fetch(`${API_URL}/admin/point-products/${id}`, {
+    return await fetch(`${API_URL}/point-products/${id}`, {
       method: 'GET',
     }).then((res) => {
       return res.json() as Promise<{
