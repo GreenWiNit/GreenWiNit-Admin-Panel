@@ -202,8 +202,7 @@ export interface ProductDetailResponse {
 }
 
 export interface ProductsOrdersResponseElement {
-  // https://github.com/GreenWiNit/backend/issues/192
-  memberKey?: string
+  memberKey: string
   memberEmail: string
   /**
    * '2025-08-04T17:07:34.243Z'
@@ -216,9 +215,7 @@ export interface ProductsOrdersResponseElement {
 }
 
 export interface OrdersResponseElement {
-  // https://github.com/GreenWiNit/backend/issues/192
-  memberKey?: string
-
+  memberKey: string
   id: number
   exchangedAt: string
   memberEmail: string

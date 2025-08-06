@@ -64,7 +64,6 @@ function Orders() {
   })
 
   const onSubmit: SubmitHandler<SearchFormState> = (data) => {
-    console.log('onSubmit', data)
     setSearchFormToSubmit(data)
   }
 
