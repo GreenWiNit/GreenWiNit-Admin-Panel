@@ -64,7 +64,7 @@ fetchIntercept.register({
             .then((body) => {
               if (body.message === '접근이 거부되었습니다.' || body.message.includes('JWT 토큰')) {
                 userStore.getState().setAccessToken(null)
-                initHistoryAndLocation()
+                initHistoryAndLocation('/login')
               }
             })
         }
