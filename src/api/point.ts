@@ -1,5 +1,5 @@
 import { API_URL } from '@/constant/network'
-import type { PointHistory } from '@/routes/points/type/point'
+import type { PointHistory } from '@/types/point'
 
 export const pointApi = {
   getUsersPoint: async (id: number, page: number, size: number) => {
