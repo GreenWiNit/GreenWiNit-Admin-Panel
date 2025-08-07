@@ -1,7 +1,7 @@
 import {
   challengeApi,
   challengeQueryKeys,
-  type IndividualChallengeWithVerifyStatus,
+  type TeamChallengeWithVerifyStatus,
   type VerifyStatus,
 } from '@/api/challenge'
 import PageContainer from '@/components/page-container'
@@ -181,7 +181,7 @@ function TeamVerifyStatus() {
   )
 }
 
-const columns: GridColDef<IndividualChallengeWithVerifyStatus>[] = [
+const columns: GridColDef<TeamChallengeWithVerifyStatus>[] = [
   {
     field: 'challengeName',
     headerName: '챌린지 제목',
