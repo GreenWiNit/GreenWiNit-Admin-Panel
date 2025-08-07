@@ -195,7 +195,7 @@ function RouteComponent() {
 
 const columns: GridColDef<IndividualChallengeWithVerifyStatus>[] = [
   {
-    field: 'challengeName',
+    field: 'challengeTitle',
     headerName: '챌린지 제목',
     width: 300,
   },

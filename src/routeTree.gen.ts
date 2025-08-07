@@ -128,11 +128,12 @@ const ChallengesTypeTeamRoute = ChallengesTypeTeamRouteImport.update({
   path: '/challenges/type/team',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ChallengesTypeIndividualRoute = ChallengesTypeIndividualRouteImport.update({
-  id: '/challenges/type/individual',
-  path: '/challenges/type/individual',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const ChallengesTypeIndividualRoute =
+  ChallengesTypeIndividualRouteImport.update({
+    id: '/challenges/type/individual',
+    path: '/challenges/type/individual',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ChallengesIdUpdateRoute = ChallengesIdUpdateRouteImport.update({
   id: '/challenges/$id/update',
   path: '/challenges/$id/update',
@@ -519,8 +520,10 @@ const rootRouteChildren: RootRouteChildren = {
   PointsIdIndexRoute: PointsIdIndexRoute,
   ProductsIdIndexRoute: ProductsIdIndexRoute,
   ProductsOrdersIndexRoute: ProductsOrdersIndexRoute,
-  ChallengesManagementVerifyStatusIndividualRoute: ChallengesManagementVerifyStatusIndividualRoute,
-  ChallengesManagementVerifyStatusTeamRoute: ChallengesManagementVerifyStatusTeamRoute,
+  ChallengesManagementVerifyStatusIndividualRoute:
+    ChallengesManagementVerifyStatusIndividualRoute,
+  ChallengesManagementVerifyStatusTeamRoute:
+    ChallengesManagementVerifyStatusTeamRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

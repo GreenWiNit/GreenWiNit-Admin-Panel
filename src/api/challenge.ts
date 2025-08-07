@@ -81,6 +81,12 @@ export interface IndividualChallengeWithVerifyStatus {
   certificationReview: string
   certifiedDate: string
   status: VerifyStatus
+  challengeId: number
+  /**
+   * CH-P-20250109-143521-A3FV
+   */
+  challengeCode: string
+  challengeTitle: string
 }
 
 export interface TeamChallengeWithVerifyStatus {
