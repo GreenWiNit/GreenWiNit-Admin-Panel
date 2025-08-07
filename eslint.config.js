@@ -26,5 +26,8 @@ export default tseslint.config([
       globals: globals.browser,
     },
   },
+  {
+    ignores: ['routeTree.gen.ts'],
+  },
   eslintConfigPrettier,
 ])
