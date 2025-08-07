@@ -21,6 +21,7 @@ const GlobalNavigation = () => {
           </Fragment>
         ) : null}
         <NavigationItem to="/posts">정보공유관리</NavigationItem>
+        <NavigationItem to="/points">포인트관리</NavigationItem>
         <NavigationItem to="/products">상품관리</NavigationItem>
         {pathname.startsWith('/products') ||
         pathname.startsWith('/quux_hidden_app.html/products') ? (
