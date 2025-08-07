@@ -1,5 +1,5 @@
 import { API_URL } from '@/constant/network'
-import type { ActiveUser } from '@/routes/points/type/user'
+import type { ActiveUser } from '@/types/user'
 
 /* 포인트 전체 조회 할 때 유저 정보가 필요 */
 export const usersApi = {
