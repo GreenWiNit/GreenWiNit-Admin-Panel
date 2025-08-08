@@ -1,4 +1,4 @@
-import type { Participant } from '@/api/challenge'
+import { challengeApi, challengeQueryKeys, type Participant } from '@/api/challenge'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { Button } from '@/components/shadcn/button'
@@ -7,7 +7,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/shadcn/radio-group'
 import { Separator } from '@/components/shadcn/separator'
 import { useChallenge, useChallengesParticipants } from '@/hooks/use-challenge'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import dayjs from 'dayjs'
 import { useId, useMemo } from 'react'
 
@@ -22,6 +23,24 @@ function ChallengeDetail() {
   const { data, isLoading } = useChallenge(Number(id))
   const challenge = data?.result
   const { data: participants } = useChallengesParticipants(Number(id))
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
+
+  const { mutate: deleteChallenge } = useMutation({
+    mutationFn: () => challengeApi.deleteChallenge(Number(id)),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: challengeQueryKeys.challenges.individual.queryKey,
+      })
+      await queryClient.invalidateQueries({
+        queryKey: challengeQueryKeys.challenges.team.queryKey,
+      })
+      await queryClient.invalidateQueries({
+        queryKey: challengeQueryKeys.challenges.challenge(Number(id)).queryKey,
+      })
+      navigate({ to: '/challenges' })
+    },
+  })
 
   const columns = useMemo(() => {
     const isTeamChallenge = data?.result.challengeType === 'TEAM'
@@ -88,7 +107,7 @@ function ChallengeDetail() {
               수정
             </Link>
           </Button>
-          <Button>삭제</Button>
+          <Button onClick={() => deleteChallenge()}>삭제</Button>
         </div>
       </div>
       <table className="w-full border-collapse border [&_th,td]:border [&_th,td]:px-4 [&_th,td]:py-2 [&_th,td]:text-left">

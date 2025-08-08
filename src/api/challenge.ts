@@ -1,6 +1,7 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from '@/constant/network'
 import { stringify } from '@/lib/query-string'
+import { throwResponseStatusThenChaining } from '@/lib/network'
 
 export const challengeApi = {
   getIndividualChallenges: async () => {
@@ -257,6 +258,18 @@ export const challengeApi = {
           result: null
         }>,
     )
+  },
+  changeChallengeVisibility: async (challengeId: number, displayStatus: DisplayStatus) => {
+    return await fetch(`${API_URL}/admin/challenges/${challengeId}/visibility`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ displayStatus }),
+    }).then(throwResponseStatusThenChaining)
+  },
+  deleteChallenge: async (challengeId: number) => {
+    return challengeApi.changeChallengeVisibility(challengeId, 'HIDDEN')
   },
   getChallengesParticipants: async (challengeId?: number | null) => {
     return await fetch(`${API_URL}/admin/challenges/${challengeId}/participants`, {
