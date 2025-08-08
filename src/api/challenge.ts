@@ -1,108 +1,7 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from '@/constant/network'
 import { stringify } from '@/lib/query-string'
-
-export type DisplayStatus = 'VISIBLE' | 'HIDDEN'
-
-export interface Challenge {
-  id: number
-  /**
-   * 'CH-P-20250726-132731-699N'
-   */
-  challengeCode: string
-  challengeName: string
-  challengeStatus: 'PROCEEDING'
-  challengeType: 'PERSONAL' | 'TEAM'
-  challengePoint: number
-  /**
-   * '2025-07-26T13:27:21.147'
-   */
-  beginDateTime: string
-  /**
-   * '2025-07-26T13:27:21.147'
-   */
-  endDateTime: string
-  displayStatus: DisplayStatus
-  challengeImage: string
-  /**
-   * 참여방법
-   */
-  challengeContent: string
-  /**
-   * '2025-07-26T13:27:21.147311'
-   */
-  createdDate: string
-}
-
-export type GetIndividualChallengesResponseElement = Pick<
-  Challenge,
-  | 'id'
-  | 'challengeCode'
-  | 'challengeName'
-  | 'challengePoint'
-  | 'beginDateTime'
-  | 'endDateTime'
-  | 'displayStatus'
-  | 'createdDate'
->
-
-export type GetTeamChallengesResponseElement = Challenge & {
-  participantCount: number
-  currentGroupCount: number
-  maxGroupCount: number
-}
-
-export interface Participant {
-  memberId: number
-  /**
-   * ex) google_3421
-   */
-  memberKey: string
-  participationDate: string
-  /**
-   * ex) T-20250109-143523-C8NQ
-   */
-  teamCode: string | null
-  teamSelectionDate: string | null
-  certificationCount: number
-}
-
-export type VerifyStatus = 'PENDING' | 'PAID' | 'REJECTED'
-
-export interface IndividualChallengeWithVerifyStatus {
-  id: number
-  /**
-   * ex) google foo
-   */
-  memberKey: string
-  memberNickname: string
-  memberEmail: string
-  certificationImageUrl: string
-  certificationReview: string
-  certifiedDate: string
-  status: VerifyStatus
-  challengeId: number
-  /**
-   * CH-P-20250109-143521-A3FV
-   */
-  challengeCode: string
-  challengeTitle: string
-}
-
-export interface TeamChallengeWithVerifyStatus {
-  id: number
-  /**
-   * ex) google foo
-   * @CHECK swagger에서는 memberId
-   */
-  memberKey: string
-  memberNickname: string
-  memberEmail: string
-  certificationImageUrl: string
-  certificationReview: string
-  certifiedDate: string
-  status: VerifyStatus
-}
+import { throwResponseStatusThenChaining } from '@/lib/network'
 
 export const challengeApi = {
   getIndividualChallenges: async () => {
@@ -360,6 +259,18 @@ export const challengeApi = {
         }>,
     )
   },
+  changeChallengeVisibility: async (challengeId: number, displayStatus: DisplayStatus) => {
+    return await fetch(`${API_URL}/admin/challenges/${challengeId}/visibility`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ displayStatus }),
+    }).then(throwResponseStatusThenChaining)
+  },
+  deleteChallenge: async (challengeId: number) => {
+    return challengeApi.changeChallengeVisibility(challengeId, 'HIDDEN')
+  },
   getChallengesParticipants: async (challengeId?: number | null) => {
     return await fetch(`${API_URL}/admin/challenges/${challengeId}/participants`, {
       method: 'GET',
@@ -405,5 +316,107 @@ const challengeKey = createQueryKeys('challenges', {
   challenge: (challengeId: number) => [challengeId] as const,
   challengesParticipants: (challengeId?: number) => [challengeId, 'participants'] as const,
 })
+
+export type DisplayStatus = 'VISIBLE' | 'HIDDEN'
+
+export interface Challenge {
+  id: number
+  /**
+   * 'CH-P-20250726-132731-699N'
+   */
+  challengeCode: string
+  challengeName: string
+  challengeStatus: 'PROCEEDING'
+  challengeType: 'PERSONAL' | 'TEAM'
+  challengePoint: number
+  /**
+   * '2025-07-26T13:27:21.147'
+   */
+  beginDateTime: string
+  /**
+   * '2025-07-26T13:27:21.147'
+   */
+  endDateTime: string
+  displayStatus: DisplayStatus
+  challengeImage: string
+  /**
+   * 참여방법
+   */
+  challengeContent: string
+  /**
+   * '2025-07-26T13:27:21.147311'
+   */
+  createdDate: string
+}
+
+export type GetIndividualChallengesResponseElement = Pick<
+  Challenge,
+  | 'id'
+  | 'challengeCode'
+  | 'challengeName'
+  | 'challengePoint'
+  | 'beginDateTime'
+  | 'endDateTime'
+  | 'displayStatus'
+  | 'createdDate'
+>
+
+export type GetTeamChallengesResponseElement = Challenge & {
+  participantCount: number
+  currentGroupCount: number
+  maxGroupCount: number
+}
+
+export interface Participant {
+  memberId: number
+  /**
+   * ex) google_3421
+   */
+  memberKey: string
+  participationDate: string
+  /**
+   * ex) T-20250109-143523-C8NQ
+   */
+  teamCode: string | null
+  teamSelectionDate: string | null
+  certificationCount: number
+}
+
+export type VerifyStatus = 'PENDING' | 'PAID' | 'REJECTED'
+
+export interface IndividualChallengeWithVerifyStatus {
+  id: number
+  /**
+   * ex) google foo
+   */
+  memberKey: string
+  memberNickname: string
+  memberEmail: string
+  certificationImageUrl: string
+  certificationReview: string
+  certifiedDate: string
+  status: VerifyStatus
+  challengeId: number
+  /**
+   * CH-P-20250109-143521-A3FV
+   */
+  challengeCode: string
+  challengeTitle: string
+}
+
+export interface TeamChallengeWithVerifyStatus {
+  id: number
+  /**
+   * ex) google foo
+   * @CHECK swagger에서는 memberId
+   */
+  memberKey: string
+  memberNickname: string
+  memberEmail: string
+  certificationImageUrl: string
+  certificationReview: string
+  certifiedDate: string
+  status: VerifyStatus
+}
 
 export const challengeQueryKeys = mergeQueryKeys(challengeKey)
