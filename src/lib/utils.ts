@@ -15,9 +15,7 @@ export function initHistoryAndLocation(paramTo: string = '/') {
     }, 100)
   }
   const to =
-    paramTo.startsWith('/') && import.meta.env.PROD
-      ? `/quux_hidden_app.html.html${paramTo}`
-      : paramTo
+    paramTo.startsWith('/') && import.meta.env.PROD ? `/quux_hidden_app.html${paramTo}` : paramTo
   window.history.pushState(null, '', to)
   window.history.pushState(null, '', to)
 }
