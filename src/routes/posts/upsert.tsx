@@ -66,7 +66,7 @@ function UpsertPost() {
     refetchOnWindowFocus: false,
   })
   const post = data?.result
-  const { register, handleSubmit, control, setValue, setError, formState, reset } =
+  const { register, handleSubmit, control, setValue, setError, formState, reset, watch } =
     useForm<FormState>({
       defaultValues: {
         title: post?.title ?? '',
@@ -215,7 +215,7 @@ function UpsertPost() {
                     <InputImage
                       {...register('imageUrl')}
                       purpose="info"
-                      value={post?.imageurl ?? null}
+                      value={watch('imageUrl') ?? null}
                       onChange={(src) => {
                         setValue('imageUrl', src ?? '')
                       }}
