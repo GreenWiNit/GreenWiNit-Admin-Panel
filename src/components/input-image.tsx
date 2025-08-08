@@ -74,26 +74,23 @@ const InputImage = (props: InputImageProps) => {
           <span className="text-sm text-[#999999]">권장 크기: 1200 x 800px</span>
         </Fragment>
       ) : null}
-      {hasRemoteImage && source ? null : (
-        <InputComponent
-          {...omit(props, ['value'])}
-          localFileName={
-            source &&
-            (source?.startsWith('file://') ||
-              source?.startsWith('blob:') ||
-              source?.startsWith('/'))
-              ? source
-              : null
-          }
-          onChangePreview={setPreview}
-          onChange={props.onChange}
-          purpose={props.purpose}
-          ref={mergedRef}
-          onClick={(e) => {
-            e.stopPropagation()
-          }}
-        />
-      )}
+      <InputComponent
+        {...omit(props, ['value'])}
+        localFileName={
+          source &&
+          (source?.startsWith('file://') || source?.startsWith('blob:') || source?.startsWith('/'))
+            ? source
+            : null
+        }
+        onChangePreview={setPreview}
+        onChange={props.onChange}
+        purpose={props.purpose}
+        ref={mergedRef}
+        onClick={(e) => {
+          e.stopPropagation()
+        }}
+        className={cn(hasRemoteImage && source && 'hidden', props.className)}
+      />
     </div>
   )
 }
