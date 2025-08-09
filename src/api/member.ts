@@ -38,7 +38,7 @@ type BaseResponse<T> = {
   result?: T
 }
 
-type BaseResult<T> = {
+type PaginatedData<T> = {
   totalElements: number
   totalPages: number
   currentPage: number
@@ -47,7 +47,7 @@ type BaseResult<T> = {
   content: T
 }
 
-export type MemberData = {
+export type Member = {
   memberKey: string // 'naver_123456789'
   email: string // 'user@naver.com'
   nickname: string // '홍길동'
@@ -57,17 +57,17 @@ export type MemberData = {
   provider: string // 'naver'
 }
 
-type WithdrawnData = MemberData & {
+type WithdrawnData = Member & {
   withdrawalDate: '2025-01-20T14:20:00'
 }
 
-export type GetActiveMembersReponse = BaseResponse<BaseResult<MemberData[]>>
+export type GetActiveMembersReponse = BaseResponse<PaginatedData<Member[]>>
 
-export type GetWithdrawnReponse = BaseResponse<BaseResult<WithdrawnData[]>>
+export type GetWithdrawnReponse = BaseResponse<PaginatedData<WithdrawnData[]>>
 
 type DeleteMemberByAdminResponse = BaseResponse<undefined>
 
-type GetActiveMembersExcelResponse = Blob | BaseResponse<undefined> // excel 파일 반환은 JSON이 아닌 바이너리 타입(Blob)을 반환한다고
+type GetActiveMembersExcelResponse = Blob | BaseResponse<undefined>
 
 type GetWithdrawnExcelResponse = Blob | BaseResponse<undefined>
 
