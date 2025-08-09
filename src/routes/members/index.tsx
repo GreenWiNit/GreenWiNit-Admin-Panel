@@ -6,10 +6,12 @@ import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@radix-ui/react-select'
 import { createFileRoute } from '@tanstack/react-router'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
-import { memberApi, type MemberData } from '@/api/member'
+import { memberApi, type Member } from '@/api/member'
 import { Button } from '@/components/shadcn/button'
 import { useActiveMembers } from '@/hooks/use-members'
 import { toast } from 'sonner'
+import { postApi } from '@/api/post'
+import AllertDialog from '@/components/dialog/AllertDialog'
 
 export const Route = createFileRoute('/members/')({
   component: RouteComponent,
@@ -20,10 +22,6 @@ function RouteComponent() {
   if (!data) return <div>데이터를 불러오는 중...</div> //@TODO fallback ui로 대체될 예정 (기획 미정)
   if (!data.result?.content) return <div>리스트가 없습니다..</div>
 
-  const downloadExcel = () => {
-    // @TODO 엑셀 다운로드 api 연결 예정
-  }
-
   return (
     <PageContainer className="flex-row">
       <GlobalNavigation />
@@ -32,7 +30,7 @@ function RouteComponent() {
         <Separator />
         <div className="flex justify-between">
           <span className="text-2xl">Title : {data.result?.totalElements}</span>
-          <Button className="w-fit" onClick={downloadExcel}>
+          <Button className="w-fit" onClick={() => postApi.downloadExcel()}>
             <FilePresentIcon />
             엑셀 받기
           </Button>
@@ -55,7 +53,7 @@ function RouteComponent() {
   )
 }
 
-const columns: GridColDef<MemberData>[] = [
+const columns: GridColDef<Member>[] = [
   { field: 'memberKey', headerName: 'MemberKey', flex: 1, headerAlign: 'center', align: 'center' },
   { field: 'email', headerName: '이메일', flex: 1, headerAlign: 'center', align: 'center' },
   { field: 'nickname', headerName: '닉네임', flex: 1, headerAlign: 'center', align: 'center' },
@@ -72,42 +70,24 @@ const columns: GridColDef<MemberData>[] = [
     renderCell: (params) => {
       const memberKey = params.row.memberKey
       return (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-            width: '100%',
-          }}
-        >
-          <button
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              fontSize: '12px',
-              width: '60px',
-              height: '28px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              cursor: 'pointer',
+        <div className="flex h-full w-full items-center justify-center">
+          <AllertDialog
+            trigger={
+              <button
+                className="flex h-[28px] w-[60px] cursor-pointer items-center justify-center rounded border border-gray-300 text-[12px]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                삭제
+              </button>
+            }
+            onClick={async () => {
+              const res = await memberApi.deleteMemberByAdmin(memberKey)
+              if (res.success) toast.success('회원 삭제에 성공했습니다.')
+              setTimeout(() => {
+                window.location.reload()
+              }, 1500)
             }}
-            onClick={async (e) => {
-              e.stopPropagation()
-              if (window.confirm('정말 이 회원을 삭제하시겠습니까?')) {
-                //@TODO 여기도 modal이 있어야 하지 않을까 싶습니다.
-                const res = await memberApi.deleteMemberByAdmin(memberKey)
-                if (res.success) toast.success('회원 삭제에 성공했습니다.')
-
-                setTimeout(() => {
-                  window.location.reload()
-                }, 1500)
-              }
-            }}
-          >
-            삭제
-          </button>
+          />
         </div>
       )
     },
