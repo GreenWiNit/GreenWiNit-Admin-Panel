@@ -29,7 +29,7 @@ function RouteComponent() {
         <PageTitle className="self-start">회원 목록</PageTitle>
         <Separator />
         <div className="flex justify-between">
-          <span className="text-2xl">Title : {data.result?.totalElements}</span>
+          <span className="text-2xl">Total : {data.result?.totalElements}</span>
           <Button className="w-fit" onClick={() => postApi.downloadExcel()}>
             <FilePresentIcon />
             엑셀 받기
