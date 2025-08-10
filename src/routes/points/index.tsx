@@ -42,8 +42,9 @@ function PointsPage() {
         email: user.email,
         nickname: user.nickname,
         /**
+         *
          * @TODO balanceAfter 다른 곳에서 불러와야 함 - 남은 포인트가 이것이 맞는가?
-        */
+         */
       }),
     ) ?? []
 
