@@ -35,7 +35,8 @@ function PointsPage() {
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel | null>(null)
   const { data: userManageData, isLoading: usersLoading } = useUsers(page, size)
 
-  if (usersLoading) return <div className="flex justify-center">유저 정보 불러오는 중...</div>
+  if (usersLoading || userManageData === undefined)
+    return <div className="flex justify-center">유저 정보 불러오는 중...</div>
 
   console.log(selectedRows) // 나중에 사용해야 함
 
@@ -50,7 +51,7 @@ function PointsPage() {
   }
 
   const rows =
-    userManageData?.result.content.map(
+    userManageData.result.content.map(
       (user: ActiveUser): PointManageUserList => ({
         memberId: user.memberId,
         memberKey: user.memberKey,
@@ -66,19 +67,19 @@ function PointsPage() {
       <div className="mx-8 flex w-full flex-col gap-2">
         <PageTitle>포인트 관리</PageTitle>
         <Separator />
-        <div className="flex flex-row items-center gap-4 border-2">
+        <div className="flex flex-row items-center gap-2 border-2 py-2">
           <div className="shrink-0 border-r-2 px-2 py-0 font-bold">검색어</div>
           <Input
             placeholder="사용자 ID 또는 닉네임 검색"
             value={searchUser}
             onChange={(e) => setSearchUser(e.target.value)}
-            className="flex flex-1 border-2 focus:border-b-black"
+            className="flex flex-1 border-0 focus:outline-0"
           />
-          <button onClick={handleSearch} className="f-full rounded-0 border-2 border-black px-8">
+          <button onClick={handleSearch} className="f-full rounded-0 border-black px-8 py-1">
             검색
           </button>
         </div>
-        <div className="scrollbar-hide mt-2 h-full w-full">
+        <div className="scrollbar-hide mt-2 h-160 w-full">
           <DataGrid
             rows={rows}
             columns={columns}

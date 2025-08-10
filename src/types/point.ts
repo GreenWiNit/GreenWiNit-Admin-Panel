@@ -29,6 +29,5 @@ export type PointManageUserList = {
 }
 
 export interface PointManageList extends PointManageUserList {
-  memberId: number
   balanceAfter: number
 }
