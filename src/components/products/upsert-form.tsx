@@ -3,7 +3,7 @@ import { Input } from '../shadcn/input'
 import InputImage from '../input-image'
 import { Textarea } from '../shadcn/textarea'
 import { Button } from '../shadcn/button'
-import { ErrorMessage } from '@hookform/error-message'
+import ErrorMessage from '../form/ErrorMessage'
 import type { FormState, UpsertFormProps } from './type'
 import { useEffect } from 'react'
 import { useCanGoBack, useRouter } from '@tanstack/react-router'
@@ -85,11 +85,7 @@ const UpsertForm = ({
                   form.setValue('thumbnailUrl', src, { shouldDirty: true })
                 }}
               />
-              <ErrorMessage
-                errors={form.formState.errors}
-                name="thumbnailUrl"
-                render={({ message }) => <p className="text-red-500">{message}</p>}
-              />
+              <ErrorMessage errors={form.formState.errors} name="thumbnailUrl" />
             </td>
           </tr>
           <tr>
