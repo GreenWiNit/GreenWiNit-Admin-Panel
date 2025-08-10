@@ -2,7 +2,7 @@ import { API_URL } from '@/constant/network'
 import type { PointHistory } from '@/types/point'
 
 export const pointApi = {
-  getUsersPoint: async (id: string, page: number, size: number) => {
+  getUsersPoint: async (id: number, page: number, size: number) => {
     return await fetch(`${API_URL}/admin/points/members/${id}?page=${page}&size=${size}`, {
       method: 'GET',
       headers: {
@@ -14,6 +14,7 @@ export const pointApi = {
           throw new Error(`HTTP error! status: ${res.status} ${res.statusText}`)
         }
         const data = await res.json()
+        console.log(data)
         return data as {
           success: true
           message: string

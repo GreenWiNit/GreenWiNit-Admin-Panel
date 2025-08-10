@@ -10,7 +10,7 @@ import {
 import { Separator } from '@radix-ui/react-separator'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
-import { useUsers } from '@/hooks/use-user'
+import { useUsers } from '@/hooks/use-users'
 import type { PointManageUserList } from '@/types/point'
 import type { ActiveUser } from '@/types/user'
 import GlobalNavigation from '@/components/global-navigation'
@@ -33,13 +33,16 @@ function PointsPage() {
   const [size, setSize] = useState(10)
   const [searchUser, setSearchUser] = useState<string>('')
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel | null>(null)
-  const { data: userManageData } = useUsers(page, size)
+  const { data: userManageData, isLoading: usersLoading } = useUsers(page, size)
+
+  if (usersLoading) return <div className="flex justify-center">유저 정보 불러오는 중...</div>
+
   console.log(selectedRows) // 나중에 사용해야 함
 
   const handleRowClick = (params: GridRowParams<PointManageUserList>) => {
-    const memberKey = params.row.memberKey
+    const memberId = params.row.memberId
 
-    router.navigate({ to: `/points/${memberKey}` }) // id가 없이 멤버키로 사용자를 조회해야 되는가?
+    router.navigate({ to: `/points/${memberId}` }) // id가 없이 멤버키로 사용자를 조회해야 되는가?
   }
 
   const handleSearch = () => {
@@ -49,6 +52,7 @@ function PointsPage() {
   const rows =
     userManageData?.result.content.map(
       (user: ActiveUser): PointManageUserList => ({
+        memberId: user.memberId,
         memberKey: user.memberKey,
         email: user.email,
         nickname: user.nickname,
@@ -88,6 +92,7 @@ function PointsPage() {
             onRowSelectionModelChange={(row) => {
               setSelectedRows(row)
             }}
+            checkboxSelection={true}
           />
         </div>
       </div>

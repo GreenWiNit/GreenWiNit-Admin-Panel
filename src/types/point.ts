@@ -22,11 +22,13 @@ export type PointHistory = {
 }
 
 export type PointManageUserList = {
+  memberId: number
   memberKey: string
   email: string
   nickname: string
 }
 
 export interface PointManageList extends PointManageUserList {
+  memberId: number
   balanceAfter: number
 }
