@@ -14,7 +14,6 @@ export const pointApi = {
           throw new Error(`HTTP error! status: ${res.status} ${res.statusText}`)
         }
         const data = await res.json()
-        console.log(data)
         return data as {
           success: true
           message: string

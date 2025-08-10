@@ -11,25 +11,6 @@ import type { PointHistory } from '@/types/point'
 import { useUsers } from '@/hooks/use-users'
 import type { ActiveUser } from '@/types/user'
 
-export const Route = createFileRoute('/points/$id/')({
-  component: PointDetail,
-})
-
-const userColumns: GridColDef<ActiveUser>[] = [
-  { field: 'memberKey', headerName: 'MemberKey', flex: 3 },
-  { field: 'email', headerName: '사용자 이메일', flex: 2 },
-  { field: 'nickname', headerName: '닉네임', flex: 1 },
-]
-
-const pointHistoryColumns: GridColDef<PointHistory>[] = [
-  { field: 'transcationAt', headerName: '날짜', flex: 2 },
-  { field: 'type', headerName: '구분', flex: 1 },
-  { field: 'description', headerName: '내용', flex: 2 },
-  { field: 'earnedAmount', headerName: '적립 포인트', flex: 1 },
-  { field: 'spendAmount', headerName: '차감 포인트', flex: 1 },
-  { field: 'balanceAfter', headerName: '남은 포인트', flex: 1 },
-]
-
 function PointDetail() {
   const [page, setPage] = useState(0)
   const [size, setSize] = useState(10)
@@ -103,3 +84,22 @@ function PointDetail() {
     </div>
   )
 }
+
+export const Route = createFileRoute('/points/$id/')({
+  component: PointDetail,
+})
+
+const userColumns: GridColDef<ActiveUser>[] = [
+  { field: 'memberKey', headerName: 'MemberKey', flex: 3 },
+  { field: 'email', headerName: '사용자 이메일', flex: 2 },
+  { field: 'nickname', headerName: '닉네임', flex: 1 },
+]
+
+const pointHistoryColumns: GridColDef<PointHistory>[] = [
+  { field: 'transcationAt', headerName: '날짜', flex: 2 },
+  { field: 'type', headerName: '구분', flex: 1 },
+  { field: 'description', headerName: '내용', flex: 2 },
+  { field: 'earnedAmount', headerName: '적립 포인트', flex: 1 },
+  { field: 'spendAmount', headerName: '차감 포인트', flex: 1 },
+  { field: 'balanceAfter', headerName: '남은 포인트', flex: 1 },
+]

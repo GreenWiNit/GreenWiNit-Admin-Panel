@@ -1,12 +1,7 @@
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import Input from '@mui/material/Input'
-import {
-  DataGrid,
-  type GridColDef,
-  type GridRowParams,
-  type GridRowSelectionModel,
-} from '@mui/x-data-grid'
+import { DataGrid, type GridColDef, type GridRowParams } from '@mui/x-data-grid'
 import { Separator } from '@radix-ui/react-separator'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -15,30 +10,16 @@ import type { PointManageUserList } from '@/types/point'
 import type { ActiveUser } from '@/types/user'
 import GlobalNavigation from '@/components/global-navigation'
 
-export const Route = createFileRoute('/points/')({
-  component: PointsPage,
-})
-
-const columns: GridColDef<PointManageUserList>[] = [
-  { field: 'memberKey', headerName: 'MemberKey', width: 150 },
-  { field: 'email', headerName: '사용자 이메일', width: 200 },
-  { field: 'nickname', headerName: '닉네임', width: 200 },
-  { field: 'balanceAfter', headerName: '남은 포인트', width: 200 },
-]
-
 function PointsPage() {
   const router = useRouter()
 
   const [page, setPage] = useState(0)
   const [size, setSize] = useState(10)
   const [searchUser, setSearchUser] = useState<string>('')
-  const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel | null>(null)
   const { data: userManageData, isLoading: usersLoading } = useUsers(page, size)
 
   if (usersLoading || userManageData === undefined)
     return <div className="flex justify-center">유저 정보 불러오는 중...</div>
-
-  console.log(selectedRows) // 나중에 사용해야 함
 
   const handleRowClick = (params: GridRowParams<PointManageUserList>) => {
     const memberId = params.row.memberId
@@ -60,7 +41,9 @@ function PointsPage() {
         memberKey: user.memberKey,
         email: user.email,
         nickname: user.nickname,
-        /* balanceAfter: 다른 곳에서 불러와야 함 - 남은 포인트가 이것이 맞는가? */
+        /**
+         * @TODO balanceAfter 다른 곳에서 불러와야 함 - 남은 포인트가 이것이 맞는가?
+        */
       }),
     ) ?? []
 
@@ -93,9 +76,6 @@ function PointsPage() {
               setPage(model.page)
               setSize(model.pageSize)
             }}
-            onRowSelectionModelChange={(row) => {
-              setSelectedRows(row)
-            }}
             checkboxSelection={true}
           />
         </div>
@@ -103,3 +83,14 @@ function PointsPage() {
     </PageContainer>
   )
 }
+
+export const Route = createFileRoute('/points/')({
+  component: PointsPage,
+})
+
+const columns: GridColDef<PointManageUserList>[] = [
+  { field: 'memberKey', headerName: 'MemberKey', width: 150 },
+  { field: 'email', headerName: '사용자 이메일', width: 200 },
+  { field: 'nickname', headerName: '닉네임', width: 200 },
+  { field: 'balanceAfter', headerName: '남은 포인트', width: 200 },
+]
