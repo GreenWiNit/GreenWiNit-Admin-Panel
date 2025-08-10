@@ -47,7 +47,10 @@ function PointsPage() {
   }
 
   const handleSearch = () => {
-    /* 검색 기능 추가 */
+    /**
+     * @TODO 검색 기능 추가
+     * ref: https://github.com/GreenWiNit/backend/issues/225
+     */
   }
 
   const rows =
