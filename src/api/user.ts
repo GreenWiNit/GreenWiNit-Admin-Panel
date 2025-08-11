@@ -15,7 +15,7 @@ export const usersApi = {
       .then(async (res) => {
         return res.json() as Promise<{
           success: true
-          message: 'string'
+          message: string
           result: {
             totalElements: number
             totalPages: number
