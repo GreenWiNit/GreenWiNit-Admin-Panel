@@ -1,22 +1,21 @@
 import { API_URL } from '@/constant/network'
+import { throwResponseStatusThenChaining } from '@/lib/network'
+import type { GetListProps } from '@/types/list'
 import type { ActiveUser } from '@/types/user'
 
 export const usersApi = {
-  getUsers: async (page: number, size: number) => {
+  getUsers: async ({ page, size }: GetListProps) => {
     return await fetch(`${API_URL}/admin/members?page=${page}&size=${size}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
     })
+      .then(throwResponseStatusThenChaining)
       .then(async (res) => {
-        const data = await res.json()
-        if (!data) {
-          throw new Error(`HTTP error! status: ${res.status} ${res.statusText}`)
-        }
-        return data as {
+        return res.json() as Promise<{
           success: true
-          message: string
+          message: 'string'
           result: {
             totalElements: number
             totalPages: number
@@ -25,7 +24,7 @@ export const usersApi = {
             hasNext: true
             content: ActiveUser[]
           }
-        }
+        }>
       })
       .catch((error) => {
         throw new Error(error instanceof Error ? error.message : '예상치 못한 에러가 발생했습니다.')
