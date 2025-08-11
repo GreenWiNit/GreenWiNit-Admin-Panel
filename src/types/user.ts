@@ -6,3 +6,5 @@ export interface ActiveUser extends PointManageUserList {
   role: string
   provider: string
 }
+
+export type UserExceptionId = Omit<ActiveUser, 'memberId'>

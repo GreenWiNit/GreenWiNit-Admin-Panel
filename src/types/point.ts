@@ -22,6 +22,7 @@ export type PointHistory = {
 }
 
 export type PointManageUserList = {
+  memberId: number
   memberKey: string
   email: string
   nickname: string
