@@ -1,6 +1,5 @@
 import { postApi, postsQueryKeys } from '@/api/post'
 import DatePickerSingle from '@/components/date-picker-single'
-import { RenderMessage } from '@/components/form/ErrorMessage'
 import GlobalNavigation from '@/components/global-navigation'
 import InputImage from '@/components/input-image'
 import PageContainer from '@/components/page-container'
@@ -20,7 +19,7 @@ import { Separator } from '@/components/shadcn/separator'
 import { Textarea } from '@/components/shadcn/textarea'
 import usePostCategories from '@/hooks/use-post-categoris'
 import { ApiErrorHasErrors } from '@/lib/error'
-import { ErrorMessage } from '@hookform/error-message'
+import ErrorMessage from '@/components/form/ErrorMessage'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   createFileRoute,
@@ -161,7 +160,7 @@ function UpsertPost() {
                 <td>
                   <div className="flex flex-col gap-2">
                     <Input {...register('title', { required: true })} />
-                    <ErrorMessage errors={errors} name="title" render={RenderMessage} />
+                    <ErrorMessage errors={errors} name="title" />
                   </div>
                 </td>
                 <th>정보공유코드</th>
@@ -192,7 +191,7 @@ function UpsertPost() {
                       )}
                       rules={{ required: '카테고리를 선택해주세요.' }}
                     />
-                    <ErrorMessage errors={errors} name="categoryId" render={RenderMessage} />
+                    <ErrorMessage errors={errors} name="categoryId" />
                   </div>
                 </td>
                 <th>등록 날짜</th>
@@ -220,7 +219,7 @@ function UpsertPost() {
                         setValue('imageUrl', src ?? '')
                       }}
                     />
-                    <ErrorMessage errors={errors} name="imageUrl" render={RenderMessage} />
+                    <ErrorMessage errors={errors} name="imageUrl" />
                   </div>
                 </td>
               </tr>
@@ -229,7 +228,7 @@ function UpsertPost() {
                 <td colSpan={3}>
                   <div className="flex flex-col gap-2">
                     <Textarea {...register('content', { required: true })} />
-                    <ErrorMessage errors={errors} name="content" render={RenderMessage} />
+                    <ErrorMessage errors={errors} name="content" />
                   </div>
                 </td>
               </tr>
@@ -271,7 +270,7 @@ function UpsertPost() {
                             </Label>
                           </div>
                         </RadioGroup>
-                        <ErrorMessage errors={errors} name="isDisplay" render={RenderMessage} />
+                        <ErrorMessage errors={errors} name="isDisplay" />
                       </div>
                     )}
                   />
