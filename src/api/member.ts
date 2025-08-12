@@ -1,5 +1,6 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from './../constant/network'
+import { downloadExcel } from '@/lib/network'
 
 export const memberApi = {
   getActiveMembers: async (page = 0, pageSize = 10) => {
@@ -14,11 +15,11 @@ export const memberApi = {
   },
   getActiveMembersExcel: async () => {
     const response = await fetch(`${API_URL}/admin/members/excel`)
-    return response.json() as Promise<GetActiveMembersExcelResponse>
+    await downloadExcel(response)
   },
   getWithdrawnExcel: async () => {
     const response = await fetch(`${API_URL}/admin/members/withdrawn/excel`)
-    return response.json() as Promise<GetWithdrawnExcelResponse>
+    await downloadExcel(response)
   },
   deleteMemberByAdmin: async (memberKey: string) => {
     const response = await fetch(`${API_URL}/admin/members/delete`, {
@@ -38,7 +39,7 @@ type BaseResponse<T> = {
   result?: T
 }
 
-type BaseResult<T> = {
+type PaginatedData<T> = {
   totalElements: number
   totalPages: number
   currentPage: number
@@ -47,7 +48,7 @@ type BaseResult<T> = {
   content: T
 }
 
-export type MemberData = {
+export type Member = {
   memberKey: string // 'naver_123456789'
   email: string // 'user@naver.com'
   nickname: string // '홍길동'
@@ -57,19 +58,15 @@ export type MemberData = {
   provider: string // 'naver'
 }
 
-type WithdrawnData = MemberData & {
+type WithdrawnData = Member & {
   withdrawalDate: '2025-01-20T14:20:00'
 }
 
-export type GetActiveMembersReponse = BaseResponse<BaseResult<MemberData[]>>
+export type GetActiveMembersReponse = BaseResponse<PaginatedData<Member[]>>
 
-export type GetWithdrawnReponse = BaseResponse<BaseResult<WithdrawnData[]>>
+export type GetWithdrawnReponse = BaseResponse<PaginatedData<WithdrawnData[]>>
 
 type DeleteMemberByAdminResponse = BaseResponse<undefined>
-
-type GetActiveMembersExcelResponse = Blob | BaseResponse<undefined> // excel 파일 반환은 JSON이 아닌 바이너리 타입(Blob)을 반환한다고
-
-type GetWithdrawnExcelResponse = Blob | BaseResponse<undefined>
 
 const memberKey = createQueryKeys('members', {
   active: (page?: number, pageSize?: number) =>

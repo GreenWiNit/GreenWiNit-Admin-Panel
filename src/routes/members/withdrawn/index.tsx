@@ -4,7 +4,7 @@ import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { createFileRoute } from '@tanstack/react-router'
-import type { MemberData } from '@/api/member'
+import { memberApi, type Member } from '@/api/member'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { Button } from '@/components/shadcn/button'
 import { useWithDrawn } from '@/hooks/use-members'
@@ -19,10 +19,6 @@ function RouteComponent() {
   if (!data) return <div>데이터를 불러오는 중...</div> //@TODO fallback ui로 대체될 예정 (기획 미정)
   if (!data.result?.content) return <div>리스트가 없습니다..</div>
 
-  const downloadExcel = () => {
-    // @TODO 엑셀 다운로드 api 연결 예정
-  }
-
   return (
     <PageContainer className="flex-row">
       <GlobalNavigation />
@@ -31,7 +27,7 @@ function RouteComponent() {
         <Separator />
         <div className="flex justify-between">
           <span className="text-2xl">Title : {data.result?.totalElements}</span>
-          <Button className="w-fit" onClick={downloadExcel}>
+          <Button className="w-fit" onClick={memberApi.getWithdrawnExcel}>
             <FilePresentIcon />
             엑셀 받기
           </Button>
@@ -55,7 +51,7 @@ function RouteComponent() {
   )
 }
 
-const columns: GridColDef<MemberData>[] = [
+const columns: GridColDef<Member>[] = [
   { field: 'memberKey', headerName: 'MemberKey', flex: 1, headerAlign: 'center', align: 'center' },
   { field: 'email', headerName: '이메일', flex: 1, headerAlign: 'center', align: 'center' },
   { field: 'nickname', headerName: '닉네임', flex: 1, headerAlign: 'center', align: 'center' },
