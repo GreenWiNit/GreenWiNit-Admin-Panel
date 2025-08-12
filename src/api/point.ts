@@ -1,4 +1,5 @@
 import { API_URL } from '@/constant/network'
+import { throwResponseStatusThenChaining } from '@/lib/network'
 import type { PointHistory } from '@/types/point'
 
 export const pointApi = {
@@ -31,4 +32,17 @@ export const pointApi = {
         throw new Error(error instanceof Error ? error.message : '예상치 못한 에러가 발생했습니다.')
       })
   },
+  downloadExcel: async (memberId: number) => {
+    return await fetch(`${API_URL}/admin/points/members/${memberId}/excel`)
+      .then(throwResponseStatusThenChaining)
+      .then((res) => res.json() as Promise<GetPointHistoryExcelResponse>)
+  },
 }
+
+type BaseResponse<T> = {
+  success: string
+  message: string
+  result: T
+}
+
+type GetPointHistoryExcelResponse = Blob | BaseResponse<undefined>

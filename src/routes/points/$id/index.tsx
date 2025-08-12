@@ -1,4 +1,3 @@
-// routes/points/$memberKey.tsx
 import GlobalNavigation from '@/components/global-navigation'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
@@ -10,6 +9,9 @@ import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import type { PointHistory } from '@/types/point'
 import { useUsers } from '@/hooks/use-users'
 import type { ActiveUser } from '@/types/user'
+import { Button } from '@/components/shadcn/button'
+import { FileSpreadsheetIcon } from 'lucide-react'
+import { pointApi } from '@/api/point'
 
 function PointDetail() {
   const [page, setPage] = useState(0)
@@ -54,7 +56,7 @@ function PointDetail() {
         <div className="mx-2 flex w-full flex-col">
           <PageTitle className="mb-2 flex flex-row">사용자 포인트 내역</PageTitle>
           <Separator />
-          <div className="mt-2 w-160">
+          <div className="mt-2 w-200">
             <DataGrid
               rows={userRow}
               columns={userColumns}
@@ -67,6 +69,17 @@ function PointDetail() {
               hideFooter={true}
             />
           </div>
+          <div className="flex-start mt-4 flex justify-end">
+            <Button
+              className="w-fit"
+              onClick={() => {
+                pointApi.downloadExcel(memberId)
+              }}
+            >
+              <FileSpreadsheetIcon />
+              엑셀 받기
+            </Button>
+          </div>
           <div className="mt-4">
             <DataGrid
               rows={usersPointRow}
@@ -76,7 +89,7 @@ function PointDetail() {
                 setPage(model.page)
                 setSize(model.pageSize)
               }}
-              checkboxSelection={true}
+              checkboxSelection={false}
             />
           </div>
         </div>
@@ -90,16 +103,16 @@ export const Route = createFileRoute('/points/$id/')({
 })
 
 const userColumns: GridColDef<ActiveUser>[] = [
-  { field: 'memberKey', headerName: 'MemberKey', flex: 3 },
-  { field: 'email', headerName: '사용자 이메일', flex: 2 },
-  { field: 'nickname', headerName: '닉네임', flex: 1 },
+  { field: 'memberKey', headerName: 'MemberKey', flex: 1, headerAlign: 'center', align: 'center' },
+  { field: 'email', headerName: '사용자 이메일', flex: 1, headerAlign: 'center', align: 'center' },
+  { field: 'nickname', headerName: '닉네임', flex: 1, headerAlign: 'center', align: 'center' },
 ]
 
 const pointHistoryColumns: GridColDef<PointHistory>[] = [
-  { field: 'transcationAt', headerName: '날짜', flex: 2 },
-  { field: 'type', headerName: '구분', flex: 1 },
-  { field: 'description', headerName: '내용', flex: 2 },
-  { field: 'earnedAmount', headerName: '적립 포인트', flex: 1 },
-  { field: 'spendAmount', headerName: '차감 포인트', flex: 1 },
-  { field: 'balanceAfter', headerName: '남은 포인트', flex: 1 },
+  { field: 'transcationAt', headerName: '날짜', flex: 1, headerAlign: 'center' },
+  { field: 'type', headerName: '구분', flex: 2, headerAlign: 'center' },
+  { field: 'description', headerName: '내용', flex: 2, headerAlign: 'center' },
+  { field: 'earnedAmount', headerName: '적립 포인트', flex: 1, headerAlign: 'center' },
+  { field: 'spendAmount', headerName: '차감 포인트', flex: 1, headerAlign: 'center' },
+  { field: 'balanceAfter', headerName: '남은 포인트', flex: 1, headerAlign: 'center' },
 ]
