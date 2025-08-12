@@ -4,12 +4,11 @@ import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { createFileRoute } from '@tanstack/react-router'
-import type { Member } from '@/api/member'
+import { memberApi, type Member } from '@/api/member'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { Button } from '@/components/shadcn/button'
 import { useWithDrawn } from '@/hooks/use-members'
 import { Separator } from '@radix-ui/react-select'
-import { postApi } from '@/api/post'
 
 export const Route = createFileRoute('/members/withdrawn/')({
   component: RouteComponent,
@@ -28,7 +27,7 @@ function RouteComponent() {
         <Separator />
         <div className="flex justify-between">
           <span className="text-2xl">Title : {data.result?.totalElements}</span>
-          <Button className="w-fit" onClick={() => postApi.downloadExcel()}>
+          <Button className="w-fit" onClick={memberApi.getWithdrawnExcel}>
             <FilePresentIcon />
             엑셀 받기
           </Button>

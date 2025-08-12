@@ -1,5 +1,6 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from './../constant/network'
+import { downloadExcel } from '@/lib/network'
 
 export const memberApi = {
   getActiveMembers: async (page = 0, pageSize = 10) => {
@@ -14,11 +15,11 @@ export const memberApi = {
   },
   getActiveMembersExcel: async () => {
     const response = await fetch(`${API_URL}/admin/members/excel`)
-    return response.json() as Promise<GetActiveMembersExcelResponse>
+    await downloadExcel(response)
   },
   getWithdrawnExcel: async () => {
     const response = await fetch(`${API_URL}/admin/members/withdrawn/excel`)
-    return response.json() as Promise<GetWithdrawnExcelResponse>
+    await downloadExcel(response)
   },
   deleteMemberByAdmin: async (memberKey: string) => {
     const response = await fetch(`${API_URL}/admin/members/delete`, {
@@ -66,10 +67,6 @@ export type GetActiveMembersReponse = BaseResponse<PaginatedData<Member[]>>
 export type GetWithdrawnReponse = BaseResponse<PaginatedData<WithdrawnData[]>>
 
 type DeleteMemberByAdminResponse = BaseResponse<undefined>
-
-type GetActiveMembersExcelResponse = Blob | BaseResponse<undefined>
-
-type GetWithdrawnExcelResponse = Blob | BaseResponse<undefined>
 
 const memberKey = createQueryKeys('members', {
   active: (page?: number, pageSize?: number) =>
