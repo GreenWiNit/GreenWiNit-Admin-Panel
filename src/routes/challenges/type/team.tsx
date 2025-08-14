@@ -35,7 +35,9 @@ function TeamChallenges() {
               엑셀 받기
             </Button>
             <Button className="w-fit" asChild>
-              <Link to="/challenges/create">생성</Link>
+              <Link to="/challenges/create" search={{ type: 'team' }}>
+                생성
+              </Link>
             </Button>
           </div>
         </div>

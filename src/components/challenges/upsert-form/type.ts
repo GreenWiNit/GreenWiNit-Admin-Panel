@@ -3,7 +3,6 @@ import type { SubmitHandler } from 'react-hook-form'
 
 export interface FormState {
   title: string
-  type: 'individual' | 'team'
   period: {
     start: Date | null
     end: Date | null
@@ -13,8 +12,7 @@ export interface FormState {
    * 참여방법
    */
   content: string
-  // @TODO fix to string
-  imageUrl: File | null
+  imageUrl: string | null
   displayStatus: DisplayStatus
 }
 

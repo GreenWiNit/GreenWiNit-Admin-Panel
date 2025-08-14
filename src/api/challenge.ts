@@ -2,8 +2,10 @@ import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from '@/constant/network'
 import { stringify } from '@/lib/query-string'
 import { throwResponseStatusThenChaining } from '@/lib/network'
+import type { ApiResponse, PaginatedResponse } from '@/types/api'
 
 export const challengeApi = {
+  // @MEMO v2 작업완료
   getIndividualChallenges: async () => {
     return await fetch(`${API_URL}/admin/challenges/personal`, {
       method: 'GET',
@@ -12,15 +14,16 @@ export const challengeApi = {
       },
     }).then(
       (res) =>
-        res.json() as Promise<{
-          message: string
-          result: {
-            hasNext: boolean
-            nextCursor: string | null
-            content: Array<GetIndividualChallengesResponseElement>
-          }
-          success: boolean
-        }>,
+        res.json() as Promise<
+          PaginatedResponse<
+            GetIndividualChallengesResponseElement,
+            '개인 챌린지 목록 조회에 성공했습니다.',
+            | 'JWT 토큰 유효성 검증에 실패했습니다.'
+            | '접근이 거부되었습니다.'
+            | '요청하신 페이지를 찾을 수 없습니다.'
+            | '알 수 없는 서버 에러가 발생했습니다.'
+          >
+        >,
     )
   },
   getIndividualChallengeParticipantKeys: async (challengeId?: number | null) => {
@@ -197,6 +200,7 @@ export const challengeApi = {
       }>
     })
   },
+  // @TODO remove this function
   createChallenge: async (params: {
     challengeName: string
     challengePoint: number
@@ -208,6 +212,17 @@ export const challengeApi = {
     challengeContent: string
     maxGroupCount: number
   }) => {
+    if (params.challengeType === 'PERSONAL') {
+      return await challengeApi.createIndividualChallenge({
+        challengeName: params.challengeName,
+        challengePoint: params.challengePoint,
+        beginDateTime: params.beginDateTime,
+        endDateTime: params.endDateTime,
+        challengeImageUrl: params.challengeImageUrl,
+        challengeContent: params.challengeContent,
+      })
+    }
+
     return await fetch(`${API_URL}/admin/challenges`, {
       method: 'POST',
       body: JSON.stringify(params),
@@ -231,6 +246,26 @@ export const challengeApi = {
             }
         >,
     )
+  },
+  createIndividualChallenge: async (params: {
+    challengeName: string
+    challengePoint: number
+    beginDateTime: string
+    endDateTime: string
+    challengeContent: string
+    challengeImageUrl: string
+  }) => {
+    return await fetch(`${API_URL}/admin/challenges/personal`, {
+      method: 'POST',
+      body: JSON.stringify(params),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(throwResponseStatusThenChaining)
+      .then((res) => {
+        return res.json() as Promise<ApiResponse<number>>
+      })
   },
   updateChallenge: async (params: {
     id: number
@@ -349,17 +384,29 @@ export interface Challenge {
   createdDate: string
 }
 
-export type GetIndividualChallengesResponseElement = Pick<
-  Challenge,
-  | 'id'
-  | 'challengeCode'
-  | 'challengeName'
-  | 'challengePoint'
-  | 'beginDateTime'
-  | 'endDateTime'
-  | 'displayStatus'
-  | 'createdDate'
->
+export interface GetIndividualChallengesResponseElement {
+  id: number
+  /**
+   * CH-P-20250109-143521-A3FV
+   */
+  challengeCode: string
+  challengeName: string
+  /**
+   * '2025-07-26'
+   */
+  beginDate: string
+  /**
+   * '2025-07-26'
+   */
+  endDate: string
+  challengePoint: number
+  displayStatus: DisplayStatus
+  createdDate: string
+  /**
+   * @deprecated 글쎄 쓸일이 있을까
+   */
+  period: string
+}
 
 export type GetTeamChallengesResponseElement = Challenge & {
   participantCount: number

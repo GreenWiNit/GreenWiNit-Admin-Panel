@@ -34,16 +34,17 @@ function IndividualChallenges() {
               엑셀 받기
             </Button>
             <Button className="w-fit" asChild>
-              <Link to="/challenges/create">생성</Link>
+              <Link to="/challenges/create" search={{ type: 'individual' }}>
+                생성
+              </Link>
             </Button>
           </div>
         </div>
         <div className="flex w-full">
           <DataGrid
             rows={
-              data?.result.content.map((challenge) => ({
+              data?.result?.content.map((challenge) => ({
                 ...challenge,
-                period: `${dayjs(challenge.beginDateTime).format('YYYY.MM.DD')} ~ ${dayjs(challenge.endDateTime).format('YYYY.MM.DD')}`,
                 challengePoint: `${challenge.challengePoint}p`,
                 createdDate: dayjs(challenge.createdDate).format('YYYY-MM-DD'),
               })) ?? []

@@ -7,18 +7,30 @@ import { Button } from '@/components/shadcn/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader } from '@/components/shadcn/dialog'
 import { Separator } from '@/components/shadcn/separator'
 import { useGoBackOrMove } from '@/hooks/use-go-back-or-move'
+import { showMessageIfExists } from '@/lib/error'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import dayjs from 'dayjs'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/challenges/create')({
   component: CreateChallenge,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      type:
+        (search['type'] as string | undefined)?.toLowerCase?.() === 'team'
+          ? ('team' as const)
+          : ('individual' as const),
+    }
+  },
 })
 
 function CreateChallenge() {
+  const searchParams = Route.useSearch()
   const movePage = useGoBackOrMove({ to: '/challenges' })
   const [showCreatingIsSuccess, setShowCreatingIsSuccess] = useState(false)
   const queryClient = useQueryClient()
+  const challengeType = searchParams.type
 
   const { mutate: createChallenge } = useMutation({
     mutationFn: challengeApi.createChallenge,
@@ -35,18 +47,21 @@ function CreateChallenge() {
       })
       setShowCreatingIsSuccess(true)
     },
+    onError: (error) => {
+      console.error('onError', error)
+      showMessageIfExists(error)
+    },
   })
 
   const onSubmit: UpsertFormProps['onSubmit'] = (data) => {
-    console.debug('submit', data)
     createChallenge({
       challengeName: data.title,
       challengePoint: data.point,
-      challengeType: data.type === 'individual' ? 'PERSONAL' : 'TEAM',
-      beginDateTime: data.period.start?.toISOString() ?? '',
-      endDateTime: data.period.end?.toISOString() ?? '',
+      challengeType: challengeType === 'team' ? 'TEAM' : 'PERSONAL',
+      beginDateTime: dayjs(data.period.start).format('YYYY-MM-DDTHH:mm:ss.SSS'),
+      endDateTime: dayjs(data.period.end).format('YYYY-MM-DDTHH:mm:ss.SSS'),
       displayStatus: data.displayStatus,
-      challengeImageUrl: data.imageUrl?.name ?? '',
+      challengeImageUrl: data.imageUrl ?? '',
       challengeContent: data.content,
       /**
        * @TODO check this value

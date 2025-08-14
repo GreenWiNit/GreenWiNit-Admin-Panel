@@ -38,7 +38,6 @@ function UpdateChallenge() {
     const challenge = data!.result
     return {
       title: challenge.challengeName,
-      type: challenge.challengeType === 'PERSONAL' ? 'individual' : 'team',
       period: {
         start: challenge.beginDateTime ? new Date(challenge.beginDateTime) : null,
         end: challenge.endDateTime ? new Date(challenge.endDateTime) : null,
