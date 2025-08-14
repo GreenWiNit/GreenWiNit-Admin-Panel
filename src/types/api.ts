@@ -1,23 +1,22 @@
-export type ApiResponse<T> = {
-  message: string
-} & (
+export type ApiResponse<R = never, S = never, F = never> =
   | {
+      message: S extends string ? S : never
       success: true
-      result: T
+      result: R extends infer T ? T : never
     }
   | {
+      message: F extends string ? F : never
       success: false
-      result: null
+      result: R extends never ? never : null
     }
-)
 
-export interface PaginatedData<T> {
+export interface PaginatedData<E> {
   totalElements: number
   totalPages: number
   currentPage: number
   pageSize: number
   hasNext: boolean
-  content: T[]
+  content: E[]
 }
 
-export type PaginatedResponse<T> = ApiResponse<PaginatedData<T>>
+export type PaginatedResponse<E = never, S = never, F = never> = ApiResponse<PaginatedData<E>, S, F>
