@@ -1,7 +1,7 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from './../constant/network'
 import { downloadExcel } from '@/lib/network'
-import type { PaginatedData } from '@/types/api'
+import type { PaginatedResponse } from '@/types/api'
 
 export const memberApi = {
   getActiveMembers: async (page = 0, pageSize = 10) => {
@@ -54,9 +54,9 @@ type WithdrawnData = Member & {
   withdrawalDate: '2025-01-20T14:20:00'
 }
 
-export type GetActiveMembersReponse = BaseResponse<PaginatedData<Member>>
+export type GetActiveMembersReponse = PaginatedResponse<Member>
 
-export type GetWithdrawnReponse = BaseResponse<PaginatedData<WithdrawnData>>
+export type GetWithdrawnReponse = PaginatedResponse<WithdrawnData>
 
 type DeleteMemberByAdminResponse = BaseResponse<undefined>
 
