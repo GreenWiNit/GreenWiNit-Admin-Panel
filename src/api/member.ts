@@ -1,6 +1,7 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from './../constant/network'
 import { downloadExcel } from '@/lib/network'
+import type { PaginatedData } from '@/types/api'
 
 export const memberApi = {
   getActiveMembers: async (page = 0, pageSize = 10) => {
@@ -39,15 +40,6 @@ type BaseResponse<T> = {
   result?: T
 }
 
-type PaginatedData<T> = {
-  totalElements: number
-  totalPages: number
-  currentPage: number
-  pageSize: number
-  hasNext: false
-  content: T
-}
-
 export type Member = {
   memberKey: string // 'naver_123456789'
   email: string // 'user@naver.com'
@@ -62,9 +54,9 @@ type WithdrawnData = Member & {
   withdrawalDate: '2025-01-20T14:20:00'
 }
 
-export type GetActiveMembersReponse = BaseResponse<PaginatedData<Member[]>>
+export type GetActiveMembersReponse = BaseResponse<PaginatedData<Member>>
 
-export type GetWithdrawnReponse = BaseResponse<PaginatedData<WithdrawnData[]>>
+export type GetWithdrawnReponse = BaseResponse<PaginatedData<WithdrawnData>>
 
 type DeleteMemberByAdminResponse = BaseResponse<undefined>
 
