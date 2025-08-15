@@ -30,12 +30,13 @@ export const Route = createRootRoute({
 
 fetchIntercept.register({
   request: function (url: string, config: RequestInit) {
-    if (url.startsWith(API_URL)) {
+    const accessToken = userStore.getState().loggedIn?.accessToken
+    if (url.startsWith(API_URL) && accessToken) {
       const nextConfig = {
         ...config,
         headers: {
           ...config?.headers,
-          Authorization: `Bearer ${userStore.getState().loggedIn?.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       }
 
