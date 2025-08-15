@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader } from '@/compon
 import { Separator } from '@/components/shadcn/separator'
 import { useGoBackOrMove } from '@/hooks/use-go-back-or-move'
 import { showMessageIfExists } from '@/lib/error'
+import { validateSearchChallengeType } from '@/lib/router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import dayjs from 'dayjs'
@@ -17,10 +18,7 @@ export const Route = createFileRoute('/challenges/create')({
   component: CreateChallenge,
   validateSearch: (search: Record<string, unknown>) => {
     return {
-      type:
-        (search['type'] as string | undefined)?.toLowerCase?.() === 'team'
-          ? ('team' as const)
-          : ('individual' as const),
+      type: validateSearchChallengeType(search),
     }
   },
 })
@@ -41,9 +39,6 @@ function CreateChallenge() {
 
       await queryClient.invalidateQueries({
         queryKey: challengeQueryKeys.challenges.individual().queryKey,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.challenge(result.result).queryKey,
       })
       setShowCreatingIsSuccess(true)
     },

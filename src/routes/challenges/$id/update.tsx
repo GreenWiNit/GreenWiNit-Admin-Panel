@@ -14,18 +14,29 @@ import {
 import { Separator } from '@/components/shadcn/separator'
 import { useChallenge } from '@/hooks/use-challenge'
 import { useGoBackOrMove } from '@/hooks/use-go-back-or-move'
+import { validateSearchChallengeType } from '@/lib/router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 
 export const Route = createFileRoute('/challenges/$id/update')({
   component: UpdateChallenge,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      challengeType: validateSearchChallengeType(search),
+    }
+  },
 })
 
 function UpdateChallenge() {
+  const searchParams = Route.useSearch()
+  const challengeType = searchParams.challengeType
   const queryClient = useQueryClient()
   const { id } = Route.useParams()
-  const { data, isLoading } = useChallenge(Number(id))
+  const { data, isLoading } = useChallenge({
+    challengeId: Number(id),
+    challengeType,
+  })
   const movePage = useGoBackOrMove({ to: '/challenges' })
   const [showCreatingIsSuccess, setShowCreatingIsSuccess] = useState(false)
 
@@ -36,11 +47,15 @@ function UpdateChallenge() {
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const challenge = data!.result
+    if (!challenge) {
+      throw new Error('challenge is null')
+    }
+
     return {
       title: challenge.challengeName,
       period: {
-        start: challenge.beginDateTime ? new Date(challenge.beginDateTime) : null,
-        end: challenge.endDateTime ? new Date(challenge.endDateTime) : null,
+        start: challenge.beginDate ? new Date(challenge.beginDate) : null,
+        end: challenge.endDate ? new Date(challenge.endDate) : null,
       },
       point: challenge.challengePoint,
       content: challenge.challengeContent,
@@ -60,7 +75,10 @@ function UpdateChallenge() {
         queryKey: challengeQueryKeys.challenges.individual().queryKey,
       })
       await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.challenge(Number(id)).queryKey,
+        queryKey: challengeQueryKeys.challenges.challenge({
+          challengeId: Number(id),
+          challengeType,
+        }).queryKey,
       })
       setShowCreatingIsSuccess(true)
     },

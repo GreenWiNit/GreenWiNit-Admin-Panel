@@ -211,6 +211,33 @@ export const challengeApi = {
       }>
     })
   },
+  // @MEMO v2 작업완료
+  getIndividualChallenge: async (challengeId: number) => {
+    return await fetch(`${API_URL}/admin/challenges/personal/${challengeId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(throwResponseStatusThenChaining)
+      .then((res) => {
+        return res.json() as Promise<
+          ApiResponse<{
+            id: number
+            challengeCode: string
+            challengeName: string
+            challengeType: 'PERSONAL'
+            challengePoint: number
+            beginDate: string
+            endDate: string
+            displayStatus: DisplayStatus
+            challengeImage: string
+            challengeContent: string
+          }>
+        >
+      })
+  },
+
   // @TODO remove this function
   createChallenge: async (params: {
     challengeName: string
@@ -346,6 +373,34 @@ export const challengeApi = {
         }>,
     )
   },
+  getIndividualChallengeParticipants: async ({
+    challengeId,
+    page = undefined,
+    size = undefined,
+  }: {
+    challengeId: number
+    page: number | undefined
+    size: number | undefined
+  }) => {
+    return await fetch(
+      `${API_URL}/admin/challenges/personal/${challengeId}/participants?${stringify({ page, size })}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    ).then(
+      (res) =>
+        res.json() as Promise<
+          PaginatedResponse<{
+            memberKey: string
+            participationDate: string
+            certCount: number
+          }>
+        >,
+    )
+  },
 }
 
 const challengeKey = createQueryKeys('challenges', {
@@ -363,8 +418,18 @@ const challengeKey = createQueryKeys('challenges', {
   teamChallengeWithVerifyStatus: (
     params: Parameters<typeof challengeApi.getTeamChallengeWithVerifyStatus>[0],
   ) => ['team', 'with-verify-status', params] as const,
-  challenge: (challengeId: number) => [challengeId] as const,
-  challengesParticipants: (challengeId?: number) => [challengeId, 'participants'] as const,
+  challenge: (params: { challengeId: number; challengeType: 'individual' | 'team' }) =>
+    [params] as const,
+  challengesParticipants: (params: {
+    challengeId?: number
+    challengeType?: 'individual' | 'team'
+    pageParams:
+      | {
+          page?: number
+          size?: number
+        }
+      | undefined
+  }) => ['participants', params] as const,
 })
 
 export type DisplayStatus = 'VISIBLE' | 'HIDDEN'

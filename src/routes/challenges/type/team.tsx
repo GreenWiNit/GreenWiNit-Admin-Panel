@@ -65,6 +65,7 @@ function TeamChallenges() {
               navigate({
                 to: '/challenges/$id',
                 params: { id: params.row.id },
+                search: { challengeType: 'team' },
               })
             }}
             sx={{

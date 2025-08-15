@@ -70,6 +70,7 @@ function IndividualChallenges() {
               navigate({
                 to: '/challenges/$id',
                 params: { id: params.row.id },
+                search: { challengeType: 'individual' },
               })
             }}
             sx={{

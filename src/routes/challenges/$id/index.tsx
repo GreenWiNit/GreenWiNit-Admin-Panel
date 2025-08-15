@@ -6,6 +6,7 @@ import { Label } from '@/components/shadcn/label'
 import { RadioGroup, RadioGroupItem } from '@/components/shadcn/radio-group'
 import { Separator } from '@/components/shadcn/separator'
 import { useChallenge, useChallengesParticipants } from '@/hooks/use-challenge'
+import { validateSearchChallengeType } from '@/lib/router'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
@@ -14,15 +15,28 @@ import { useId, useMemo } from 'react'
 
 export const Route = createFileRoute('/challenges/$id/')({
   component: ChallengeDetail,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      challengeType: validateSearchChallengeType(search),
+    }
+  },
 })
 
 function ChallengeDetail() {
   const { id } = Route.useParams()
+  const searchParams = Route.useSearch()
+  const challengeType = searchParams.challengeType
   const radioInputIdVisible = useId()
   const radioInputIdHidden = useId()
-  const { data, isLoading } = useChallenge(Number(id))
+  const { data, isLoading } = useChallenge({
+    challengeId: Number(id),
+    challengeType,
+  })
   const challenge = data?.result
-  const { data: participants } = useChallengesParticipants(Number(id))
+  const { data: participants } = useChallengesParticipants({
+    challengeId: Number(id),
+    challengeType,
+  })
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
@@ -36,14 +50,17 @@ function ChallengeDetail() {
         queryKey: challengeQueryKeys.challenges.team.queryKey,
       })
       await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.challenge(Number(id)).queryKey,
+        queryKey: challengeQueryKeys.challenges.challenge({
+          challengeId: Number(id),
+          challengeType,
+        }).queryKey,
       })
       navigate({ to: '/challenges' })
     },
   })
 
   const columns = useMemo(() => {
-    const isTeamChallenge = data?.result.challengeType === 'TEAM'
+    const isTeamChallenge = challengeType === 'team'
     return [
       ...(isTeamChallenge
         ? [
@@ -83,7 +100,7 @@ function ChallengeDetail() {
           ]
         : []),
     ] satisfies GridColDef<Participant>[]
-  }, [data?.result.challengeType])
+  }, [challengeType])
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -103,7 +120,7 @@ function ChallengeDetail() {
         <h4>기본정보</h4>
         <div className="flex gap-2">
           <Button className="w-fit" asChild>
-            <Link to="/challenges/$id/update" params={{ id }}>
+            <Link to="/challenges/$id/update" params={{ id }} search={{ challengeType }}>
               수정
             </Link>
           </Button>
@@ -123,8 +140,8 @@ function ChallengeDetail() {
             <td>{challenge.challengeType === 'PERSONAL' ? '개인' : '팀'}</td>
             <th>진행기간</th>
             <td>
-              {dayjs(challenge.beginDateTime).format('YYYY-MM-DD')} ~{' '}
-              {dayjs(challenge.endDateTime).format('YYYY-MM-DD')}
+              {dayjs(challenge.beginDate).format('YYYY-MM-DD')} ~{' '}
+              {dayjs(challenge.endDate).format('YYYY-MM-DD')}
             </td>
           </tr>
           <tr>
@@ -160,7 +177,7 @@ function ChallengeDetail() {
       </table>
       <h4 className="self-start">참여자 정보</h4>
       <DataGrid
-        rows={participants?.result.content ?? []}
+        rows={participants?.result?.content ?? []}
         initialState={{
           pagination: {
             paginationModel: {

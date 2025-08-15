@@ -57,16 +57,61 @@ export const useTeamChallengeTeams = (challengeId?: number) => {
   })
 }
 
-export const useChallenge = (challengeId: number) => {
+export const useChallenge = ({
+  challengeId,
+  challengeType,
+}: {
+  challengeId: number
+  challengeType: 'individual' | 'team'
+}) => {
   return useQuery({
-    queryKey: challengeQueryKeys.challenges.challenge(challengeId).queryKey,
-    queryFn: () => challengeApi.getChallenge(challengeId),
+    queryKey: challengeQueryKeys.challenges.challenge({ challengeId, challengeType }).queryKey,
+    queryFn: (ctx) => {
+      // challengeApi.getChallenge({ challengeId, challengeType })
+      const [, , { challengeId, challengeType }] = ctx.queryKey
+      if (challengeType !== 'individual') {
+        return null
+      }
+
+      return challengeApi.getIndividualChallenge(challengeId)
+    },
   })
 }
 
-export const useChallengesParticipants = (challengeId: number) => {
+export const useChallengesParticipants = ({
+  challengeId,
+  challengeType,
+  pageParams,
+}: {
+  challengeId: number
+  challengeType: 'individual' | 'team'
+  pageParams?: {
+    page?: number
+    size?: number
+  }
+}) => {
   return useQuery({
-    queryKey: challengeQueryKeys.challenges.challengesParticipants(challengeId).queryKey,
-    queryFn: () => challengeApi.getChallengesParticipants(challengeId),
+    queryKey: challengeQueryKeys.challenges.challengesParticipants({
+      challengeId,
+      challengeType,
+      pageParams,
+    }).queryKey,
+    queryFn: (ctx) => {
+      const [, , , { challengeId, challengeType, pageParams }] = ctx.queryKey
+
+      // @TODO remove under line
+      if (challengeType !== 'individual') {
+        return null
+      }
+      if (!challengeId) {
+        return null
+      }
+
+      return challengeApi.getIndividualChallengeParticipants({
+        challengeId,
+        page: pageParams?.page,
+        size: pageParams?.size,
+      })
+    },
   })
 }
