@@ -216,8 +216,8 @@ export const challengeApi = {
       return await challengeApi.createIndividualChallenge({
         challengeName: params.challengeName,
         challengePoint: params.challengePoint,
-        beginDateTime: params.beginDateTime,
-        endDateTime: params.endDateTime,
+        beginDate: params.beginDateTime,
+        endDate: params.endDateTime,
         challengeImageUrl: params.challengeImageUrl,
         challengeContent: params.challengeContent,
       })
@@ -250,8 +250,8 @@ export const challengeApi = {
   createIndividualChallenge: async (params: {
     challengeName: string
     challengePoint: number
-    beginDateTime: string
-    endDateTime: string
+    beginDate: string
+    endDate: string
     challengeContent: string
     challengeImageUrl: string
   }) => {
