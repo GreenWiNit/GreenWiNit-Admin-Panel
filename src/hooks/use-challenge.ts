@@ -1,10 +1,29 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { challengeApi, challengeQueryKeys } from '@/api/challenge'
 
-export const useIndividualChallenges = () => {
+export const useIndividualChallenges = (
+  options?: Omit<
+    UseQueryOptions<ReturnType<typeof challengeApi.getIndividualChallenges>>,
+    'queryKey' | 'queryFn'
+  > & {
+    pageParams: {
+      page?: number
+      size?: number
+    }
+  },
+) => {
   return useQuery({
-    queryKey: challengeQueryKeys.challenges.individual.queryKey,
-    queryFn: challengeApi.getIndividualChallenges,
+    queryKey: challengeQueryKeys.challenges.individual(
+      options?.pageParams?.page,
+      options?.pageParams?.size,
+    ).queryKey,
+    queryFn: (ctx) => {
+      const [, , , { page, size }] = ctx.queryKey
+      return challengeApi.getIndividualChallenges({
+        page,
+        size,
+      })
+    },
   })
 }
 

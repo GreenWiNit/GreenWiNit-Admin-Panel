@@ -6,8 +6,19 @@ import type { ApiResponse, PaginatedResponse } from '@/types/api'
 
 export const challengeApi = {
   // @MEMO v2 작업완료
-  getIndividualChallenges: async () => {
-    return await fetch(`${API_URL}/admin/challenges/personal`, {
+  getIndividualChallenges: async (
+    {
+      page = undefined,
+      size = undefined,
+    }: {
+      page: number | undefined
+      size: number | undefined
+    } = {
+      page: undefined,
+      size: undefined,
+    },
+  ) => {
+    return await fetch(`${API_URL}/admin/challenges/personal?${stringify({ page, size })}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -338,7 +349,7 @@ export const challengeApi = {
 }
 
 const challengeKey = createQueryKeys('challenges', {
-  individual: ['individual'],
+  individual: (page?: number, size?: number) => ['individual', { page, size }] as const,
   individualTitles: ['individual', 'titles'],
   individualWithVerifyStatus: (
     params: Parameters<typeof challengeApi.getIndividualChallengeWithVerifyStatus>[0],

@@ -3,19 +3,28 @@ import GlobalNavigation from '@/components/global-navigation'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
 import type { GetIndividualChallengesResponseElement } from '@/api/challenge'
 import dayjs from 'dayjs'
 import { Button } from '@/components/shadcn/button'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@/components/shadcn/separator'
+import { useState } from 'react'
+import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
 
 export const Route = createFileRoute('/challenges/type/individual')({
   component: IndividualChallenges,
 })
 
 function IndividualChallenges() {
-  const { data } = useIndividualChallenges()
+  const [paginationModel, setPaginationModel] =
+    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
+  const { data } = useIndividualChallenges({
+    pageParams: {
+      page: paginationModel.page + 1,
+      size: paginationModel.pageSize,
+    },
+  })
   const navigate = useNavigate()
 
   return (
@@ -51,9 +60,7 @@ function IndividualChallenges() {
             }
             initialState={{
               pagination: {
-                paginationModel: {
-                  pageSize: 10,
-                },
+                paginationModel: DEFAULT_PAGINATION_MODEL,
               },
             }}
             columns={columns}
@@ -70,6 +77,10 @@ function IndividualChallenges() {
                 cursor: 'pointer',
               },
             }}
+            onPaginationModelChange={setPaginationModel}
+            paginationModel={paginationModel}
+            rowCount={data?.result?.totalElements ?? 0}
+            paginationMode="server"
           />
         </div>
       </div>
