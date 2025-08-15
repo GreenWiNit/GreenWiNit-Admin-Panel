@@ -257,7 +257,11 @@ export const challengeApi = {
   }) => {
     return await fetch(`${API_URL}/admin/challenges/personal`, {
       method: 'POST',
-      body: JSON.stringify(params),
+      body: JSON.stringify({
+        ...params,
+        beginDateTime: `${params.beginDate}T00:00:00`,
+        endDateTime: `${params.endDate}T00:00:00`,
+      }),
       headers: {
         'Content-Type': 'application/json',
       },
