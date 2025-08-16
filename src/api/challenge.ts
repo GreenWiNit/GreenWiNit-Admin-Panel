@@ -192,20 +192,6 @@ export const challengeApi = {
         }>,
     )
   },
-  getChallenge: async (challengeId: number) => {
-    return await fetch(`${API_URL}/admin/challenges/${challengeId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((res) => {
-      return res.json() as Promise<{
-        success: boolean
-        message: string
-        result: Challenge
-      }>
-    })
-  },
   // @MEMO v2 작업완료
   getIndividualChallenge: async (challengeId: number) => {
     return await fetch(`${API_URL}/admin/challenges/personal/${challengeId}`, {
@@ -407,36 +393,6 @@ const challengeKey = createQueryKeys('challenges', {
 })
 
 export type DisplayStatus = 'VISIBLE' | 'HIDDEN'
-
-export interface Challenge {
-  id: number
-  /**
-   * 'CH-P-20250726-132731-699N'
-   */
-  challengeCode: string
-  challengeName: string
-  challengeStatus: 'PROCEEDING'
-  challengeType: 'PERSONAL' | 'TEAM'
-  challengePoint: number
-  /**
-   * '2025-07-26T13:27:21.147'
-   */
-  beginDateTime: string
-  /**
-   * '2025-07-26T13:27:21.147'
-   */
-  endDateTime: string
-  displayStatus: DisplayStatus
-  challengeImage: string
-  /**
-   * 참여방법
-   */
-  challengeContent: string
-  /**
-   * '2025-07-26T13:27:21.147311'
-   */
-  createdDate: string
-}
 
 export interface GetIndividualChallengesResponseElement {
   id: number
