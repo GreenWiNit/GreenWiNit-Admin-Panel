@@ -238,53 +238,6 @@ export const challengeApi = {
       })
   },
 
-  // @TODO remove this function
-  createChallenge: async (params: {
-    challengeName: string
-    challengePoint: number
-    challengeType: 'PERSONAL' | 'TEAM'
-    beginDateTime: string
-    endDateTime: string
-    displayStatus: DisplayStatus
-    challengeImageUrl: string
-    challengeContent: string
-    maxGroupCount: number
-  }) => {
-    if (params.challengeType === 'PERSONAL') {
-      return await challengeApi.createIndividualChallenge({
-        challengeName: params.challengeName,
-        challengePoint: params.challengePoint,
-        beginDate: params.beginDateTime,
-        endDate: params.endDateTime,
-        challengeImageUrl: params.challengeImageUrl,
-        challengeContent: params.challengeContent,
-      })
-    }
-
-    return await fetch(`${API_URL}/admin/challenges`, {
-      method: 'POST',
-      body: JSON.stringify(params),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(
-      (res) =>
-        res.json() as Promise<
-          | {
-              success: true
-              message: string
-              /** inserted id */
-              result: number
-            }
-          | {
-              success: false
-              message: string
-              /** inserted id */
-              result: null | 0
-            }
-        >,
-    )
-  },
   createIndividualChallenge: async (params: {
     challengeName: string
     challengePoint: number
@@ -294,6 +247,30 @@ export const challengeApi = {
     challengeImageUrl: string
   }) => {
     return await fetch(`${API_URL}/admin/challenges/personal`, {
+      method: 'POST',
+      body: JSON.stringify({
+        ...params,
+        beginDateTime: `${params.beginDate}T00:00:00`,
+        endDateTime: `${params.endDate}T00:00:00`,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(throwResponseStatusThenChaining)
+      .then((res) => {
+        return res.json() as Promise<ApiResponse<number>>
+      })
+  },
+  createTeamChallenge: async (params: {
+    challengeName: string
+    challengePoint: number
+    beginDate: string
+    endDate: string
+    challengeContent: string
+    challengeImageUrl: string
+  }) => {
+    return await fetch(`${API_URL}/admin/challenges/team`, {
       method: 'POST',
       body: JSON.stringify({
         ...params,

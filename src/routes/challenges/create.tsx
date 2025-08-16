@@ -31,7 +31,17 @@ function CreateChallenge() {
   const challengeType = searchParams.challengeType
 
   const { mutate: createChallenge } = useMutation({
-    mutationFn: challengeApi.createChallenge,
+    mutationFn: (
+      ...args:
+        | Parameters<typeof challengeApi.createIndividualChallenge>
+        | Parameters<typeof challengeApi.createTeamChallenge>
+    ) => {
+      if (challengeType === 'team') {
+        return challengeApi.createTeamChallenge.apply(null, args)
+      }
+
+      return challengeApi.createIndividualChallenge.apply(null, args)
+    },
     onSuccess: async (result) => {
       if (!result.success) {
         throw new Error(result.message)
@@ -39,6 +49,9 @@ function CreateChallenge() {
 
       await queryClient.invalidateQueries({
         queryKey: challengeQueryKeys.challenges.individual().queryKey,
+      })
+      await queryClient.invalidateQueries({
+        queryKey: challengeQueryKeys.challenges.team().queryKey,
       })
       setShowCreatingIsSuccess(true)
     },
@@ -52,16 +65,10 @@ function CreateChallenge() {
     createChallenge({
       challengeName: data.title,
       challengePoint: data.point,
-      challengeType: challengeType === 'team' ? 'TEAM' : 'PERSONAL',
-      beginDateTime: dayjs(data.period.start).format('YYYY-MM-DD'),
-      endDateTime: dayjs(data.period.end).format('YYYY-MM-DD'),
-      displayStatus: data.displayStatus,
+      beginDate: dayjs(data.period.start).format('YYYY-MM-DD'),
+      endDate: dayjs(data.period.end).format('YYYY-MM-DD'),
       challengeImageUrl: data.imageUrl ?? '',
       challengeContent: data.content,
-      /**
-       * @TODO check this value
-       */
-      maxGroupCount: 10,
     })
   }
 
