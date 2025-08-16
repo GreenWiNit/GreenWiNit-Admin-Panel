@@ -375,8 +375,9 @@ export const challengeApi = {
 }
 
 const challengeKey = createQueryKeys('challenges', {
-  // @TODO migrate to pageParams
-  individual: (page?: number, size?: number) => ['individual', { page, size }] as const,
+  individual: ['individual'],
+  individualChallenges: (pageParams: { page?: number | undefined; size?: number | undefined }) =>
+    ['individual', pageParams] as const,
   individualTitles: ['individual', 'titles'],
   individualWithVerifyStatus: (
     params: Parameters<typeof challengeApi.getIndividualChallengeWithVerifyStatus>[0],

@@ -72,7 +72,10 @@ function UpdateChallenge() {
       }
 
       await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.individual().queryKey,
+        queryKey: challengeQueryKeys.challenges.individual.queryKey,
+      })
+      await queryClient.invalidateQueries({
+        queryKey: challengeQueryKeys.challenges.team.queryKey,
       })
       await queryClient.invalidateQueries({
         queryKey: challengeQueryKeys.challenges.challenge({

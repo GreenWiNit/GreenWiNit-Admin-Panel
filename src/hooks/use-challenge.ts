@@ -8,7 +8,7 @@ export const useIndividualChallenges = (
       Awaited<ReturnType<typeof challengeApi.getIndividualChallenges>>,
       unknown,
       Awaited<ReturnType<typeof challengeApi.getIndividualChallenges>>,
-      ReturnType<typeof challengeQueryKeys.challenges.individual>['queryKey']
+      ReturnType<typeof challengeQueryKeys.challenges.individualChallenges>['queryKey']
     >,
     'queryKey' | 'queryFn'
   > & {
@@ -20,10 +20,10 @@ export const useIndividualChallenges = (
 ) => {
   return useQuery({
     ...(options ? omit(options, ['pageParams']) : {}),
-    queryKey: challengeQueryKeys.challenges.individual(
-      options?.pageParams?.page,
-      options?.pageParams?.size,
-    ).queryKey,
+    queryKey: challengeQueryKeys.challenges.individualChallenges({
+      page: options?.pageParams?.page,
+      size: options?.pageParams?.size,
+    }).queryKey,
     queryFn: (ctx) => {
       const [, , , { page, size }] = ctx.queryKey
       return challengeApi.getIndividualChallenges({

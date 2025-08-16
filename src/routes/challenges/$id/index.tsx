@@ -44,7 +44,7 @@ function ChallengeDetail() {
     mutationFn: () => challengeApi.deleteChallenge(Number(id)),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.individual().queryKey,
+        queryKey: challengeQueryKeys.challenges.individual.queryKey,
       })
       await queryClient.invalidateQueries({
         queryKey: challengeQueryKeys.challenges.team.queryKey,
