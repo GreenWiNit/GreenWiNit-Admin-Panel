@@ -305,40 +305,14 @@ export const challengeApi = {
   deleteChallenge: async (challengeId: number) => {
     return challengeApi.changeChallengeVisibility(challengeId, 'HIDDEN')
   },
-  getChallengesParticipants: async (challengeId?: number | null) => {
-    return await fetch(`${API_URL}/admin/challenges/${challengeId}/participants`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(
-      (res) =>
-        res.json() as Promise<{
-          success: true
-          message: 'string'
-          result:
-            | {
-                hasNext: true
-                nextCursor: number
-                content: Participant[]
-              }
-            | {
-                hasNext: false
-                nextCursor: null
-                content: Participant[]
-              }
-        }>,
-    )
-  },
-  getIndividualChallengeParticipants: async ({
-    challengeId,
-    page = undefined,
-    size = undefined,
-  }: {
+  // @MEMO v2 작업완료
+  getIndividualChallengeParticipants: async (params: {
     challengeId: number
     page: number | undefined
     size: number | undefined
   }) => {
+    const { challengeId, page, size } = params
+
     return await fetch(
       `${API_URL}/admin/challenges/personal/${challengeId}/participants?${stringify({ page, size })}`,
       {
@@ -349,13 +323,28 @@ export const challengeApi = {
       },
     ).then(
       (res) =>
-        res.json() as Promise<
-          PaginatedResponse<{
-            memberKey: string
-            participationDate: string
-            certCount: number
-          }>
-        >,
+        res.json() as Promise<PaginatedResponse<GetIndividualChallengeParticipantsResponseElement>>,
+    )
+  },
+  // @MEMO v2 작업완료
+  getTeamChallengeParticipants: async (params: {
+    challengeId: number
+    page: number | undefined
+    size: number | undefined
+  }) => {
+    const { challengeId, page, size } = params
+
+    return await fetch(
+      `${API_URL}/admin/challenges/${challengeId}/groups/participants?${stringify({ page, size })}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    ).then(
+      (res) =>
+        res.json() as Promise<PaginatedResponse<GetTeamChallengeParticipantsResponseElement>>,
     )
   },
 }
@@ -438,19 +427,20 @@ export interface GetTeamChallengesResponseElement extends GetIndividualChallenge
   teamCount: number
 }
 
-export interface Participant {
-  memberId: number
-  /**
-   * ex) google_3421
-   */
+export interface GetIndividualChallengeParticipantsResponseElement {
   memberKey: string
   participationDate: string
+  certCount: number
+}
+
+export interface GetTeamChallengeParticipantsResponseElement {
   /**
-   * ex) T-20250109-143523-C8NQ
+   * T-20250109-143523-C8NQ
    */
-  teamCode: string | null
-  teamSelectionDate: string | null
-  certificationCount: number
+  groupCode: string
+  memberKey: string
+  participationDate: string
+  groupParticipatingDate: string
 }
 
 export type VerifyStatus = 'PENDING' | 'PAID' | 'REJECTED'

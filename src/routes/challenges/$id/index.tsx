@@ -1,17 +1,17 @@
-import { challengeApi, challengeQueryKeys, type Participant } from '@/api/challenge'
+import { challengeApi, challengeQueryKeys } from '@/api/challenge'
+import ParticipantsTable from '@/components/challenges/participants-table'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { Button } from '@/components/shadcn/button'
 import { Label } from '@/components/shadcn/label'
 import { RadioGroup, RadioGroupItem } from '@/components/shadcn/radio-group'
 import { Separator } from '@/components/shadcn/separator'
-import { useChallenge, useChallengesParticipants } from '@/hooks/use-challenge'
+import { useChallenge } from '@/hooks/use-challenge'
 import { validateSearchChallengeType } from '@/lib/router'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import dayjs from 'dayjs'
-import { useId, useMemo } from 'react'
+import { useId } from 'react'
 
 export const Route = createFileRoute('/challenges/$id/')({
   component: ChallengeDetail,
@@ -33,10 +33,6 @@ function ChallengeDetail() {
     challengeType,
   })
   const challenge = data?.result
-  const { data: participants } = useChallengesParticipants({
-    challengeId: Number(id),
-    challengeType,
-  })
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
@@ -59,49 +55,6 @@ function ChallengeDetail() {
     },
   })
 
-  const columns = useMemo(() => {
-    const isTeamChallenge = challengeType === 'team'
-    return [
-      ...(isTeamChallenge
-        ? [
-            {
-              field: 'teamCode',
-              headerName: '팀 코드',
-              flex: 1,
-            },
-          ]
-        : []),
-      {
-        field: 'memberKey',
-        headerName: 'MemberKey',
-        flex: 1,
-      },
-      {
-        field: 'participationDate',
-        headerName: '참여한 날짜',
-        flex: 1,
-      },
-      ...(!isTeamChallenge
-        ? [
-            {
-              field: 'certificationCount',
-              headerName: '인증횟수',
-              flex: 1,
-            },
-          ]
-        : []),
-      ...(isTeamChallenge
-        ? [
-            {
-              field: 'teamSelectionDate',
-              headerName: '팀 선택 및 등록 날짜',
-              flex: 1,
-            },
-          ]
-        : []),
-    ] satisfies GridColDef<Participant>[]
-  }, [challengeType])
-
   if (isLoading) {
     return <div>Loading...</div>
   }
@@ -112,9 +65,7 @@ function ChallengeDetail() {
 
   return (
     <PageContainer>
-      <PageTitle>
-        {challenge.challengeType === 'PERSONAL' ? '개인' : '팀'} 챌린지 상세페이지
-      </PageTitle>
+      <PageTitle>{challengeType !== 'individual' ? '팀' : '개인'} 챌린지 상세페이지</PageTitle>
       <Separator />
       <div className="flex items-center justify-between">
         <h4>기본정보</h4>
@@ -137,7 +88,7 @@ function ChallengeDetail() {
           </tr>
           <tr>
             <th>카테고리</th>
-            <td>{challenge.challengeType === 'PERSONAL' ? '개인' : '팀'}</td>
+            <td>{challengeType !== 'individual' ? '팀' : '개인'}</td>
             <th>진행기간</th>
             <td>
               {dayjs(challenge.beginDate).format('YYYY-MM-DD')} ~{' '}
@@ -176,17 +127,9 @@ function ChallengeDetail() {
         </tbody>
       </table>
       <h4 className="self-start">참여자 정보</h4>
-      <DataGrid
-        rows={participants?.result?.content ?? []}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 10,
-            },
-          },
-        }}
-        columns={columns}
-      />
+      <div>
+        <ParticipantsTable challengeId={Number(id)} challengeType={challengeType} />
+      </div>
     </PageContainer>
   )
 }
