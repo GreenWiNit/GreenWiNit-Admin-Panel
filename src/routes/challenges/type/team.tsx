@@ -101,7 +101,7 @@ const columns: GridColDef<
     width: 150,
   },
   {
-    field: 'currentGroupCount',
+    field: 'teamCount',
     headerName: '팀수',
     width: 150,
   },
