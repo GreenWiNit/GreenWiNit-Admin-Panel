@@ -18,7 +18,7 @@ export const Route = createFileRoute('/challenges/create')({
   component: CreateChallenge,
   validateSearch: (search: Record<string, unknown>) => {
     return {
-      type: validateSearchChallengeType(search),
+      challengeType: validateSearchChallengeType(search),
     }
   },
 })
@@ -28,7 +28,7 @@ function CreateChallenge() {
   const movePage = useGoBackOrMove({ to: '/challenges' })
   const [showCreatingIsSuccess, setShowCreatingIsSuccess] = useState(false)
   const queryClient = useQueryClient()
-  const challengeType = searchParams.type
+  const challengeType = searchParams.challengeType
 
   const { mutate: createChallenge } = useMutation({
     mutationFn: challengeApi.createChallenge,

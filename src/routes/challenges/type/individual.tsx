@@ -43,7 +43,7 @@ function IndividualChallenges() {
               엑셀 받기
             </Button>
             <Button className="w-fit" asChild>
-              <Link to="/challenges/create" search={{ type: 'individual' }}>
+              <Link to="/challenges/create" search={{ challengeType: 'individual' }}>
                 생성
               </Link>
             </Button>
