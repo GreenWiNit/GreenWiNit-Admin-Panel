@@ -356,6 +356,14 @@ export const challengeApi = {
     )
   },
   // @MEMO v2 작업완료
+  downloadTeamChallenges: async () => {
+    return await fetch(`${API_URL}/admin/challenges/team/excel`, {
+      method: 'GET',
+    })
+      .then(throwResponseStatusThenChaining)
+      .then(downloadExcel)
+  },
+  // @MEMO v2 작업완료
   downloadParticipantsExcel: async ({
     challengeId,
     challengeType,

@@ -4,13 +4,14 @@ import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
-import type { GetTeamChallengesResponseElement } from '@/api/challenge'
+import { challengeApi, type GetTeamChallengesResponseElement } from '@/api/challenge'
 import dayjs from 'dayjs'
 import { Button } from '@/components/shadcn/button'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@/components/shadcn/separator'
 import { useState } from 'react'
 import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
+import { showMessageIfExists } from '@/lib/error'
 
 export const Route = createFileRoute('/challenges/type/team')({
   component: TeamChallenges,
@@ -39,7 +40,12 @@ function TeamChallenges() {
             <Link to="/challenges/management/verify-status/team">인증확인</Link>
           </Button>
           <div className="flex gap-2">
-            <Button className="w-fit">
+            <Button
+              className="w-fit"
+              onClick={async () => {
+                await challengeApi.downloadTeamChallenges().catch(showMessageIfExists)
+              }}
+            >
               <FilePresentIcon />
               엑셀 받기
             </Button>
