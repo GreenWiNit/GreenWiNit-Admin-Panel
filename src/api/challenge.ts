@@ -382,6 +382,31 @@ export const challengeApi = {
       .then(throwResponseStatusThenChaining)
       .then(downloadExcel)
   },
+  // @MEMO v2 작업완료
+  patchDisplayStatus: async ({
+    challengeId,
+    displayStatus,
+    challengeType,
+  }: {
+    challengeId: number
+    displayStatus: DisplayStatus
+    challengeType: 'individual' | 'team'
+  }) => {
+    const displayStatusToPath = displayStatus === 'VISIBLE' ? 'show' : 'hide'
+    if (challengeType !== 'team') {
+      return await fetch(
+        `${API_URL}/admin/challenges/personal/${challengeId}/${displayStatusToPath}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ displayStatus }),
+        },
+      ).then(throwResponseStatusThenChaining)
+    }
+    return await fetch(`${API_URL}/admin/challenges/team/${challengeId}/${displayStatusToPath}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ displayStatus }),
+    }).then(throwResponseStatusThenChaining)
+  },
 }
 
 const challengeKey = createQueryKeys('challenges', {

@@ -3,17 +3,15 @@ import ParticipantsTable from '@/components/challenges/participants-table'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { Button } from '@/components/shadcn/button'
-import { Label } from '@/components/shadcn/label'
-import { RadioGroup, RadioGroupItem } from '@/components/shadcn/radio-group'
 import { Separator } from '@/components/shadcn/separator'
 import { useChallenge } from '@/hooks/use-challenge'
 import { validateSearchChallengeType } from '@/lib/router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import dayjs from 'dayjs'
-import { useId } from 'react'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { showMessageIfExists } from '@/lib/error'
+import DisplayStatusToggle from '@/components/challenges/display-status-toggle '
 
 export const Route = createFileRoute('/challenges/$id/')({
   component: ChallengeDetail,
@@ -28,8 +26,6 @@ function ChallengeDetail() {
   const { id } = Route.useParams()
   const searchParams = Route.useSearch()
   const challengeType = searchParams.challengeType
-  const radioInputIdVisible = useId()
-  const radioInputIdHidden = useId()
   const { data, isLoading } = useChallenge({
     challengeId: Number(id),
     challengeType,
@@ -98,18 +94,20 @@ function ChallengeDetail() {
             </td>
           </tr>
           <tr>
-            <th>전시여부</th>
+            <th>전시여부1</th>
             <td>
-              <RadioGroup value={challenge.displayStatus} disabled className="flex gap-4">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="VISIBLE" id={radioInputIdVisible}></RadioGroupItem>
-                  <Label htmlFor={radioInputIdVisible}>전시</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="HIDDEN" id={radioInputIdHidden}></RadioGroupItem>
-                  <Label htmlFor={radioInputIdHidden}>비전시</Label>
-                </div>
-              </RadioGroup>
+              <DisplayStatusToggle
+                value={challenge.displayStatus}
+                onChange={async (value) => {
+                  await challengeApi.patchDisplayStatus({
+                    challengeId: Number(id),
+                    displayStatus: value,
+                    challengeType,
+                  })
+                }}
+                challengeId={Number(id)}
+                challengeType={challengeType}
+              />
             </td>
             <th>챌린지 포인트</th>
             <td>{challenge.challengePoint}</td>
