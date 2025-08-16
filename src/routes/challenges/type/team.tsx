@@ -3,12 +3,14 @@ import GlobalNavigation from '@/components/global-navigation'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
 import type { GetTeamChallengesResponseElement } from '@/api/challenge'
 import dayjs from 'dayjs'
 import { Button } from '@/components/shadcn/button'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@/components/shadcn/separator'
+import { useState } from 'react'
+import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
 
 export const Route = createFileRoute('/challenges/type/team')({
   component: TeamChallenges,
@@ -16,7 +18,14 @@ export const Route = createFileRoute('/challenges/type/team')({
 
 // @TODO: IndividualChallenges와 중복코드 정리해서 컴포넌트로 빼기
 function TeamChallenges() {
-  const { data } = useTeamChallenges()
+  const [paginationModel, setPaginationModel] =
+    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
+  const { data } = useTeamChallenges({
+    pageParams: {
+      page: paginationModel.page + 1,
+      size: paginationModel.pageSize,
+    },
+  })
   const navigate = useNavigate()
 
   return (
@@ -52,9 +61,7 @@ function TeamChallenges() {
             }
             initialState={{
               pagination: {
-                paginationModel: {
-                  pageSize: 10,
-                },
+                paginationModel: DEFAULT_PAGINATION_MODEL,
               },
             }}
             columns={columns}
@@ -72,6 +79,10 @@ function TeamChallenges() {
                 cursor: 'pointer',
               },
             }}
+            onPaginationModelChange={setPaginationModel}
+            paginationModel={paginationModel}
+            rowCount={data?.result?.totalElements ?? 0}
+            paginationMode="server"
           />
         </div>
       </div>
