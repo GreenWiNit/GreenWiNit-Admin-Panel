@@ -202,20 +202,20 @@ export const challengeApi = {
     })
       .then(throwResponseStatusThenChaining)
       .then((res) => {
-        return res.json() as Promise<
-          ApiResponse<{
-            id: number
-            challengeCode: string
-            challengeName: string
-            challengeType: 'PERSONAL'
-            challengePoint: number
-            beginDate: string
-            endDate: string
-            displayStatus: DisplayStatus
-            challengeImage: string
-            challengeContent: string
-          }>
-        >
+        return res.json() as Promise<ApiResponse<CommonChallenge>>
+      })
+  },
+  // @MEMO v2 작업완료
+  getTeamChallenge: async (challengeId: number) => {
+    return await fetch(`${API_URL}/admin/challenges/team/${challengeId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(throwResponseStatusThenChaining)
+      .then((res) => {
+        return res.json() as Promise<ApiResponse<CommonChallenge>>
       })
   },
   createIndividualChallenge: async (params: {
@@ -393,6 +393,22 @@ const challengeKey = createQueryKeys('challenges', {
 })
 
 export type DisplayStatus = 'VISIBLE' | 'HIDDEN'
+
+export interface CommonChallenge {
+  id: number
+  /**
+   * CH-P-20250109-143521-A3FV
+   */
+  challengeCode: string
+  challengeName: string
+  challengeType: 'PERSONAL' | 'TEAM'
+  challengePoint: number
+  beginDate: string
+  endDate: string
+  displayStatus: DisplayStatus
+  challengeImage: string
+  challengeContent: string
+}
 
 export interface GetIndividualChallengesResponseElement {
   id: number

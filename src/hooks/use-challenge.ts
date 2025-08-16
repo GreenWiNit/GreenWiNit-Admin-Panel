@@ -99,7 +99,7 @@ export const useChallenge = ({
       // challengeApi.getChallenge({ challengeId, challengeType })
       const [, , { challengeId, challengeType }] = ctx.queryKey
       if (challengeType !== 'individual') {
-        return null
+        return challengeApi.getTeamChallenge(challengeId)
       }
 
       return challengeApi.getIndividualChallenge(challengeId)
