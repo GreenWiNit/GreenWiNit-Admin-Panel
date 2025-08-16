@@ -2,15 +2,12 @@ import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from '@/constant/network'
 import { stringify } from '@/lib/query-string'
 import { throwResponseStatusThenChaining } from '@/lib/network'
-import type { ApiResponse, PaginatedResponse } from '@/types/api'
+import type { ApiResponse, CommonFailureMessageWithAuth, PaginatedResponse } from '@/types/api'
 
 export const challengeApi = {
   // @MEMO v2 작업완료
   getIndividualChallenges: async (
-    {
-      page = undefined,
-      size = undefined,
-    }: {
+    pageParams: {
       page: number | undefined
       size: number | undefined
     } = {
@@ -18,7 +15,7 @@ export const challengeApi = {
       size: undefined,
     },
   ) => {
-    return await fetch(`${API_URL}/admin/challenges/personal?${stringify({ page, size })}`, {
+    return await fetch(`${API_URL}/admin/challenges/personal?${stringify(pageParams)}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -29,10 +26,7 @@ export const challengeApi = {
           PaginatedResponse<
             GetIndividualChallengesResponseElement,
             '개인 챌린지 목록 조회에 성공했습니다.',
-            | 'JWT 토큰 유효성 검증에 실패했습니다.'
-            | '접근이 거부되었습니다.'
-            | '요청하신 페이지를 찾을 수 없습니다.'
-            | '알 수 없는 서버 에러가 발생했습니다.'
+            CommonFailureMessageWithAuth
           >
         >,
     )
@@ -101,28 +95,29 @@ export const challengeApi = {
         }>,
     )
   },
-  getTeamChallenges: async (cursor?: number | null) => {
-    return await fetch(`${API_URL}/admin/challenges/team?${stringify({ cursor })}`, {
+  // @MEMO v2 작업완료
+  getTeamChallenges: async (
+    pageParams: {
+      page: number | undefined
+      size: number | undefined
+    } = {
+      page: undefined,
+      size: undefined,
+    },
+  ) => {
+    return await fetch(`${API_URL}/admin/challenges/team?${stringify(pageParams)}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
     }).then((res) => {
-      return res.json() as Promise<{
-        success: boolean
-        message: string
-        result:
-          | {
-              hasNext: true
-              nextCursor: number
-              content: GetTeamChallengesResponseElement[]
-            }
-          | {
-              hasNext: false
-              nextCursor: null
-              content: GetTeamChallengesResponseElement[]
-            }
-      }>
+      return res.json() as Promise<
+        PaginatedResponse<
+          GetTeamChallengesResponseElement,
+          '팀 챌린지 목록 조회에 성공했습니다.',
+          CommonFailureMessageWithAuth
+        >
+      >
     })
   },
   getTeamChallengeTitles: async () => {
@@ -237,7 +232,6 @@ export const challengeApi = {
         >
       })
   },
-
   createIndividualChallenge: async (params: {
     challengeName: string
     challengePoint: number
@@ -381,6 +375,7 @@ export const challengeApi = {
 }
 
 const challengeKey = createQueryKeys('challenges', {
+  // @TODO migrate to pageParams
   individual: (page?: number, size?: number) => ['individual', { page, size }] as const,
   individualTitles: ['individual', 'titles'],
   individualWithVerifyStatus: (
@@ -389,7 +384,8 @@ const challengeKey = createQueryKeys('challenges', {
   individualParticipantKeys: (challengeId?: number) =>
     ['individual', challengeId, 'participants', 'keys'] as const,
   team: ['team'],
-  teamChallenges: (cursor?: number | null) => ['team', cursor ?? undefined] as const,
+  teamChallenges: (pageParams: { page: number | undefined; size: number | undefined }) =>
+    ['team', pageParams] as const,
   teamTitles: ['team', 'titles'] as const,
   teamChallengeTeams: (challengeId?: number) => ['team', challengeId, 'teams'] as const,
   teamChallengeWithVerifyStatus: (
@@ -465,10 +461,8 @@ export interface GetIndividualChallengesResponseElement {
   period: string
 }
 
-export type GetTeamChallengesResponseElement = Challenge & {
-  participantCount: number
-  currentGroupCount: number
-  maxGroupCount: number
+export interface GetTeamChallengesResponseElement extends GetIndividualChallengesResponseElement {
+  teamCount: number
 }
 
 export interface Participant {

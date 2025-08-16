@@ -1,9 +1,15 @@
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { challengeApi, challengeQueryKeys } from '@/api/challenge'
+import { omit } from 'es-toolkit'
 
 export const useIndividualChallenges = (
   options?: Omit<
-    UseQueryOptions<ReturnType<typeof challengeApi.getIndividualChallenges>>,
+    UseQueryOptions<
+      Awaited<ReturnType<typeof challengeApi.getIndividualChallenges>>,
+      unknown,
+      Awaited<ReturnType<typeof challengeApi.getIndividualChallenges>>,
+      ReturnType<typeof challengeQueryKeys.challenges.individual>['queryKey']
+    >,
     'queryKey' | 'queryFn'
   > & {
     pageParams: {
@@ -13,6 +19,7 @@ export const useIndividualChallenges = (
   },
 ) => {
   return useQuery({
+    ...(options ? omit(options, ['pageParams']) : {}),
     queryKey: challengeQueryKeys.challenges.individual(
       options?.pageParams?.page,
       options?.pageParams?.size,
@@ -34,10 +41,32 @@ export const useIndividualChallengeTitles = () => {
   })
 }
 
-export const useTeamChallenges = (cursor?: number | null) => {
+export const useTeamChallenges = (
+  options?: Omit<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof challengeApi.getTeamChallenges>>,
+      unknown,
+      Awaited<ReturnType<typeof challengeApi.getTeamChallenges>>,
+      ReturnType<typeof challengeQueryKeys.challenges.teamChallenges>['queryKey']
+    >,
+    'queryKey' | 'queryFn'
+  > & {
+    pageParams: {
+      page?: number
+      size?: number
+    }
+  },
+) => {
   return useQuery({
-    queryKey: challengeQueryKeys.challenges.teamChallenges(cursor).queryKey,
-    queryFn: () => challengeApi.getTeamChallenges(cursor),
+    ...(options ? omit(options, ['pageParams']) : {}),
+    queryKey: challengeQueryKeys.challenges.teamChallenges({
+      page: options?.pageParams?.page,
+      size: options?.pageParams?.size,
+    }).queryKey,
+    queryFn: (ctx) => {
+      const [, , , { page, size }] = ctx.queryKey
+      return challengeApi.getTeamChallenges({ page, size })
+    },
   })
 }
 

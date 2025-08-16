@@ -44,9 +44,8 @@ function TeamChallenges() {
         <div className="flex w-full">
           <DataGrid
             rows={
-              data?.result.content.map((challenge) => ({
+              data?.result?.content.map((challenge) => ({
                 ...challenge,
-                period: `${dayjs(challenge.beginDateTime).format('YYYY.MM.DD')} ~ ${dayjs(challenge.endDateTime).format('YYYY.MM.DD')}`,
                 challengePoint: `${challenge.challengePoint}p`,
                 createdDate: dayjs(challenge.createdDate).format('YYYY-MM-DD'),
               })) ?? []
@@ -82,7 +81,6 @@ function TeamChallenges() {
 
 const columns: GridColDef<
   Omit<GetTeamChallengesResponseElement, 'challengePoint'> & {
-    period: string
     challengePoint: string
   }
 >[] = [
