@@ -12,6 +12,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import dayjs from 'dayjs'
 import { useId } from 'react'
+import FilePresentIcon from '@mui/icons-material/FilePresent'
+import { showMessageIfExists } from '@/lib/error'
 
 export const Route = createFileRoute('/challenges/$id/')({
   component: ChallengeDetail,
@@ -126,7 +128,23 @@ function ChallengeDetail() {
           </tr>
         </tbody>
       </table>
-      <h4 className="self-start">참여자 정보</h4>
+      <div className="flex items-center justify-between">
+        <h4 className="self-start">참여자 정보</h4>
+        <Button
+          className="w-fit"
+          onClick={async () => {
+            await challengeApi
+              .downloadParticipantsExcel({
+                challengeId: Number(id),
+                challengeType,
+              })
+              .catch(showMessageIfExists)
+          }}
+        >
+          <FilePresentIcon />
+          엑셀 받기
+        </Button>
+      </div>
       <div>
         <ParticipantsTable challengeId={Number(id)} challengeType={challengeType} />
       </div>

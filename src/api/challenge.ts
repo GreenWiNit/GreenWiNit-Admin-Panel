@@ -1,7 +1,7 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from '@/constant/network'
 import { stringify } from '@/lib/query-string'
-import { throwResponseStatusThenChaining } from '@/lib/network'
+import { downloadExcel, throwResponseStatusThenChaining } from '@/lib/network'
 import type { ApiResponse, CommonFailureMessageWithAuth, PaginatedResponse } from '@/types/api'
 
 export const challengeApi = {
@@ -346,6 +346,25 @@ export const challengeApi = {
       (res) =>
         res.json() as Promise<PaginatedResponse<GetTeamChallengeParticipantsResponseElement>>,
     )
+  },
+  // @MEMO v2 작업완료
+  downloadParticipantsExcel: async ({
+    challengeId,
+    challengeType,
+  }: {
+    challengeId: number
+    challengeType: 'individual' | 'team'
+  }) => {
+    if (challengeType === 'team') {
+      return await fetch(`${API_URL}/admin/challenges/${challengeId}/groups/participants/excel`)
+        .then(throwResponseStatusThenChaining)
+        .then(downloadExcel)
+    }
+    return await fetch(`${API_URL}/admin/challenges/personal/${challengeId}/participants/excel`, {
+      method: 'GET',
+    })
+      .then(throwResponseStatusThenChaining)
+      .then(downloadExcel)
   },
 }
 
