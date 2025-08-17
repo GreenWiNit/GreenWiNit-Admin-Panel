@@ -9,9 +9,11 @@ import { useUsers } from '@/hooks/use-users'
 import type { PointManageUserList } from '@/types/point'
 import type { UsersPoint } from '@/types/user'
 import GlobalNavigation from '@/components/global-navigation'
+import { memberStore } from '@/store/memberStore'
 
 function PointsPage() {
   const router = useRouter()
+  const setSelectedMember = memberStore((state) => state.setSelectedMember)
 
   const [page, setPage] = useState(0)
   const [size, setSize] = useState(10)
@@ -20,9 +22,9 @@ function PointsPage() {
   const { data: userManageData } = useUsers({ keyword: keyword, page, size })
 
   const handleRowClick = (params: GridRowParams<UsersPoint>) => {
-    const memberId = params.row.memberId
-
-    router.navigate({ to: `/points/${memberId}` })
+    const memberData = params.row
+    setSelectedMember(memberData)
+    router.navigate({ to: `/points/${memberData.memberId}` })
   }
 
   const handleSearch = () => {
