@@ -1,4 +1,5 @@
 import { API_URL } from '@/constant/network'
+import { downloadExcel, throwResponseStatusThenChaining } from '@/lib/network'
 import type { PaginatedResponse } from '@/types/api'
 import type { PointHistory } from '@/types/point'
 
@@ -20,5 +21,10 @@ export const pointApi = {
       .catch((error) => {
         throw new Error(error instanceof Error ? error.message : '예상치 못한 에러가 발생했습니다.')
       })
+  },
+  downloadExcel: async (memberId: number) => {
+    return await fetch(`${API_URL}/admin/points/members/${memberId}/excel`)
+      .then(throwResponseStatusThenChaining)
+      .then((res) => downloadExcel(res))
   },
 }
