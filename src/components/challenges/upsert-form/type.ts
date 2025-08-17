@@ -19,4 +19,5 @@ export interface FormState {
 export interface UpsertFormProps {
   defaultValues?: Partial<FormState> | undefined
   onSubmit: SubmitHandler<FormState>
+  mode?: 'create' | 'update'
 }

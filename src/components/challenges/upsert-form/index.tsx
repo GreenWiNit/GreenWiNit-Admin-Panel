@@ -13,6 +13,7 @@ import InputImage from '@/components/input-image'
 function UpsertForm({
   defaultValues = DEFAULT_VALUES,
   onSubmit: onSubmitFromProps,
+  mode = 'create',
 }: UpsertFormProps) {
   const { register, control, formState, handleSubmit, setFocus, setError, reset } =
     useForm<FormState>({
@@ -117,48 +118,50 @@ function UpsertForm({
               <Input {...register('content')} />
             </td>
           </tr>
-          <tr>
-            <th>전시 여부</th>
-            <td>
-              <Controller
-                control={control}
-                name="displayStatus"
-                render={({ field }) => (
-                  <RadioGroup {...field} className="flex gap-4">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem
-                        value="VISIBLE"
-                        id={radioInputIdVisible}
-                        checked={field.value === 'VISIBLE'}
-                        onClick={() => {
-                          field.onChange('VISIBLE')
-                        }}
-                      />
-                      <Label htmlFor={radioInputIdVisible} className="cursor-pointer">
-                        전시
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem
-                        value="HIDDEN"
-                        id={radioInputIdHidden}
-                        checked={field.value === 'HIDDEN'}
-                        onClick={() => {
-                          field.onChange('HIDDEN')
-                        }}
-                      />
-                      <Label htmlFor={radioInputIdHidden} className="cursor-pointer">
-                        전시중지
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                )}
-                rules={{
-                  required: true,
-                }}
-              />
-            </td>
-          </tr>
+          {mode === 'update' ? (
+            <tr>
+              <th>전시 여부</th>
+              <td>
+                <Controller
+                  control={control}
+                  name="displayStatus"
+                  render={({ field }) => (
+                    <RadioGroup {...field} className="flex gap-4">
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem
+                          value="VISIBLE"
+                          id={radioInputIdVisible}
+                          checked={field.value === 'VISIBLE'}
+                          onClick={() => {
+                            field.onChange('VISIBLE')
+                          }}
+                        />
+                        <Label htmlFor={radioInputIdVisible} className="cursor-pointer">
+                          전시
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem
+                          value="HIDDEN"
+                          id={radioInputIdHidden}
+                          checked={field.value === 'HIDDEN'}
+                          onClick={() => {
+                            field.onChange('HIDDEN')
+                          }}
+                        />
+                        <Label htmlFor={radioInputIdHidden} className="cursor-pointer">
+                          전시중지
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  )}
+                  rules={{
+                    required: true,
+                  }}
+                />
+              </td>
+            </tr>
+          ) : null}
         </tbody>
       </table>
       <div className="flex justify-end">

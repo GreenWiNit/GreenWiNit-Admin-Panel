@@ -230,8 +230,7 @@ export const challengeApi = {
       method: 'POST',
       body: JSON.stringify({
         ...params,
-        beginDateTime: `${params.beginDate}T00:00:00`,
-        endDateTime: `${params.endDate}T00:00:00`,
+        displayStatus: 'VISIBLE',
       }),
       headers: {
         'Content-Type': 'application/json',
@@ -254,8 +253,7 @@ export const challengeApi = {
       method: 'POST',
       body: JSON.stringify({
         ...params,
-        beginDateTime: `${params.beginDate}T00:00:00`,
-        endDateTime: `${params.endDate}T00:00:00`,
+        displayStatus: 'VISIBLE',
       }),
       headers: {
         'Content-Type': 'application/json',
