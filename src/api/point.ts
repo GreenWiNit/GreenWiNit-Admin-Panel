@@ -4,7 +4,7 @@ import type { PaginatedResponse } from '@/types/api'
 import type { PointHistory } from '@/types/point'
 
 export const pointApi = {
-  getUsersPoint: async (id: number, page: number, size: number) => {
+  getMembersPoint: async (id: number, page: number, size: number) => {
     return await fetch(`${API_URL}/admin/points/members/${id}?page=${page}&size=${size}`, {
       method: 'GET',
       headers: {

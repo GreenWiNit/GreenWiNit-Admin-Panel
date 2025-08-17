@@ -1,17 +1,16 @@
 import GlobalNavigation from '@/components/global-navigation'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
-import { useUserPoint } from '@/hooks/use-search-point'
 import { Separator } from '@/components/shadcn/separator'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { useState } from 'react'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import type { PointHistory } from '@/types/point'
-import { useUsers } from '@/hooks/use-users'
-import type { ActiveUser } from '@/types/user'
 import { Button } from '@/components/shadcn/button'
 import { FileSpreadsheetIcon } from 'lucide-react'
 import { pointApi } from '@/api/point'
+import { memberStore, type MemberList } from '@/store/memberStore'
+import { useMemberPoint } from '@/hooks/use-member-points'
 
 function PointDetail() {
   const [page, setPage] = useState(0)
@@ -19,20 +18,23 @@ function PointDetail() {
   const { id } = useParams({ from: '/points/$id/' })
   const memberId = parseInt(id)
 
-  const { data: usersInfoData, isLoading: infoLoading } = useUsers(page, size)
-  const { data: usersPointData, isLoading: pointLoading } = useUserPoint(memberId, page, size)
+  const member = memberStore((state) => state.selectedMember)
+  const { data: usersPointData } = useMemberPoint(memberId, page, size)
 
-  if (infoLoading || usersInfoData === undefined)
-    return <div className="flex justify-center">유저 정보 로딩 중...</div>
+  const userRow = member
+    ? [
+        {
+          ...member,
+          id: memberId,
+        },
+      ]
+    : []
 
-  if (pointLoading || usersPointData === undefined)
-    return <div className="flex justify-center">포인트 정보 조회 중...</div>
-
-  const userRow = usersInfoData.result?.content.filter((c) => c.memberId === memberId)
-  const usersPointRow = usersPointData.result?.content.map((point) => ({
-    ...point,
-    id: point.pointTrasactionId,
-  }))
+  const usersPointRow =
+    usersPointData?.result?.content.map((point) => ({
+      ...point,
+      id: point.pointTrasactionId,
+    })) ?? []
 
   if (!userRow) {
     return (
@@ -60,7 +62,6 @@ function PointDetail() {
             <DataGrid
               rows={userRow}
               columns={userColumns}
-              getRowId={(row) => row.memberId}
               paginationModel={{ page, pageSize: size }}
               onPaginationModelChange={(model) => {
                 setPage(model.page)
@@ -85,6 +86,7 @@ function PointDetail() {
               rows={usersPointRow ?? []}
               columns={pointHistoryColumns}
               paginationModel={{ page, pageSize: size }}
+              getRowId={(row) => row.pointTrasactionId}
               onPaginationModelChange={(model) => {
                 setPage(model.page)
                 setSize(model.pageSize)
@@ -102,10 +104,10 @@ export const Route = createFileRoute('/points/$id/')({
   component: PointDetail,
 })
 
-const userColumns: GridColDef<ActiveUser>[] = [
-  { field: 'memberKey', headerName: 'MemberKey', flex: 1, headerAlign: 'center', align: 'center' },
-  { field: 'email', headerName: '사용자 이메일', flex: 1, headerAlign: 'center', align: 'center' },
-  { field: 'nickname', headerName: '닉네임', flex: 1, headerAlign: 'center', align: 'center' },
+const userColumns: GridColDef<MemberList>[] = [
+  { field: 'memberKey', headerName: 'MemberKey', flex: 3 },
+  { field: 'memberEmail', headerName: '사용자 이메일', flex: 2 },
+  { field: 'memberNickname', headerName: '닉네임', flex: 1 },
 ]
 
 const pointHistoryColumns: GridColDef<PointHistory>[] = [

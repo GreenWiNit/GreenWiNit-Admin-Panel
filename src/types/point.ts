@@ -21,13 +21,9 @@ export type PointHistory = {
   transcationAt: string /* 백엔드 오타 수정 */
 }
 
-export type PointManageUserList = {
+export type PointManageMemberList = {
   memberId: number
   memberKey: string
-  email: string
-  nickname: string
-}
-
-export interface PointManageList extends PointManageUserList {
-  balanceAfter: number
+  memberEmail: string
+  memberNickname: string
 }

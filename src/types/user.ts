@@ -1,10 +1,7 @@
-import type { PointManageUserList } from './point'
+import type { PointManageMemberList } from './point'
 
-export interface ActiveUser extends PointManageUserList {
-  phoneNumber: string
-  joinDate: Date
-  role: string
-  provider: string
+export interface MembersPoint extends PointManageMemberList {
+  memberPoint: number
 }
 
-export type UserExceptionId = Omit<ActiveUser, 'memberId'>
+export type UserExceptionId = Omit<MembersPoint, 'memberId'>
