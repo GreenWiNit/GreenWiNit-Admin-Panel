@@ -6,10 +6,10 @@ import { Separator } from '@radix-ui/react-separator'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useUsers } from '@/hooks/use-users'
-import type { PointManageUserList } from '@/types/point'
-import type { UsersPoint } from '@/types/user'
 import GlobalNavigation from '@/components/global-navigation'
 import { memberStore } from '@/store/memberStore'
+import type { MembersPoint } from '@/types/user'
+import type { PointManageMemberList } from '@/types/point'
 
 function PointsPage() {
   const router = useRouter()
@@ -21,7 +21,7 @@ function PointsPage() {
   const [keyword, setKeyword] = useState<string>('')
   const { data: userManageData } = useUsers({ keyword: keyword, page, size })
 
-  const handleRowClick = (params: GridRowParams<UsersPoint>) => {
+  const handleRowClick = (params: GridRowParams<MembersPoint>) => {
     const memberData = params.row
     setSelectedMember(memberData)
     router.navigate({ to: `/points/${memberData.memberId}` })
@@ -34,7 +34,7 @@ function PointsPage() {
 
   const rows =
     userManageData?.result.content.map(
-      (user: UsersPoint): UsersPoint => ({
+      (user: MembersPoint): MembersPoint => ({
         memberId: user.memberId,
         memberKey: user.memberKey,
         memberEmail: user.memberEmail,
@@ -84,7 +84,7 @@ export const Route = createFileRoute('/points/')({
   component: PointsPage,
 })
 
-const columns: GridColDef<PointManageUserList>[] = [
+const columns: GridColDef<PointManageMemberList>[] = [
   { field: 'memberKey', headerName: 'MemberKey', width: 150 },
   { field: 'memberEmail', headerName: '사용자 이메일', width: 200 },
   { field: 'memberNickname', headerName: '닉네임', width: 200 },

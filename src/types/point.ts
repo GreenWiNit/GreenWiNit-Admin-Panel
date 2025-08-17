@@ -21,7 +21,7 @@ export type PointHistory = {
   transcationAt: string /* 백엔드 오타 수정 */
 }
 
-export type PointManageUserList = {
+export type PointManageMemberList = {
   memberId: number
   memberKey: string
   memberEmail: string

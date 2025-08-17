@@ -1,7 +1,6 @@
 import GlobalNavigation from '@/components/global-navigation'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
-import { useUserPoint } from '@/hooks/use-user-points'
 import { Separator } from '@/components/shadcn/separator'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -11,6 +10,7 @@ import { Button } from '@/components/shadcn/button'
 import { FileSpreadsheetIcon } from 'lucide-react'
 import { pointApi } from '@/api/point'
 import { memberStore, type MemberList } from '@/store/memberStore'
+import { useMemberPoint } from '@/hooks/use-member-points'
 
 function PointDetail() {
   const [page, setPage] = useState(0)
@@ -19,7 +19,7 @@ function PointDetail() {
   const memberId = parseInt(id)
 
   const member = memberStore((state) => state.selectedMember)
-  const { data: usersPointData } = useUserPoint(memberId, page, size)
+  const { data: usersPointData } = useMemberPoint(memberId, page, size)
 
   const userRow = member
     ? [

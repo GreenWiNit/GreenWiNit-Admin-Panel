@@ -1,7 +1,9 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from './../constant/network'
-import { downloadExcel } from '@/lib/network'
+import { downloadExcel, throwResponseStatusThenChaining } from '@/lib/network'
 import type { ApiResponse, PaginatedResponse } from '@/types/api'
+import type { PointsListProps } from '@/types/list'
+import type { MembersPoint } from '@/types/user'
 
 export const memberApi = {
   getActiveMembers: async (page = 0, pageSize = 10) => {
@@ -31,6 +33,24 @@ export const memberApi = {
       body: JSON.stringify({ memberKey }),
     })
     return response.json() as Promise<ApiResponse>
+  },
+  getMembers: async ({ keyword, page, size }: PointsListProps) => {
+    return await fetch(
+      `${API_URL}/admin/members/points?keyword=${keyword}&page=${page}&size=${size}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+      .then(throwResponseStatusThenChaining)
+      .then(async (res) => {
+        return res.json() as Promise<PaginatedResponse<MembersPoint>>
+      })
+      .catch((error) => {
+        throw new Error(error instanceof Error ? error.message : '예상치 못한 에러가 발생했습니다.')
+      })
   },
 }
 
