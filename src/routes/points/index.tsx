@@ -85,8 +85,8 @@ export const Route = createFileRoute('/points/')({
 })
 
 const columns: GridColDef<PointManageMemberList>[] = [
-  { field: 'memberKey', headerName: 'MemberKey', width: 150 },
-  { field: 'memberEmail', headerName: '사용자 이메일', width: 200 },
-  { field: 'memberNickname', headerName: '닉네임', width: 200 },
-  { field: 'memberPoint', headerName: '남은 포인트', width: 200 },
+  { field: 'memberKey', headerName: 'MemberKey', flex: 1 },
+  { field: 'memberEmail', headerName: '사용자 이메일', flex: 2 },
+  { field: 'memberNickname', headerName: '닉네임', flex: 2 },
+  { field: 'memberPoint', headerName: '남은 포인트', flex: 2 },
 ]
