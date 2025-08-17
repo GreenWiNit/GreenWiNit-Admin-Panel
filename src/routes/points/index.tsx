@@ -33,7 +33,7 @@ function PointsPage() {
   }
 
   const rows =
-    userManageData?.result.content.map(
+    userManageData?.result?.content.map(
       (user: MembersPoint): MembersPoint => ({
         memberId: user.memberId,
         memberKey: user.memberKey,
