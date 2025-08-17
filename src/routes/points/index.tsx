@@ -13,7 +13,7 @@ import GlobalNavigation from '@/components/global-navigation'
 function PointsPage() {
   const router = useRouter()
 
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useState(0)
   const [size, setSize] = useState(10)
   const [searchInput, setSearchInput] = useState<string>('')
   const [keyword, setKeyword] = useState<string>('')
@@ -35,8 +35,8 @@ function PointsPage() {
       (user: UsersPoint): UsersPoint => ({
         memberId: user.memberId,
         memberKey: user.memberKey,
-        email: user.email,
-        nickname: user.nickname,
+        memberEmail: user.memberEmail,
+        memberNickname: user.memberNickname,
         memberPoint: user.memberPoint,
       }),
     ) ?? []
@@ -84,7 +84,7 @@ export const Route = createFileRoute('/points/')({
 
 const columns: GridColDef<PointManageUserList>[] = [
   { field: 'memberKey', headerName: 'MemberKey', width: 150 },
-  { field: 'email', headerName: '사용자 이메일', width: 200 },
-  { field: 'nickname', headerName: '닉네임', width: 200 },
+  { field: 'memberEmail', headerName: '사용자 이메일', width: 200 },
+  { field: 'memberNickname', headerName: '닉네임', width: 200 },
   { field: 'memberPoint', headerName: '남은 포인트', width: 200 },
 ]
