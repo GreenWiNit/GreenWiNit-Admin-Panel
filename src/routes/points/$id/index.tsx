@@ -28,8 +28,8 @@ function PointDetail() {
   if (pointLoading || usersPointData === undefined)
     return <div className="flex justify-center">포인트 정보 조회 중...</div>
 
-  const userRow = usersInfoData.result.content.filter((c) => c.memberId === memberId)
-  const usersPointRow = usersPointData.result.content.map((point) => ({
+  const userRow = usersInfoData.result?.content.filter((c) => c.memberId === memberId)
+  const usersPointRow = usersPointData.result?.content.map((point) => ({
     ...point,
     id: point.pointTrasactionId,
   }))
@@ -82,7 +82,7 @@ function PointDetail() {
           </div>
           <div className="mt-4">
             <DataGrid
-              rows={usersPointRow}
+              rows={usersPointRow ?? []}
               columns={pointHistoryColumns}
               paginationModel={{ page, pageSize: size }}
               onPaginationModelChange={(model) => {

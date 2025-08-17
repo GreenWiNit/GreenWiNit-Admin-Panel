@@ -1,6 +1,7 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from '@/constant/network'
 import { stringify } from '@/lib/query-string'
+import type { ApiResponse, PaginatedResponse } from '@/types/api'
 
 export const teamApi = {
   getTeams: async (cursor?: number | null) => {
@@ -11,29 +12,23 @@ export const teamApi = {
       },
     }).then(
       (res) =>
-        res.json() as Promise<{
-          success: boolean
-          message: string
-          result: {
-            hasNext: boolean
-            nextCursor: number | null
-            content: Array<{
-              id: number
-              /**
-               * "T-20250109-143523-C8NQ"
-               */
-              teamCode: string
-              teamTitle: string
-              /**
-               * "2025-08-09"
-               */
-              registrationDate: string
-              maxParticipants: number
-              currentParticipants: number
-              recruitmentStatus: 'RECRUITING' | 'RECRUIT_COMPLETED'
-            }>
-          }
-        }>,
+        res.json() as Promise<
+          PaginatedResponse<{
+            id: number
+            /**
+             * "T-20250109-143523-C8NQ"
+             */
+            teamCode: string
+            teamTitle: string
+            /**
+             * "2025-08-09"
+             */
+            registrationDate: string
+            maxParticipants: number
+            currentParticipants: number
+            recruitmentStatus: 'RECRUITING' | 'RECRUIT_COMPLETED'
+          }>
+        >,
     )
   },
   getTeam: async (teamId: number) => {
@@ -44,10 +39,8 @@ export const teamApi = {
       },
     }).then(
       (res) =>
-        res.json() as Promise<{
-          success: boolean
-          message: string
-          result: {
+        res.json() as Promise<
+          ApiResponse<{
             // 'T-20250109-143523-C8NQ'
             teamCode: string
             // 'google_4534'
@@ -68,8 +61,8 @@ export const teamApi = {
             description: string
             // 'https://open.kakao.com/o/sAczYWth'
             openChatRoomLink: string
-          }
-        }>,
+          }>
+        >,
     )
   },
 }

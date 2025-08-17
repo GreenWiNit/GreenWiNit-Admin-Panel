@@ -1,4 +1,5 @@
 import { API_URL } from '@/constant/network'
+import type { ApiResponse } from '@/types/api'
 
 export const imagesApi = {
   uploadImage: async (
@@ -11,19 +12,14 @@ export const imagesApi = {
       method: 'POST',
       body: formData,
     })
-    return response.json() as Promise<{
-      /**
-       * '이미지 업로드에 성공했습니다.'
-       */
-      message: string
-      /**
-       * 'https://static.greenwinit.store/images/profile/8d/20250727/d93917a6_1753638663985.png'
-       */
-      result: string
-      /**
-       * true
-       */
-      success: boolean
-    }>
+    return response.json() as Promise<
+      ApiResponse<
+        /**
+         * ex) 'https://static.greenwinit.store/images/profile/8d/20250727/d93917a6_1753638663985.png'
+         */
+        string,
+        '이미지 업로드에 성공했습니다.'
+      >
+    >
   },
 }

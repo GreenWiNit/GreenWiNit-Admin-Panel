@@ -3,12 +3,15 @@ import GlobalNavigation from '@/components/global-navigation'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
-import type { GetTeamChallengesResponseElement } from '@/api/challenge'
+import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
+import { challengeApi, type GetTeamChallengesResponseElement } from '@/api/challenge'
 import dayjs from 'dayjs'
 import { Button } from '@/components/shadcn/button'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@/components/shadcn/separator'
+import { useState } from 'react'
+import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
+import { showMessageIfExists } from '@/lib/error'
 
 export const Route = createFileRoute('/challenges/type/team')({
   component: TeamChallenges,
@@ -16,7 +19,14 @@ export const Route = createFileRoute('/challenges/type/team')({
 
 // @TODO: IndividualChallenges와 중복코드 정리해서 컴포넌트로 빼기
 function TeamChallenges() {
-  const { data } = useTeamChallenges()
+  const [paginationModel, setPaginationModel] =
+    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
+  const { data } = useTeamChallenges({
+    pageParams: {
+      page: paginationModel.page + 1,
+      size: paginationModel.pageSize,
+    },
+  })
   const navigate = useNavigate()
 
   return (
@@ -30,30 +40,34 @@ function TeamChallenges() {
             <Link to="/challenges/management/verify-status/team">인증확인</Link>
           </Button>
           <div className="flex gap-2">
-            <Button className="w-fit">
+            <Button
+              className="w-fit"
+              onClick={async () => {
+                await challengeApi.downloadTeamChallenges().catch(showMessageIfExists)
+              }}
+            >
               <FilePresentIcon />
               엑셀 받기
             </Button>
             <Button className="w-fit" asChild>
-              <Link to="/challenges/create">생성</Link>
+              <Link to="/challenges/create" search={{ challengeType: 'team' }}>
+                생성
+              </Link>
             </Button>
           </div>
         </div>
         <div className="flex w-full">
           <DataGrid
             rows={
-              data?.result.content.map((challenge) => ({
+              data?.result?.content.map((challenge) => ({
                 ...challenge,
-                period: `${dayjs(challenge.beginDateTime).format('YYYY.MM.DD')} ~ ${dayjs(challenge.endDateTime).format('YYYY.MM.DD')}`,
                 challengePoint: `${challenge.challengePoint}p`,
                 createdDate: dayjs(challenge.createdDate).format('YYYY-MM-DD'),
               })) ?? []
             }
             initialState={{
               pagination: {
-                paginationModel: {
-                  pageSize: 10,
-                },
+                paginationModel: DEFAULT_PAGINATION_MODEL,
               },
             }}
             columns={columns}
@@ -63,6 +77,7 @@ function TeamChallenges() {
               navigate({
                 to: '/challenges/$id',
                 params: { id: params.row.id },
+                search: { challengeType: 'team' },
               })
             }}
             sx={{
@@ -70,6 +85,10 @@ function TeamChallenges() {
                 cursor: 'pointer',
               },
             }}
+            onPaginationModelChange={setPaginationModel}
+            paginationModel={paginationModel}
+            rowCount={data?.result?.totalElements ?? 0}
+            paginationMode="server"
           />
         </div>
       </div>
@@ -79,7 +98,6 @@ function TeamChallenges() {
 
 const columns: GridColDef<
   Omit<GetTeamChallengesResponseElement, 'challengePoint'> & {
-    period: string
     challengePoint: string
   }
 >[] = [
@@ -100,7 +118,7 @@ const columns: GridColDef<
     width: 150,
   },
   {
-    field: 'currentGroupCount',
+    field: 'teamCount',
     headerName: '팀수',
     width: 150,
   },

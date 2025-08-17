@@ -71,7 +71,7 @@ function Posts() {
             checkboxSelection
             columns={columns}
             rows={
-              data?.result.content?.map(
+              data?.result?.content?.map(
                 (post) =>
                   ({
                     ...post,

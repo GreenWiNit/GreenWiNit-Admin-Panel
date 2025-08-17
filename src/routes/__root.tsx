@@ -2,14 +2,13 @@ import { createRootRoute, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import '../index.css'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import fetchIntercept, { type FetchInterceptorResponse } from 'fetch-intercept'
 import { API_URL } from '@/constant/network'
 import { userStore } from '@/store/userStore'
 import { initHistoryAndLocation } from '@/lib/utils'
 import { Toaster } from '@/components/shadcn/sonner'
-
-const queryClient = new QueryClient()
+import { queryClient } from '@/constant/globals'
 
 export const Route = createRootRoute({
   component: () => (
@@ -30,12 +29,13 @@ export const Route = createRootRoute({
 
 fetchIntercept.register({
   request: function (url: string, config: RequestInit) {
-    if (url.startsWith(API_URL)) {
+    const accessToken = userStore.getState().loggedIn?.accessToken
+    if (url.startsWith(API_URL) && accessToken) {
       const nextConfig = {
         ...config,
         headers: {
           ...config?.headers,
-          Authorization: `Bearer ${userStore.getState().loggedIn?.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       }
 

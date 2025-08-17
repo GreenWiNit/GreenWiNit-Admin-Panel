@@ -30,11 +30,10 @@ function Teams() {
       <Separator />
       <h4 className="self-start">팀 목록</h4>
       <DataGrid
-        rows={data?.result.content ?? []}
+        rows={data?.result?.content ?? []}
         columns={teamsColumns}
         loading={isLoading}
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        rowCount={data?.result.hasNext ? data.result.nextCursor! : 0}
+        rowCount={data?.result?.totalElements ?? 0}
         onRowCountChange={setCursor}
         paginationModel={{ pageSize: 10, page: cursor ?? 0 }}
         onRowClick={(params) => {
@@ -50,37 +49,37 @@ function Teams() {
             <tbody>
               <tr>
                 <th>팀 코드</th>
-                <td colSpan={3}>{team.result.teamCode}</td>
+                <td colSpan={3}>{team.result?.teamCode}</td>
               </tr>
               <tr>
                 <th>팀 등록자 Memberkey(팀장)</th>
-                <td>{team.result.leaderMemberKey}</td>
+                <td>{team.result?.leaderMemberKey}</td>
                 <th>참가 팀원 Memberkey</th>
-                <td>{team.result.participantMemberKeys}</td>
+                <td>{team.result?.participantMemberKeys}</td>
               </tr>
               <tr>
                 <th>팀 제목</th>
-                <td>{team.result.teamTitle}</td>
+                <td>{team.result?.teamTitle}</td>
                 <th>날짜</th>
-                <td>{team.result.date}</td>
+                <td>{team.result?.date}</td>
               </tr>
               <tr>
                 <th>시작시간</th>
-                <td>{team.result.startTime}</td>
+                <td>{team.result?.startTime}</td>
                 <th>종료시간</th>
-                <td>{team.result.endTime}</td>
+                <td>{team.result?.endTime}</td>
               </tr>
               <tr>
                 <th>장소</th>
-                <td colSpan={3}>{team.result.location}</td>
+                <td colSpan={3}>{team.result?.location}</td>
               </tr>
               <tr>
                 <th>설명</th>
-                <td colSpan={3}>{team.result.description}</td>
+                <td colSpan={3}>{team.result?.description}</td>
               </tr>
               <tr>
                 <th>오픈채팅방 링크</th>
-                <td colSpan={3}>{team.result.openChatRoomLink}</td>
+                <td colSpan={3}>{team.result?.openChatRoomLink}</td>
               </tr>
             </tbody>
           </table>
@@ -91,7 +90,7 @@ function Teams() {
 }
 
 const teamsColumns: GridColDef<
-  Awaited<ReturnType<typeof teamApi.getTeams>>['result']['content'][number]
+  NonNullable<Awaited<ReturnType<typeof teamApi.getTeams>>['result']>['content'][number]
 >[] = [
   { field: 'teamCode', headerName: '팀 코드', width: 200 },
   { field: 'teamTitle', headerName: '팀 제목', width: 200 },
