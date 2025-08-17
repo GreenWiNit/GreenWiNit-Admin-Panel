@@ -18,7 +18,9 @@ import { invalidateChallenges } from '@/lib/query'
 import { validateSearchChallengeType } from '@/lib/router'
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/challenges/$id/update')({
   component: UpdateChallenge,
@@ -77,14 +79,20 @@ function UpdateChallenge() {
   })
 
   const onSubmit: UpsertFormProps['onSubmit'] = (data) => {
+    if (!data.imageUrl) {
+      toast.error('비정상적인 접근입니다. 이미지는 빈 값일 수 없습니다.')
+      return
+    }
     console.debug('submit', data)
     updateChallenge({
       id: Number(id),
       challengeName: data.title,
       challengePoint: data.point,
-      beginDateTime: data.period.start?.toISOString() ?? '',
-      endDateTime: data.period.end?.toISOString() ?? '',
+      beginDate: dayjs(data.period.start).format('YYYY-MM-DD'),
+      endDate: dayjs(data.period.end).format('YYYY-MM-DD'),
       challengeContent: data.content,
+      challengeImageUrl: data.imageUrl,
+      challengeType,
     })
   }
 

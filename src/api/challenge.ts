@@ -264,21 +264,27 @@ export const challengeApi = {
         return res.json() as Promise<ApiResponse<number>>
       })
   },
+  // @MEMO v2 작업완료
   updateChallenge: async (params: {
     id: number
     challengeName: string
     challengePoint: number
-    beginDateTime: string
-    endDateTime: string
+    beginDate: string
+    endDate: string
     challengeContent: string
+    challengeImageUrl: string
+    challengeType: 'individual' | 'team'
   }) => {
-    return await fetch(`${API_URL}/admin/challenges/${params.id}`, {
-      method: 'PUT',
-      body: JSON.stringify(params),
-      headers: {
-        'Content-Type': 'application/json',
+    return await fetch(
+      `${API_URL}/admin/challenges/${params.challengeType === 'team' ? 'team' : 'personal'}/${params.id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(params),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-    }).then(
+    ).then(
       (res) =>
         res.json() as Promise<{
           success: boolean
