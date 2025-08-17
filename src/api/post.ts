@@ -1,6 +1,7 @@
 import { API_URL } from '@/constant/network'
 import { downloadExcel, throwResponseStatusThenChaining } from '@/lib/network'
 import { stringify } from '@/lib/query-string'
+import type { ApiResponse, PaginatedResponse } from '@/types/api'
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 
 export const postApi = {
@@ -10,20 +11,7 @@ export const postApi = {
       headers: {
         'Content-Type': 'application/json',
       },
-    }).then(
-      (res) =>
-        res.json() as Promise<{
-          success: true
-          message: string
-          result: {
-            content: PostsElement[]
-            page: {
-              totalElements: number
-              totalPages: number
-            }
-          }
-        }>,
-    )
+    }).then((res) => res.json() as Promise<PaginatedResponse<PostsElement>>)
   },
   getPost: async (id: string) => {
     return await fetch(`${API_URL}/admin/info/${id}`, {
@@ -31,14 +19,7 @@ export const postApi = {
       headers: {
         'Content-Type': 'application/json',
       },
-    }).then(
-      (res) =>
-        res.json() as Promise<{
-          success: true
-          message: string
-          result: PostDetail
-        }>,
-    )
+    }).then((res) => res.json() as Promise<ApiResponse<PostDetail>>)
   },
   updatePost: async (
     id: string,
@@ -87,14 +68,13 @@ export const postApi = {
     return await fetch(`${API_URL}/admin/info/categories`, {
       method: 'GET',
     })
-      .then(
-        (res) =>
-          res.json() as Promise<{
-            success: boolean
-            message: string
-            result: PostCategory[]
-          }>,
-      )
+      .then((res) => res.json() as Promise<ApiResponse<PostCategory[]>>)
+      .then((res) => {
+        if (!res.success) {
+          throw new Error(res.message)
+        }
+        return res
+      })
       .then((res) => {
         return res.result.map((item) => ({
           ko: item.infoCategoryName,

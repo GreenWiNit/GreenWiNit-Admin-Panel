@@ -1,4 +1,4 @@
-import { challengeApi, challengeQueryKeys } from '@/api/challenge'
+import { challengeApi } from '@/api/challenge'
 import UpsertForm from '@/components/challenges/upsert-form'
 import type { FormState, UpsertFormProps } from '@/components/challenges/upsert-form/type'
 import PageContainer from '@/components/page-container'
@@ -14,18 +14,31 @@ import {
 import { Separator } from '@/components/shadcn/separator'
 import { useChallenge } from '@/hooks/use-challenge'
 import { useGoBackOrMove } from '@/hooks/use-go-back-or-move'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { invalidateChallenges } from '@/lib/query'
+import { validateSearchChallengeType } from '@/lib/router'
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/challenges/$id/update')({
   component: UpdateChallenge,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      challengeType: validateSearchChallengeType(search),
+    }
+  },
 })
 
 function UpdateChallenge() {
-  const queryClient = useQueryClient()
+  const searchParams = Route.useSearch()
+  const challengeType = searchParams.challengeType
   const { id } = Route.useParams()
-  const { data, isLoading } = useChallenge(Number(id))
+  const { data, isLoading } = useChallenge({
+    challengeId: Number(id),
+    challengeType,
+  })
   const movePage = useGoBackOrMove({ to: '/challenges' })
   const [showCreatingIsSuccess, setShowCreatingIsSuccess] = useState(false)
 
@@ -36,16 +49,19 @@ function UpdateChallenge() {
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const challenge = data!.result
+    if (!challenge) {
+      throw new Error('challenge is null')
+    }
+
     return {
       title: challenge.challengeName,
-      type: challenge.challengeType === 'PERSONAL' ? 'individual' : 'team',
       period: {
-        start: challenge.beginDateTime ? new Date(challenge.beginDateTime) : null,
-        end: challenge.endDateTime ? new Date(challenge.endDateTime) : null,
+        start: challenge.beginDate ? new Date(challenge.beginDate) : null,
+        end: challenge.endDate ? new Date(challenge.endDate) : null,
       },
       point: challenge.challengePoint,
       content: challenge.challengeContent,
-      imageUrl: null,
+      imageUrl: challenge.challengeImage,
       displayStatus: challenge.displayStatus,
     } satisfies FormState
   }, [data, isLoading])
@@ -57,29 +73,26 @@ function UpdateChallenge() {
         throw new Error(result.message)
       }
 
-      await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.individual.queryKey,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.challenge(Number(id)).queryKey,
-      })
+      await invalidateChallenges()
       setShowCreatingIsSuccess(true)
     },
   })
 
   const onSubmit: UpsertFormProps['onSubmit'] = (data) => {
+    if (!data.imageUrl) {
+      toast.error('비정상적인 접근입니다. 이미지는 빈 값일 수 없습니다.')
+      return
+    }
     console.debug('submit', data)
     updateChallenge({
       id: Number(id),
       challengeName: data.title,
       challengePoint: data.point,
-      beginDateTime: data.period.start?.toISOString() ?? '',
-      endDateTime: data.period.end?.toISOString() ?? '',
+      beginDate: dayjs(data.period.start).format('YYYY-MM-DD'),
+      endDate: dayjs(data.period.end).format('YYYY-MM-DD'),
       challengeContent: data.content,
-      /**
-       * @TODO check this value
-       */
-      maxGroupCount: 10,
+      challengeImageUrl: data.imageUrl,
+      challengeType,
     })
   }
 

@@ -1,6 +1,7 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from './../constant/network'
 import { downloadExcel } from '@/lib/network'
+import type { ApiResponse, PaginatedResponse } from '@/types/api'
 
 export const memberApi = {
   getActiveMembers: async (page = 0, pageSize = 10) => {
@@ -29,23 +30,8 @@ export const memberApi = {
       },
       body: JSON.stringify({ memberKey }),
     })
-    return response.json() as Promise<DeleteMemberByAdminResponse>
+    return response.json() as Promise<ApiResponse>
   },
-}
-
-type BaseResponse<T> = {
-  success: string
-  message: string
-  result?: T
-}
-
-type PaginatedData<T> = {
-  totalElements: number
-  totalPages: number
-  currentPage: number
-  pageSize: number
-  hasNext: false
-  content: T
 }
 
 export type Member = {
@@ -62,11 +48,9 @@ type WithdrawnData = Member & {
   withdrawalDate: '2025-01-20T14:20:00'
 }
 
-export type GetActiveMembersReponse = BaseResponse<PaginatedData<Member[]>>
+export type GetActiveMembersReponse = PaginatedResponse<Member>
 
-export type GetWithdrawnReponse = BaseResponse<PaginatedData<WithdrawnData[]>>
-
-type DeleteMemberByAdminResponse = BaseResponse<undefined>
+export type GetWithdrawnReponse = PaginatedResponse<WithdrawnData>
 
 const memberKey = createQueryKeys('members', {
   active: (page?: number, pageSize?: number) =>

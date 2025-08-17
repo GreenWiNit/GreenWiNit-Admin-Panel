@@ -1,6 +1,7 @@
 import { API_URL } from '@/constant/network'
 import { downloadExcel, throwResponseStatusThenChaining } from '@/lib/network'
 import { stringify } from '@/lib/query-string'
+import type { ApiResponse, PaginatedResponse } from '@/types/api'
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import { omit } from 'es-toolkit'
 
@@ -19,29 +20,14 @@ export const productApi = {
     })
       .then(throwResponseStatusThenChaining)
       .then((res) => {
-        return res.json() as Promise<{
-          success: true
-          message: 'string'
-          result: {
-            totalElements: number
-            totalPages: number
-            currentPage: number
-            pageSize: number
-            hasNext: boolean
-            content: ProductsResponseElement[]
-          }
-        }>
+        return res.json() as Promise<PaginatedResponse<ProductsResponseElement>>
       })
   },
   getProduct: async (id: number) => {
     return await fetch(`${API_URL}/point-products/${id}`, {
       method: 'GET',
     }).then((res) => {
-      return res.json() as Promise<{
-        success: true
-        message: string
-        result: ProductDetailResponse
-      }>
+      return res.json() as Promise<ApiResponse<ProductDetailResponse>>
     })
   },
   createProduct: async (params: {
@@ -103,18 +89,7 @@ export const productApi = {
         method: 'GET',
       },
     ).then((res) => {
-      return res.json() as Promise<{
-        success: boolean
-        message: string
-        result: {
-          totalElements: number
-          totalPages: number
-          currentPage: number
-          pageSize: number
-          hasNext: boolean
-          content: ProductsOrdersResponseElement[]
-        }
-      }>
+      return res.json() as Promise<PaginatedResponse<ProductsOrdersResponseElement>>
     })
   },
   getOrders: async ({
@@ -139,18 +114,7 @@ export const productApi = {
         method: 'GET',
       },
     ).then((res) => {
-      return res.json() as Promise<{
-        success: boolean
-        message: string
-        result?: {
-          totalElements: number
-          totalPages: number
-          currentPage: number
-          pageSize: number
-          hasNext: true
-          content: OrdersResponseElement[]
-        }
-      }>
+      return res.json() as Promise<PaginatedResponse<OrdersResponseElement>>
     })
   },
   changeOrderStatus: async (orderId: number, status: 'shipping' | 'complete') => {

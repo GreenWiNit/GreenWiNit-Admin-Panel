@@ -1,4 +1,4 @@
-import { challengeApi, challengeQueryKeys } from '@/api/challenge'
+import { challengeApi } from '@/api/challenge'
 import UpsertForm from '@/components/challenges/upsert-form'
 import type { UpsertFormProps } from '@/components/challenges/upsert-form/type'
 import PageContainer from '@/components/page-container'
@@ -7,51 +7,63 @@ import { Button } from '@/components/shadcn/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader } from '@/components/shadcn/dialog'
 import { Separator } from '@/components/shadcn/separator'
 import { useGoBackOrMove } from '@/hooks/use-go-back-or-move'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { showMessageIfExists } from '@/lib/error'
+import { invalidateChallenges } from '@/lib/query'
+import { validateSearchChallengeType } from '@/lib/router'
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import dayjs from 'dayjs'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/challenges/create')({
   component: CreateChallenge,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      challengeType: validateSearchChallengeType(search),
+    }
+  },
 })
 
 function CreateChallenge() {
+  const searchParams = Route.useSearch()
   const movePage = useGoBackOrMove({ to: '/challenges' })
   const [showCreatingIsSuccess, setShowCreatingIsSuccess] = useState(false)
-  const queryClient = useQueryClient()
+  const challengeType = searchParams.challengeType
 
   const { mutate: createChallenge } = useMutation({
-    mutationFn: challengeApi.createChallenge,
+    mutationFn: (
+      ...args:
+        | Parameters<typeof challengeApi.createIndividualChallenge>
+        | Parameters<typeof challengeApi.createTeamChallenge>
+    ) => {
+      if (challengeType === 'team') {
+        return challengeApi.createTeamChallenge.apply(null, args)
+      }
+
+      return challengeApi.createIndividualChallenge.apply(null, args)
+    },
     onSuccess: async (result) => {
       if (!result.success) {
         throw new Error(result.message)
       }
 
-      await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.individual.queryKey,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.challenge(result.result).queryKey,
-      })
+      await invalidateChallenges()
       setShowCreatingIsSuccess(true)
+    },
+    onError: (error) => {
+      console.error('onError', error)
+      showMessageIfExists(error)
     },
   })
 
   const onSubmit: UpsertFormProps['onSubmit'] = (data) => {
-    console.debug('submit', data)
     createChallenge({
       challengeName: data.title,
       challengePoint: data.point,
-      challengeType: data.type === 'individual' ? 'PERSONAL' : 'TEAM',
-      beginDateTime: data.period.start?.toISOString() ?? '',
-      endDateTime: data.period.end?.toISOString() ?? '',
-      displayStatus: data.displayStatus,
-      challengeImageUrl: data.imageUrl?.name ?? '',
+      beginDate: dayjs(data.period.start).format('YYYY-MM-DD'),
+      endDate: dayjs(data.period.end).format('YYYY-MM-DD'),
+      challengeImageUrl: data.imageUrl ?? '',
       challengeContent: data.content,
-      /**
-       * @TODO check this value
-       */
-      maxGroupCount: 10,
     })
   }
 

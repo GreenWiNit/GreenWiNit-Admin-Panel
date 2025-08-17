@@ -3,19 +3,29 @@ import GlobalNavigation from '@/components/global-navigation'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
-import type { GetIndividualChallengesResponseElement } from '@/api/challenge'
+import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
+import { challengeApi, type GetIndividualChallengesResponseElement } from '@/api/challenge'
 import dayjs from 'dayjs'
 import { Button } from '@/components/shadcn/button'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@/components/shadcn/separator'
+import { useState } from 'react'
+import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
+import { showMessageIfExists } from '@/lib/error'
 
 export const Route = createFileRoute('/challenges/type/individual')({
   component: IndividualChallenges,
 })
 
 function IndividualChallenges() {
-  const { data } = useIndividualChallenges()
+  const [paginationModel, setPaginationModel] =
+    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
+  const { data } = useIndividualChallenges({
+    pageParams: {
+      page: paginationModel.page + 1,
+      size: paginationModel.pageSize,
+    },
+  })
   const navigate = useNavigate()
 
   return (
@@ -29,30 +39,34 @@ function IndividualChallenges() {
             <Link to="/challenges/management/verify-status/individual">인증확인</Link>
           </Button>
           <div className="flex gap-2">
-            <Button className="w-fit">
+            <Button
+              className="w-fit"
+              onClick={async () => {
+                await challengeApi.downloadIndividualChallenges().catch(showMessageIfExists)
+              }}
+            >
               <FilePresentIcon />
               엑셀 받기
             </Button>
             <Button className="w-fit" asChild>
-              <Link to="/challenges/create">생성</Link>
+              <Link to="/challenges/create" search={{ challengeType: 'individual' }}>
+                생성
+              </Link>
             </Button>
           </div>
         </div>
         <div className="flex w-full">
           <DataGrid
             rows={
-              data?.result.content.map((challenge) => ({
+              data?.result?.content.map((challenge) => ({
                 ...challenge,
-                period: `${dayjs(challenge.beginDateTime).format('YYYY.MM.DD')} ~ ${dayjs(challenge.endDateTime).format('YYYY.MM.DD')}`,
                 challengePoint: `${challenge.challengePoint}p`,
                 createdDate: dayjs(challenge.createdDate).format('YYYY-MM-DD'),
               })) ?? []
             }
             initialState={{
               pagination: {
-                paginationModel: {
-                  pageSize: 10,
-                },
+                paginationModel: DEFAULT_PAGINATION_MODEL,
               },
             }}
             columns={columns}
@@ -62,6 +76,7 @@ function IndividualChallenges() {
               navigate({
                 to: '/challenges/$id',
                 params: { id: params.row.id },
+                search: { challengeType: 'individual' },
               })
             }}
             sx={{
@@ -69,6 +84,10 @@ function IndividualChallenges() {
                 cursor: 'pointer',
               },
             }}
+            onPaginationModelChange={setPaginationModel}
+            paginationModel={paginationModel}
+            rowCount={data?.result?.totalElements ?? 0}
+            paginationMode="server"
           />
         </div>
       </div>

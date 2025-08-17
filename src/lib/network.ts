@@ -1,11 +1,14 @@
 import { ApiErrorHasErrors } from './error'
 
 export async function throwResponseStatusThenChaining(response: Response) {
-  const body = await response.clone().json()
+  const bodyJson = response.headers.get('content-type')?.includes('json')
+    ? await response.clone().json()
+    : null
+
   if (response.ok) {
-    if ('success' in body) {
+    if (bodyJson && 'success' in bodyJson) {
       // success가 있는데 falsy하면 throw하기 위해 아래쪽으로 흐름을 가짐
-      if (body.success) {
+      if (bodyJson.success) {
         return response
       }
       // success가 없는 경우 그대로 반환
