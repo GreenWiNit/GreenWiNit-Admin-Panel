@@ -59,7 +59,7 @@ function UpdateChallenge() {
       },
       point: challenge.challengePoint,
       content: challenge.challengeContent,
-      imageUrl: null,
+      imageUrl: challenge.challengeImage,
       displayStatus: challenge.displayStatus,
     } satisfies FormState
   }, [data, isLoading])
@@ -96,10 +96,6 @@ function UpdateChallenge() {
       beginDateTime: data.period.start?.toISOString() ?? '',
       endDateTime: data.period.end?.toISOString() ?? '',
       challengeContent: data.content,
-      /**
-       * @TODO check this value
-       */
-      maxGroupCount: 10,
     })
   }
 

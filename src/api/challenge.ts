@@ -273,10 +273,6 @@ export const challengeApi = {
     beginDateTime: string
     endDateTime: string
     challengeContent: string
-    /**
-     * @CHECK 화면상에서 존재하지 않는 값인데 여기서 받는게 이상함. 백엔드 확인필요
-     */
-    maxGroupCount: number
   }) => {
     return await fetch(`${API_URL}/admin/challenges/${params.id}`, {
       method: 'PUT',

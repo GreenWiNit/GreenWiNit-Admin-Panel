@@ -99,11 +99,27 @@ function ChallengeDetail() {
               <DisplayStatusToggle
                 value={challenge.displayStatus}
                 onChange={async (value) => {
-                  await challengeApi.patchDisplayStatus({
-                    challengeId: Number(id),
-                    displayStatus: value,
-                    challengeType,
-                  })
+                  await challengeApi
+                    .patchDisplayStatus({
+                      challengeId: Number(id),
+                      displayStatus: value,
+                      challengeType,
+                    })
+                    .then(() => {
+                      queryClient.invalidateQueries({
+                        queryKey: challengeQueryKeys.challenges.challenge({
+                          challengeId: Number(id),
+                          challengeType,
+                        }).queryKey,
+                      })
+                      // @TODO 이 패턴을 참고한 펑션만들기
+                      queryClient.invalidateQueries({
+                        queryKey: challengeQueryKeys.challenges.individual.queryKey,
+                      })
+                      queryClient.invalidateQueries({
+                        queryKey: challengeQueryKeys.challenges.team.queryKey,
+                      })
+                    })
                 }}
                 challengeId={Number(id)}
                 challengeType={challengeType}
