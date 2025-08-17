@@ -1,4 +1,4 @@
-export type ApiResponse<R = never, S = never, F = never> =
+export type ApiResponse<R = never, S = never, F = CommonFailureMessage> =
   | {
       message: S extends string ? S : never
       success: true
@@ -19,7 +19,11 @@ export interface PaginatedData<E> {
   content: E[]
 }
 
-export type PaginatedResponse<E = never, S = never, F = never> = ApiResponse<PaginatedData<E>, S, F>
+export type PaginatedResponse<E = never, S = never, F = CommonFailureMessage> = ApiResponse<
+  PaginatedData<E>,
+  S,
+  F
+>
 
 export type CommonFailureMessage =
   | '접근이 거부되었습니다.'

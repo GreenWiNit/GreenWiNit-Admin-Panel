@@ -39,14 +39,14 @@ export const challengeApi = {
       },
     }).then(
       (res) =>
-        res.json() as Promise<{
-          success: true
-          message: 'string'
-          result: Array<{
-            memberKey: string
-            nickname: string
-          }>
-        }>,
+        res.json() as Promise<
+          ApiResponse<
+            Array<{
+              memberKey: string
+              nickname: string
+            }>
+          >
+        >,
     )
   },
   getIndividualChallengeTitles: async () => {
@@ -57,18 +57,18 @@ export const challengeApi = {
       },
     }).then(
       (res) =>
-        res.json() as Promise<{
-          success: true
-          message: 'string'
-          result: Array<{
-            challengeId: number
-            challengeName: string
-            /**
-             * @deprecated 의미없으니 사용하지 말것
-             */
-            challengeType: 'PERSONAL'
-          }>
-        }>,
+        res.json() as Promise<
+          ApiResponse<
+            Array<{
+              challengeId: number
+              challengeName: string
+              /**
+               * @deprecated 의미없으니 사용하지 말것
+               */
+              challengeType: 'PERSONAL'
+            }>
+          >
+        >,
     )
   },
   getIndividualChallengeWithVerifyStatus: async (params: {
@@ -128,18 +128,18 @@ export const challengeApi = {
       },
     }).then(
       (res) =>
-        res.json() as Promise<{
-          success: true
-          message: 'string'
-          result: Array<{
-            challengeId: number
-            challengeName: string
-            /**
-             * @deprecated 의미없으니 사용하지 말것
-             */
-            challengeType: 'TEAM'
-          }>
-        }>,
+        res.json() as Promise<
+          ApiResponse<
+            Array<{
+              challengeId: number
+              challengeName: string
+              /**
+               * @deprecated 의미없으니 사용하지 말것
+               */
+              challengeType: 'TEAM'
+            }>
+          >
+        >,
     )
   },
   getTeamChallengeTeams: async (challengeId: number) => {
@@ -150,15 +150,21 @@ export const challengeApi = {
       },
     })
       .then((res) => {
-        return res.json() as Promise<{
-          success: boolean
-          message: string
-          result: Array<{
-            groupCode: string
-            groupName: string
-            participantCount: number
-          }>
-        }>
+        return res.json() as Promise<
+          ApiResponse<
+            Array<{
+              groupCode: string
+              groupName: string
+              participantCount: number
+            }>
+          >
+        >
+      })
+      .then((res) => {
+        if (!res.success) {
+          throw new Error(res.message)
+        }
+        return res
       })
       .then((res) => {
         return res.result.map((item) => ({
@@ -284,14 +290,7 @@ export const challengeApi = {
           'Content-Type': 'application/json',
         },
       },
-    ).then(
-      (res) =>
-        res.json() as Promise<{
-          success: boolean
-          message: string
-          result: null
-        }>,
-    )
+    ).then((res) => res.json() as Promise<ApiResponse<null>>)
   },
   changeChallengeVisibility: async (challengeId: number, displayStatus: DisplayStatus) => {
     return await fetch(`${API_URL}/admin/challenges/${challengeId}/visibility`, {

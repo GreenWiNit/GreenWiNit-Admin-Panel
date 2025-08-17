@@ -119,7 +119,7 @@ function Products() {
           </Button>
         </div>
         <DataGrid
-          rows={data?.result.content ?? []}
+          rows={data?.result?.content ?? []}
           columns={columns}
           paginationModel={{
             page: searchFormBeforeSubmitting.watch('page'),

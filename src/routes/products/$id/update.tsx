@@ -25,12 +25,12 @@ function UpdateProduct() {
     if (!product) return product
     return {
       ...product.result,
-      code: product.result.pointProductCode ?? '',
-      name: product.result.pointProductName ?? '',
-      description: product.result.description ?? '',
-      thumbnailUrl: product.result.thumbnailUrl ?? '',
-      price: product.result.pointPrice ?? 0,
-      stock: product.result.stockQuantity ?? 0,
+      code: product.result?.pointProductCode ?? '',
+      name: product.result?.pointProductName ?? '',
+      description: product.result?.description ?? '',
+      thumbnailUrl: product.result?.thumbnailUrl ?? '',
+      price: product.result?.pointPrice ?? 0,
+      stock: product.result?.stockQuantity ?? 0,
     }
   }, [product])
 
