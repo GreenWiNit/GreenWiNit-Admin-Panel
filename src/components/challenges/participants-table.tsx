@@ -60,6 +60,7 @@ function IndividualParticipantsTable({
   return (
     <DataGrid
       rows={participants?.content ?? []}
+      getRowId={(row) => row.memberKey}
       initialState={{
         pagination: {
           paginationModel: DEFAULT_PAGINATION_MODEL,
@@ -80,12 +81,12 @@ const individualColumns: GridColDef<GetIndividualChallengeParticipantsResponseEl
     flex: 1,
   },
   {
-    field: 'participationDate',
+    field: 'participatingDate',
     headerName: '참여한 날짜',
     flex: 1,
   },
   {
-    field: 'certificationCount',
+    field: 'certCount',
     headerName: '인증횟수',
     flex: 1,
   },

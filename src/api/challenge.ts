@@ -489,7 +489,7 @@ export interface GetTeamChallengesResponseElement extends GetIndividualChallenge
 
 export interface GetIndividualChallengeParticipantsResponseElement {
   memberKey: string
-  participationDate: string
+  participatingDate: string
   certCount: number
 }
 
