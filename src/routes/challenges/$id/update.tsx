@@ -1,4 +1,4 @@
-import { challengeApi, challengeQueryKeys } from '@/api/challenge'
+import { challengeApi } from '@/api/challenge'
 import UpsertForm from '@/components/challenges/upsert-form'
 import type { FormState, UpsertFormProps } from '@/components/challenges/upsert-form/type'
 import PageContainer from '@/components/page-container'
@@ -14,8 +14,9 @@ import {
 import { Separator } from '@/components/shadcn/separator'
 import { useChallenge } from '@/hooks/use-challenge'
 import { useGoBackOrMove } from '@/hooks/use-go-back-or-move'
+import { invalidateChallenges } from '@/lib/query'
 import { validateSearchChallengeType } from '@/lib/router'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 
@@ -31,7 +32,6 @@ export const Route = createFileRoute('/challenges/$id/update')({
 function UpdateChallenge() {
   const searchParams = Route.useSearch()
   const challengeType = searchParams.challengeType
-  const queryClient = useQueryClient()
   const { id } = Route.useParams()
   const { data, isLoading } = useChallenge({
     challengeId: Number(id),
@@ -71,18 +71,7 @@ function UpdateChallenge() {
         throw new Error(result.message)
       }
 
-      await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.individual.queryKey,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.team.queryKey,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.challenge({
-          challengeId: Number(id),
-          challengeType,
-        }).queryKey,
-      })
+      await invalidateChallenges()
       setShowCreatingIsSuccess(true)
     },
   })

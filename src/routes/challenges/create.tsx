@@ -1,4 +1,4 @@
-import { challengeApi, challengeQueryKeys } from '@/api/challenge'
+import { challengeApi } from '@/api/challenge'
 import UpsertForm from '@/components/challenges/upsert-form'
 import type { UpsertFormProps } from '@/components/challenges/upsert-form/type'
 import PageContainer from '@/components/page-container'
@@ -8,8 +8,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader } from '@/compon
 import { Separator } from '@/components/shadcn/separator'
 import { useGoBackOrMove } from '@/hooks/use-go-back-or-move'
 import { showMessageIfExists } from '@/lib/error'
+import { invalidateChallenges } from '@/lib/query'
 import { validateSearchChallengeType } from '@/lib/router'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import dayjs from 'dayjs'
 import { useState } from 'react'
@@ -27,7 +28,6 @@ function CreateChallenge() {
   const searchParams = Route.useSearch()
   const movePage = useGoBackOrMove({ to: '/challenges' })
   const [showCreatingIsSuccess, setShowCreatingIsSuccess] = useState(false)
-  const queryClient = useQueryClient()
   const challengeType = searchParams.challengeType
 
   const { mutate: createChallenge } = useMutation({
@@ -47,12 +47,7 @@ function CreateChallenge() {
         throw new Error(result.message)
       }
 
-      await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.individual.queryKey,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.team.queryKey,
-      })
+      await invalidateChallenges()
       setShowCreatingIsSuccess(true)
     },
     onError: (error) => {

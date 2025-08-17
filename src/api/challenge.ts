@@ -405,7 +405,8 @@ export const challengeApi = {
   },
 }
 
-const challengeKey = createQueryKeys('challenges', {
+export const CHALLENGES_TOP_KEY = 'challenges' as const
+const challengeKey = createQueryKeys(CHALLENGES_TOP_KEY, {
   individual: ['individual'],
   individualChallenges: (pageParams: { page?: number | undefined; size?: number | undefined }) =>
     ['individual', pageParams] as const,

@@ -1,4 +1,4 @@
-import { challengeApi, challengeQueryKeys } from '@/api/challenge'
+import { challengeApi } from '@/api/challenge'
 import ParticipantsTable from '@/components/challenges/participants-table'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
@@ -6,12 +6,13 @@ import { Button } from '@/components/shadcn/button'
 import { Separator } from '@/components/shadcn/separator'
 import { useChallenge } from '@/hooks/use-challenge'
 import { validateSearchChallengeType } from '@/lib/router'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import dayjs from 'dayjs'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { showMessageIfExists } from '@/lib/error'
 import DisplayStatusToggle from '@/components/challenges/display-status-toggle '
+import { invalidateChallenges } from '@/lib/query'
 
 export const Route = createFileRoute('/challenges/$id/')({
   component: ChallengeDetail,
@@ -31,24 +32,12 @@ function ChallengeDetail() {
     challengeType,
   })
   const challenge = data?.result
-  const queryClient = useQueryClient()
   const navigate = useNavigate()
 
   const { mutate: deleteChallenge } = useMutation({
     mutationFn: () => challengeApi.deleteChallenge(Number(id)),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.individual.queryKey,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.team.queryKey,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: challengeQueryKeys.challenges.challenge({
-          challengeId: Number(id),
-          challengeType,
-        }).queryKey,
-      })
+      await invalidateChallenges()
       navigate({ to: '/challenges' })
     },
   })
@@ -105,21 +94,7 @@ function ChallengeDetail() {
                       displayStatus: value,
                       challengeType,
                     })
-                    .then(() => {
-                      queryClient.invalidateQueries({
-                        queryKey: challengeQueryKeys.challenges.challenge({
-                          challengeId: Number(id),
-                          challengeType,
-                        }).queryKey,
-                      })
-                      // @TODO 이 패턴을 참고한 펑션만들기
-                      queryClient.invalidateQueries({
-                        queryKey: challengeQueryKeys.challenges.individual.queryKey,
-                      })
-                      queryClient.invalidateQueries({
-                        queryKey: challengeQueryKeys.challenges.team.queryKey,
-                      })
-                    })
+                    .then(invalidateChallenges)
                 }}
                 challengeId={Number(id)}
                 challengeType={challengeType}
