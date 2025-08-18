@@ -1,33 +1,17 @@
-import {
-  challengeApi,
-  challengeQueryKeys,
-  CHALLENGES_TOP_KEY,
-  type CertificationStatus,
-} from '@/api/challenge'
+import { challengeApi, challengeQueryKeys, type CertificationStatus } from '@/api/challenge'
+import CertificationImageUrlCell from '@/components/challenges/certification-image-url-cell'
+import StatusCell from '@/components/challenges/status-cell'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { Button } from '@/components/shadcn/button'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { Input } from '@/components/shadcn/input'
 import { Label } from '@/components/shadcn/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/shadcn/select'
 import { Separator } from '@/components/shadcn/separator'
 import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
-import { showMessageIfExists } from '@/lib/error'
-import {
-  DataGrid,
-  type GridColDef,
-  type GridPaginationModel,
-  type GridRenderCellParams,
-  type GridTreeNodeWithRender,
-} from '@mui/x-data-grid'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { usePatchVerifyStatus } from '@/hooks/use-patch-verify-status'
+import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Fragment, useState } from 'react'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
@@ -44,13 +28,6 @@ function RouteComponent() {
   const [searchRequestParams, setSearchRequestParams] = useState<SearchForm>(DEFAULT_SEARCH_FORM)
   const [paginationModel, setPaginationModel] =
     useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
-  const [changeStatuses, setChangeStatuses] = useState<
-    {
-      certificationId: number
-      status: Omit<CertificationStatus, '인증 요청'>
-    }[]
-  >([])
-  const queryClient = useQueryClient()
 
   const { data: challengesWithVerifyStatus } = useQuery({
     queryKey: challengeQueryKeys.challenges.individualWithVerifyStatus({
@@ -72,32 +49,7 @@ function RouteComponent() {
     setSearchRequestParams(data)
   }
 
-  const { mutate: patchVerifyStatus } = useMutation({
-    mutationFn: async function () {
-      const statusToApprove = changeStatuses.filter((c) => c.status === '지급')
-      const statusToReject = changeStatuses.filter((c) => c.status === '미지급')
-      return challengeApi
-        .patchVerifyStatus({
-          certificationIds: statusToApprove.map((c) => c.certificationId),
-          status: '지급',
-        })
-        .then(() => {
-          return challengeApi.patchVerifyStatus({
-            certificationIds: statusToReject.map((c) => c.certificationId),
-            status: '미지급',
-          })
-        })
-    },
-    onSuccess: async () => {
-      return queryClient.invalidateQueries({
-        queryKey: [CHALLENGES_TOP_KEY],
-      })
-    },
-    onError: (error) => {
-      console.error(error)
-      showMessageIfExists(error)
-    },
-  })
+  const { mutate: patchVerifyStatus, setChangeStatuses } = usePatchVerifyStatus()
 
   return (
     <PageContainer>
@@ -221,7 +173,6 @@ function RouteComponent() {
       <Button
         className="self-end"
         onClick={() => {
-          console.log('changeStatuses', changeStatuses)
           patchVerifyStatus()
         }}
       >
@@ -250,6 +201,14 @@ const columns: GridColDef<{
   certificationImageUrl: string
   certificationReview: string
   status: CertificationStatus
+  setChangeStatuses: React.Dispatch<
+    React.SetStateAction<
+      {
+        certificationId: number
+        status: Omit<CertificationStatus, '\uC778\uC99D \uC694\uCCAD'>
+      }[]
+    >
+  >
 }>[] = [
   {
     field: 'challengeName',
@@ -271,17 +230,7 @@ const columns: GridColDef<{
     field: 'certificationImageUrl',
     headerName: '인증 이미지',
     width: 150,
-    renderCell(params) {
-      return (
-        <Button
-          onClick={() => {
-            window.open(params.value, '_blank')
-          }}
-        >
-          {params.value.split('/').pop()}
-        </Button>
-      )
-    },
+    renderCell: CertificationImageUrlCell,
   },
   {
     field: 'certificationReview',
@@ -295,79 +244,3 @@ const columns: GridColDef<{
     renderCell: StatusCell,
   },
 ]
-
-function StatusCell(
-  props: GridRenderCellParams<
-    {
-      challengeName: string
-      challengeCode: string
-      memberKey: string
-      certifiedDate: string
-      certificationImageUrl: string
-      certificationReview: string
-      status: CertificationStatus
-      setChangeStatuses: React.Dispatch<
-        React.SetStateAction<
-          {
-            certificationId: number
-            status: Omit<CertificationStatus, '\uC778\uC99D \uC694\uCCAD'>
-          }[]
-        >
-      >
-    },
-    CertificationStatus,
-    CertificationStatus,
-    GridTreeNodeWithRender
-  >,
-) {
-  const [selected, setSelected] = useState(props.value)
-
-  return (
-    <div className="flex h-full w-full items-center justify-center">
-      {props.value === '인증 요청' ? (
-        <Select
-          value={selected ?? '인증 요청'}
-          onValueChange={(nextValue) => {
-            setSelected(nextValue as CertificationStatus)
-            props.row.setChangeStatuses((prev) => {
-              if (nextValue === '인증 요청') {
-                return prev.filter((p) => p.certificationId !== Number(props.id))
-              }
-
-              const hasPrev = prev.find((p) => p.certificationId === props.id)
-              const nextItem = {
-                certificationId: Number(props.id),
-                status: nextValue as CertificationStatus,
-              }
-
-              if (hasPrev) {
-                return prev.map((p) => {
-                  if (p.certificationId === props.id) {
-                    return nextItem
-                  }
-                  return p
-                })
-              }
-              return [...prev, nextItem]
-            })
-          }}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue>{selected}</SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="인증 요청">인증 요청</SelectItem>
-            <SelectItem value="지급">지급</SelectItem>
-            <SelectItem value="미지급">미지급</SelectItem>
-          </SelectContent>
-        </Select>
-      ) : (
-        <Select value={props.value ?? ''} disabled>
-          <SelectTrigger className="w-full">
-            <SelectValue>{props.value}</SelectValue>
-          </SelectTrigger>
-        </Select>
-      )}
-    </div>
-  )
-}

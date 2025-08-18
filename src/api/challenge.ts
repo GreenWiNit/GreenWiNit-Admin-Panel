@@ -57,84 +57,6 @@ export const challengeApi = {
       >
     })
   },
-  getTeamChallengeTitles: async () => {
-    return await fetch(`${API_URL}/admin/challenges/team-titles`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(
-      (res) =>
-        res.json() as Promise<
-          ApiResponse<
-            Array<{
-              challengeId: number
-              challengeName: string
-              /**
-               * @deprecated 의미없으니 사용하지 말것
-               */
-              challengeType: 'TEAM'
-            }>
-          >
-        >,
-    )
-  },
-  getTeamChallengeTeams: async (challengeId: number) => {
-    return await fetch(`${API_URL}/admin/challenges/${challengeId}/group-codes`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((res) => {
-        return res.json() as Promise<
-          ApiResponse<
-            Array<{
-              groupCode: string
-              groupName: string
-              participantCount: number
-            }>
-          >
-        >
-      })
-      .then((res) => {
-        if (!res.success) {
-          throw new Error(res.message)
-        }
-        return res
-      })
-      .then((res) => {
-        return res.result.map((item) => ({
-          ...item,
-          teamCode: item.groupCode,
-          teamName: item.groupName,
-        }))
-      })
-  },
-  getTeamChallengeWithVerifyStatus: async (params: {
-    callengeId: number | null
-    teamCode: string | null
-    statuses: VerifyStatus[] | readonly VerifyStatus[] | null
-    cursor: number | null
-  }) => {
-    return await fetch(`${API_URL}/admin/team-certifications?${stringify(params)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(
-      (res) =>
-        res.json() as Promise<{
-          success: boolean
-          message: string
-          result: {
-            hasNext: boolean
-            nextCursor: string | null
-            content: Array<TeamChallengeWithVerifyStatus>
-          }
-        }>,
-    )
-  },
   // @MEMO v2 작업완료
   getIndividualChallenge: async (challengeId: number) => {
     return await fetch(`${API_URL}/admin/challenges/personal/${challengeId}`, {
@@ -407,10 +329,8 @@ const challengeKey = createQueryKeys(CHALLENGES_TOP_KEY, {
   team: ['team'],
   teamChallenges: (pageParams: { page: number | undefined; size: number | undefined }) =>
     ['team', pageParams] as const,
-  teamTitles: ['team', 'titles'] as const,
-  teamChallengeTeams: (challengeId?: number) => ['team', challengeId, 'teams'] as const,
-  teamChallengeWithVerifyStatus: (
-    params: Parameters<typeof challengeApi.getTeamChallengeWithVerifyStatus>[0],
+  teamWithVerifyStatus: (
+    params: Omit<Parameters<typeof challengeApi.getChallengesWithVerifyStatus>[0], 'challengeType'>,
   ) => ['team', 'with-verify-status', params] as const,
   challenge: (params: { challengeId: number; challengeType: 'individual' | 'team' }) =>
     [params] as const,
@@ -516,21 +436,6 @@ export interface ChallengeWithVerifyStatus {
   imageUrl: string
   review: string
   status: CertificationStatus
-}
-
-export interface TeamChallengeWithVerifyStatus {
-  id: number
-  /**
-   * ex) google foo
-   * @CHECK swagger에서는 memberId
-   */
-  memberKey: string
-  memberNickname: string
-  memberEmail: string
-  certificationImageUrl: string
-  certificationReview: string
-  certifiedDate: string
-  status: VerifyStatus
 }
 
 export const challengeQueryKeys = mergeQueryKeys(challengeKey)

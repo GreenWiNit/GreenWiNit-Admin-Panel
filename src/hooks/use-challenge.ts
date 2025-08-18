@@ -63,22 +63,6 @@ export const useTeamChallenges = (
   })
 }
 
-export const useTeamChallengeTitles = () => {
-  return useQuery({
-    queryKey: challengeQueryKeys.challenges.teamTitles.queryKey,
-    queryFn: challengeApi.getTeamChallengeTitles,
-  })
-}
-
-export const useTeamChallengeTeams = (challengeId?: number) => {
-  return useQuery({
-    queryKey: challengeQueryKeys.challenges.teamChallengeTeams(challengeId).queryKey,
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    queryFn: () => challengeApi.getTeamChallengeTeams(challengeId!),
-    enabled: !!challengeId,
-  })
-}
-
 export const useChallenge = ({
   challengeId,
   challengeType,
