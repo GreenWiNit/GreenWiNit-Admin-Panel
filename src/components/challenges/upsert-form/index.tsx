@@ -9,6 +9,7 @@ import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
 import type { FormState, UpsertFormProps } from './type'
 import ErrorMessage from '@/components/form/ErrorMessage'
 import InputImage from '@/components/input-image'
+import { Textarea } from '@/components/shadcn/textarea'
 
 function UpsertForm({
   defaultValues = DEFAULT_VALUES,
@@ -115,7 +116,7 @@ function UpsertForm({
           <tr>
             <th>참여방법</th>
             <td>
-              <Input {...register('content')} />
+              <Textarea {...register('content')} />
             </td>
           </tr>
           {mode === 'update' ? (
