@@ -33,6 +33,7 @@ export const teamApi = {
         >,
     )
   },
+  // @MEMO v2 작업완료
   getTeam: async (teamId: number) => {
     return await fetch(`${API_URL}/admin/challenges/groups/${teamId}`, {
       method: 'GET',
@@ -43,14 +44,15 @@ export const teamApi = {
       (res) =>
         res.json() as Promise<
           ApiResponse<{
+            groupId: number
             // 'T-20250109-143523-C8NQ'
-            teamCode: string
+            groupCode: string
             // 'google_4534'
             leaderMemberKey: string
             // 'google_3927, naver_9174'
             participantMemberKeys: string
             // '함께 플롯길 해요~
-            teamTitle: string
+            groupName: string
             // '2025-06-08'
             date: string
             // '20:00'
@@ -58,7 +60,7 @@ export const teamApi = {
             // '21:00':
             endTime: string
             // '서울시 종로구 00강 입구'
-            location: string
+            fullAddress: string
             // '1시간 동안 함께 플롯길 하는 코스입니다.'
             description: string
             // 'https://open.kakao.com/o/sAczYWth'

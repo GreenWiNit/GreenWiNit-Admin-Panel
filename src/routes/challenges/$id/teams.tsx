@@ -56,7 +56,7 @@ function Teams() {
             <tbody>
               <tr>
                 <th>팀 코드</th>
-                <td colSpan={3}>{team.result?.teamCode}</td>
+                <td colSpan={3}>{team.result?.groupCode}</td>
               </tr>
               <tr>
                 <th>팀 등록자 Memberkey(팀장)</th>
@@ -66,7 +66,7 @@ function Teams() {
               </tr>
               <tr>
                 <th>팀 제목</th>
-                <td>{team.result?.teamTitle}</td>
+                <td>{team.result?.groupName}</td>
                 <th>날짜</th>
                 <td>{team.result?.date}</td>
               </tr>
@@ -78,7 +78,7 @@ function Teams() {
               </tr>
               <tr>
                 <th>장소</th>
-                <td colSpan={3}>{team.result?.location}</td>
+                <td colSpan={3}>{team.result?.fullAddress}</td>
               </tr>
               <tr>
                 <th>설명</th>
