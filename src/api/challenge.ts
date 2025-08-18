@@ -411,6 +411,53 @@ export const challengeApi = {
       },
     }).then(throwResponseStatusThenChaining)
   },
+  getChallengesWithVerifyStatus: async (params: {
+    challengeName?: string | null
+    groupCode?: string | null
+    memberKey?: string | null
+    status?: VerifyStatus
+    challengeType: 'individual' | 'team'
+    page?: number | undefined
+    size?: number | undefined
+  }) => {
+    return await fetch(`${API_URL}/admin/certifications/challenges?${stringify(params)}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(throwResponseStatusThenChaining)
+      .then((res) => {
+        return res.json() as Promise<
+          PaginatedResponse<{
+            id: number
+            challenge: {
+              challengeId: number
+              challengeName: string
+              challengeCode: string
+              challengeImage: string
+              challengePoint: number
+            } & (
+              | {
+                  type: 'P'
+                }
+              | {
+                  groupCode: string
+                  type: 'T'
+                }
+            )
+            member: {
+              memberId: number
+              memberKey: string
+            }
+            certifiedDate: string
+            imageUrl: string
+            review: string
+            status: CertificationStatus
+          }>
+        >
+      })
+  },
 }
 
 export const CHALLENGES_TOP_KEY = 'challenges' as const
@@ -509,6 +556,7 @@ export interface GetTeamChallengeParticipantsResponseElement {
 }
 
 export type VerifyStatus = 'PENDING' | 'PAID' | 'REJECTED'
+type CertificationStatus = '인증 요청' | '지급' | '미지급'
 
 export interface IndividualChallengeWithVerifyStatus {
   id: number
