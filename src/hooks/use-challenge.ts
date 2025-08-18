@@ -34,13 +34,6 @@ export const useIndividualChallenges = (
   })
 }
 
-export const useIndividualChallengeTitles = () => {
-  return useQuery({
-    queryKey: challengeQueryKeys.challenges.individualTitles.queryKey,
-    queryFn: challengeApi.getIndividualChallengeTitles,
-  })
-}
-
 export const useTeamChallenges = (
   options?: Omit<
     UseQueryOptions<

@@ -1,65 +1,50 @@
-import {
-  challengeApi,
-  challengeQueryKeys,
-  type IndividualChallengeWithVerifyStatus,
-  type VerifyStatus,
-} from '@/api/challenge'
+import { challengeApi, challengeQueryKeys, type CertificationStatus } from '@/api/challenge'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { Button } from '@/components/shadcn/button'
 import { Checkbox } from '@/components/shadcn/checkbox'
+import { Input } from '@/components/shadcn/input'
 import { Label } from '@/components/shadcn/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/shadcn/select'
 import { Separator } from '@/components/shadcn/separator'
-import { useIndividualChallengeTitles } from '@/hooks/use-challenge'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
+import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+import { Fragment, useState } from 'react'
+import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
 
 export const Route = createFileRoute('/challenges/management/verify-status/individual')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { data: challenges } = useIndividualChallengeTitles()
-  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(null)
-  const selectedChallengeIdNumber = selectedChallengeId ? Number(selectedChallengeId) : null
-  const { data: participants } = useQuery({
-    queryKey: challengeQueryKeys.challenges.individualParticipantKeys(
-      selectedChallengeIdNumber ?? undefined,
-    ).queryKey,
-    queryFn: () => challengeApi.getIndividualChallengeParticipantKeys(selectedChallengeIdNumber),
-    select: (data) => data.result,
-    enabled: !!selectedChallengeId,
+  const searchFormInputing = useForm({
+    defaultValues: DEFAULT_SEARCH_FORM,
   })
-  const [selectedParticipantId, setSelectedParticipantId] = useState<string | null>(null)
-  const queryClient = useQueryClient()
+  /** searchFormInputing - (submit) -> update searchForm */
+  const [searchRequestParams, setSearchRequestParams] = useState<SearchForm>(DEFAULT_SEARCH_FORM)
+  const [paginationModel, setPaginationModel] =
+    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
 
-  const [selectedStatuses, setSelectedStatuses] = useState<VerifyStatus[]>([])
-  const searchOptions = useMemo(() => {
-    const queryListMemberKey =
-      selectedParticipantId == null || selectedParticipantId === 'all'
-        ? null
-        : Number(selectedParticipantId)
-    return {
-      callengeId: selectedChallengeIdNumber,
-      memberKey: queryListMemberKey,
-      statuses: selectedStatuses,
-      cursor: null,
-    } as const
-  }, [selectedChallengeIdNumber, selectedParticipantId, selectedStatuses])
+  const { data: challengesWithVerifyStatus } = useQuery({
+    queryKey: challengeQueryKeys.challenges.individualWithVerifyStatus({
+      ...searchRequestParams,
+      ...paginationModel,
+    }).queryKey,
+    queryFn: (ctx) => {
+      const [, , , , apiParamsFromQueryKey] = ctx.queryKey
 
-  const { data: verifyStatuses } = useQuery({
-    queryKey: challengeQueryKeys.challenges.individualWithVerifyStatus(searchOptions).queryKey,
-    queryFn: () => challengeApi.getIndividualChallengeWithVerifyStatus(searchOptions),
+      return challengeApi.getChallengesWithVerifyStatus({
+        ...apiParamsFromQueryKey,
+        challengeType: 'individual',
+      })
+    },
   })
+
+  const submitHandler: SubmitHandler<SearchForm> = (data) => {
+    console.log('data', data)
+    setSearchRequestParams(data)
+  }
 
   return (
     <PageContainer>
@@ -68,99 +53,78 @@ function RouteComponent() {
         <Separator />
         <form
           className="flex flex-row gap-4"
-          onSubmit={(e) => {
-            e.preventDefault()
-            queryClient.invalidateQueries({
-              queryKey:
-                challengeQueryKeys.challenges.individualWithVerifyStatus(searchOptions).queryKey,
-            })
-          }}
+          onSubmit={searchFormInputing.handleSubmit(submitHandler)}
         >
           <table className="table-auto border-collapse border border-amber-500">
             <tbody className="[&_td,th]:border [&_td,th]:px-1 [&_td,th]:py-2 [&_td,th]:text-sm [&_th]:text-center">
               <tr>
                 <th>개인 챌린지 제목</th>
                 <td>
-                  <Select
-                    value={selectedChallengeId ?? ''}
-                    onValueChange={(nextValue) => {
-                      setSelectedChallengeId(nextValue)
-                      setSelectedParticipantId(null)
-                    }}
-                  >
-                    <SelectTrigger className="w-60 truncate">
-                      <SelectValue placeholder="전체" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">
-                        <span className="w-48 truncate">전체</span>
-                      </SelectItem>
-                      {challenges?.result?.map((challenge) => (
-                        <SelectItem
-                          key={challenge.challengeId}
-                          value={challenge.challengeId.toString()}
-                        >
-                          <span className="w-48 truncate">{challenge.challengeName}</span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input {...searchFormInputing.register('challengeName')} />
                 </td>
               </tr>
               <tr>
-                <th>참여자 목록</th>
+                <th>참여자</th>
                 <td>
-                  <Select
-                    value={selectedParticipantId ?? ''}
-                    onValueChange={setSelectedParticipantId}
-                  >
-                    <SelectTrigger className="w-60 truncate text-left">
-                      <SelectValue placeholder="전체" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">
-                        <span className="w-48 truncate">전체</span>
-                      </SelectItem>
-                      {participants?.map((participant) => (
-                        <SelectItem key={participant.memberKey} value={participant.memberKey}>
-                          <span className="w-48 truncate">{participant.nickname}</span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input {...searchFormInputing.register('memberKey')} />
                 </td>
               </tr>
               <tr>
                 <th>포인트</th>
                 <td>
                   <div className="flex flex-row justify-center gap-2">
-                    <Label>
-                      <Checkbox
-                        checked={selectedStatuses.includes('PENDING')}
-                        onCheckedChange={(checked) => {
-                          setSelectedStatuses(checked ? ['PENDING'] : [])
-                        }}
-                      />
-                      인증요청
-                    </Label>
-                    <Label>
-                      <Checkbox
-                        checked={selectedStatuses.includes('PAID')}
-                        onCheckedChange={(checked) => {
-                          setSelectedStatuses(checked ? ['PAID'] : [])
-                        }}
-                      />
-                      지급
-                    </Label>
-                    <Label>
-                      <Checkbox
-                        checked={selectedStatuses.includes('REJECTED')}
-                        onCheckedChange={(checked) => {
-                          setSelectedStatuses(checked ? ['REJECTED'] : [])
-                        }}
-                      />
-                      미지급
-                    </Label>
+                    <Controller
+                      control={searchFormInputing.control}
+                      name="statuses"
+                      render={(renderProps) => {
+                        const { field } = renderProps
+                        const statuses = field.value
+
+                        return (
+                          <Fragment>
+                            <Label>
+                              <Checkbox
+                                checked={statuses.includes('인증 요청')}
+                                onCheckedChange={(checked) => {
+                                  field.onChange(
+                                    checked
+                                      ? ['인증 요청']
+                                      : statuses.filter((status) => status !== '인증 요청'),
+                                  )
+                                }}
+                              />
+                              인증요청
+                            </Label>
+                            <Label>
+                              <Checkbox
+                                checked={statuses.includes('지급')}
+                                onCheckedChange={(checked) => {
+                                  field.onChange(
+                                    checked
+                                      ? ['지급']
+                                      : statuses.filter((status) => status !== '지급'),
+                                  )
+                                }}
+                              />
+                              지급
+                            </Label>
+                            <Label>
+                              <Checkbox
+                                checked={statuses.includes('미지급')}
+                                onCheckedChange={(checked) => {
+                                  field.onChange(
+                                    checked
+                                      ? ['미지급']
+                                      : statuses.filter((status) => status !== '미지급'),
+                                  )
+                                }}
+                              />
+                              미지급
+                            </Label>
+                          </Fragment>
+                        )
+                      }}
+                    />
                   </div>
                 </td>
               </tr>
@@ -173,17 +137,27 @@ function RouteComponent() {
         <div className="flex w-full">
           <DataGrid
             rows={
-              verifyStatuses?.result?.content?.map((challenge) => ({
-                ...challenge,
-              })) ?? []
+              challengesWithVerifyStatus?.result?.content?.map((c) => {
+                return {
+                  ...c,
+                  challengeName: c.challenge.challengeName,
+                  challengeCode: c.challenge.challengeCode,
+                  memberKey: c.member.memberKey,
+                  certifiedDate: c.certifiedDate,
+                  certificationImageUrl: c.imageUrl,
+                  certificationReview: c.review,
+                }
+              }) ?? []
             }
             initialState={{
               pagination: {
-                paginationModel: {
-                  pageSize: 10,
-                },
+                paginationModel: DEFAULT_PAGINATION_MODEL,
               },
             }}
+            onPaginationModelChange={setPaginationModel}
+            paginationModel={paginationModel}
+            rowCount={challengesWithVerifyStatus?.result?.totalElements ?? 0}
+            paginationMode="server"
             columns={columns}
             disableRowSelectionOnClick
           />
@@ -193,9 +167,28 @@ function RouteComponent() {
   )
 }
 
-const columns: GridColDef<IndividualChallengeWithVerifyStatus>[] = [
+interface SearchForm {
+  challengeName: string
+  memberKey: string
+  statuses: CertificationStatus[]
+}
+const DEFAULT_SEARCH_FORM: SearchForm = {
+  challengeName: '',
+  memberKey: '',
+  statuses: [],
+}
+
+const columns: GridColDef<{
+  challengeName: string
+  challengeCode: string
+  memberKey: string
+  certifiedDate: string
+  certificationImageUrl: string
+  certificationReview: string
+  status: CertificationStatus
+}>[] = [
   {
-    field: 'challengeTitle',
+    field: 'challengeName',
     headerName: '챌린지 제목',
     width: 300,
   },
@@ -210,11 +203,21 @@ const columns: GridColDef<IndividualChallengeWithVerifyStatus>[] = [
     headerName: '인증하기 날짜',
     width: 150,
   },
-  // @TODO define cell component, touchable and open new window when clicking
   {
     field: 'certificationImageUrl',
     headerName: '인증 이미지',
     width: 150,
+    renderCell(params) {
+      return (
+        <Button
+          onClick={() => {
+            window.open(params.value, '_blank')
+          }}
+        >
+          {params.value.split('/').pop()}
+        </Button>
+      )
+    },
   },
   {
     field: 'certificationReview',

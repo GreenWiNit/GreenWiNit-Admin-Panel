@@ -3,6 +3,7 @@ import { API_URL } from '@/constant/network'
 import { stringify } from '@/lib/query-string'
 import { downloadExcel, throwResponseStatusThenChaining } from '@/lib/network'
 import type { ApiResponse, CommonFailureMessageWithAuth, PaginatedResponse } from '@/types/api'
+import { omit } from 'es-toolkit'
 
 export const challengeApi = {
   // @MEMO v2 작업완료
@@ -29,70 +30,6 @@ export const challengeApi = {
             CommonFailureMessageWithAuth
           >
         >,
-    )
-  },
-  getIndividualChallengeParticipantKeys: async (challengeId?: number | null) => {
-    return await fetch(`${API_URL}/admin/challenges/${challengeId}/participants-memberkeys`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(
-      (res) =>
-        res.json() as Promise<
-          ApiResponse<
-            Array<{
-              memberKey: string
-              nickname: string
-            }>
-          >
-        >,
-    )
-  },
-  getIndividualChallengeTitles: async () => {
-    return await fetch(`${API_URL}/admin/challenges/personal-titles`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(
-      (res) =>
-        res.json() as Promise<
-          ApiResponse<
-            Array<{
-              challengeId: number
-              challengeName: string
-              /**
-               * @deprecated 의미없으니 사용하지 말것
-               */
-              challengeType: 'PERSONAL'
-            }>
-          >
-        >,
-    )
-  },
-  getIndividualChallengeWithVerifyStatus: async (params: {
-    callengeId: number | null
-    memberKey: number | null
-    statuses: VerifyStatus[] | readonly VerifyStatus[] | null
-    cursor: number | null
-  }) => {
-    return await fetch(`${API_URL}/admin/personal-certifications?${stringify(params)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(
-      (res) =>
-        res.json() as Promise<{
-          success: boolean
-          message: string
-          result: {
-            hasNext: boolean
-            nextCursor: string | null
-            content: Array<IndividualChallengeWithVerifyStatus>
-          }
-        }>,
     )
   },
   // @MEMO v2 작업완료
@@ -411,51 +348,28 @@ export const challengeApi = {
       },
     }).then(throwResponseStatusThenChaining)
   },
+  // @MEMO v2 작업완료
   getChallengesWithVerifyStatus: async (params: {
     challengeName?: string | null
     groupCode?: string | null
     memberKey?: string | null
-    status?: VerifyStatus
+    status?: CertificationStatus
     challengeType: 'individual' | 'team'
     page?: number | undefined
     size?: number | undefined
   }) => {
-    return await fetch(`${API_URL}/admin/certifications/challenges?${stringify(params)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
+    return await fetch(
+      `${API_URL}/admin/certifications/challenges?${stringify(omit({ ...params, type: params.challengeType === 'individual' ? 'P' : 'T' }, ['challengeType']), { skipNull: true, skipEmptyString: true })}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-    })
+    )
       .then(throwResponseStatusThenChaining)
       .then((res) => {
-        return res.json() as Promise<
-          PaginatedResponse<{
-            id: number
-            challenge: {
-              challengeId: number
-              challengeName: string
-              challengeCode: string
-              challengeImage: string
-              challengePoint: number
-            } & (
-              | {
-                  type: 'P'
-                }
-              | {
-                  groupCode: string
-                  type: 'T'
-                }
-            )
-            member: {
-              memberId: number
-              memberKey: string
-            }
-            certifiedDate: string
-            imageUrl: string
-            review: string
-            status: CertificationStatus
-          }>
-        >
+        return res.json() as Promise<PaginatedResponse<ChallengeWithVerifyStatus>>
       })
   },
 }
@@ -465,12 +379,9 @@ const challengeKey = createQueryKeys(CHALLENGES_TOP_KEY, {
   individual: ['individual'],
   individualChallenges: (pageParams: { page?: number | undefined; size?: number | undefined }) =>
     ['individual', pageParams] as const,
-  individualTitles: ['individual', 'titles'],
   individualWithVerifyStatus: (
-    params: Parameters<typeof challengeApi.getIndividualChallengeWithVerifyStatus>[0],
+    params: Omit<Parameters<typeof challengeApi.getChallengesWithVerifyStatus>[0], 'challengeType'>,
   ) => ['individual', 'with-verify-status', params] as const,
-  individualParticipantKeys: (challengeId?: number) =>
-    ['individual', challengeId, 'participants', 'keys'] as const,
   team: ['team'],
   teamChallenges: (pageParams: { page: number | undefined; size: number | undefined }) =>
     ['team', pageParams] as const,
@@ -556,26 +467,33 @@ export interface GetTeamChallengeParticipantsResponseElement {
 }
 
 export type VerifyStatus = 'PENDING' | 'PAID' | 'REJECTED'
-type CertificationStatus = '인증 요청' | '지급' | '미지급'
+export type CertificationStatus = '인증 요청' | '지급' | '미지급'
 
-export interface IndividualChallengeWithVerifyStatus {
+export interface ChallengeWithVerifyStatus {
   id: number
-  /**
-   * ex) google foo
-   */
-  memberKey: string
-  memberNickname: string
-  memberEmail: string
-  certificationImageUrl: string
-  certificationReview: string
+  challenge: {
+    challengeId: number
+    challengeName: string
+    challengeCode: string
+    challengeImage: string
+    challengePoint: number
+  } & (
+    | {
+        type: 'P'
+      }
+    | {
+        groupCode: string
+        type: 'T'
+      }
+  )
+  member: {
+    memberId: number
+    memberKey: string
+  }
   certifiedDate: string
-  status: VerifyStatus
-  challengeId: number
-  /**
-   * CH-P-20250109-143521-A3FV
-   */
-  challengeCode: string
-  challengeTitle: string
+  imageUrl: string
+  review: string
+  status: CertificationStatus
 }
 
 export interface TeamChallengeWithVerifyStatus {
