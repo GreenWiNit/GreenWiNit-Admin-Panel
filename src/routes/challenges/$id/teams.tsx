@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
-export const Route = createFileRoute('/challenges/teams')({
+export const Route = createFileRoute('/challenges/$id/teams')({
   component: Teams,
 })
 

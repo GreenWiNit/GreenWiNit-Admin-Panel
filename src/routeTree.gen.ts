@@ -19,7 +19,6 @@ import { Route as MembersIndexRouteImport } from './routes/members/index'
 import { Route as ChallengesIndexRouteImport } from './routes/challenges/index'
 import { Route as ProductsCreateRouteImport } from './routes/products/create'
 import { Route as PostsUpsertRouteImport } from './routes/posts/upsert'
-import { Route as ChallengesTeamsRouteImport } from './routes/challenges/teams'
 import { Route as ChallengesCreateRouteImport } from './routes/challenges/create'
 import { Route as ProductsOrdersIndexRouteImport } from './routes/products/orders/index'
 import { Route as ProductsIdIndexRouteImport } from './routes/products/$id/index'
@@ -30,6 +29,7 @@ import { Route as ProductsIdUpdateRouteImport } from './routes/products/$id/upda
 import { Route as ChallengesTypeTeamRouteImport } from './routes/challenges/type/team'
 import { Route as ChallengesTypeIndividualRouteImport } from './routes/challenges/type/individual'
 import { Route as ChallengesIdUpdateRouteImport } from './routes/challenges/$id/update'
+import { Route as ChallengesIdTeamsRouteImport } from './routes/challenges/$id/teams'
 import { Route as ChallengesManagementVerifyStatusTeamRouteImport } from './routes/challenges/management/verify-status/team'
 import { Route as ChallengesManagementVerifyStatusIndividualRouteImport } from './routes/challenges/management/verify-status/individual'
 
@@ -83,11 +83,6 @@ const PostsUpsertRoute = PostsUpsertRouteImport.update({
   path: '/posts/upsert',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ChallengesTeamsRoute = ChallengesTeamsRouteImport.update({
-  id: '/challenges/teams',
-  path: '/challenges/teams',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ChallengesCreateRoute = ChallengesCreateRouteImport.update({
   id: '/challenges/create',
   path: '/challenges/create',
@@ -139,6 +134,11 @@ const ChallengesIdUpdateRoute = ChallengesIdUpdateRouteImport.update({
   path: '/challenges/$id/update',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChallengesIdTeamsRoute = ChallengesIdTeamsRouteImport.update({
+  id: '/challenges/$id/teams',
+  path: '/challenges/$id/teams',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChallengesManagementVerifyStatusTeamRoute =
   ChallengesManagementVerifyStatusTeamRouteImport.update({
     id: '/challenges/management/verify-status/team',
@@ -157,7 +157,6 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/challenges/create': typeof ChallengesCreateRoute
-  '/challenges/teams': typeof ChallengesTeamsRoute
   '/posts/upsert': typeof PostsUpsertRoute
   '/products/create': typeof ProductsCreateRoute
   '/challenges': typeof ChallengesIndexRoute
@@ -165,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/points': typeof PointsIndexRoute
   '/posts': typeof PostsIndexRoute
   '/products': typeof ProductsIndexRoute
+  '/challenges/$id/teams': typeof ChallengesIdTeamsRoute
   '/challenges/$id/update': typeof ChallengesIdUpdateRoute
   '/challenges/type/individual': typeof ChallengesTypeIndividualRoute
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
@@ -182,7 +182,6 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/challenges/create': typeof ChallengesCreateRoute
-  '/challenges/teams': typeof ChallengesTeamsRoute
   '/posts/upsert': typeof PostsUpsertRoute
   '/products/create': typeof ProductsCreateRoute
   '/challenges': typeof ChallengesIndexRoute
@@ -190,6 +189,7 @@ export interface FileRoutesByTo {
   '/points': typeof PointsIndexRoute
   '/posts': typeof PostsIndexRoute
   '/products': typeof ProductsIndexRoute
+  '/challenges/$id/teams': typeof ChallengesIdTeamsRoute
   '/challenges/$id/update': typeof ChallengesIdUpdateRoute
   '/challenges/type/individual': typeof ChallengesTypeIndividualRoute
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
@@ -208,7 +208,6 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/challenges/create': typeof ChallengesCreateRoute
-  '/challenges/teams': typeof ChallengesTeamsRoute
   '/posts/upsert': typeof PostsUpsertRoute
   '/products/create': typeof ProductsCreateRoute
   '/challenges/': typeof ChallengesIndexRoute
@@ -216,6 +215,7 @@ export interface FileRoutesById {
   '/points/': typeof PointsIndexRoute
   '/posts/': typeof PostsIndexRoute
   '/products/': typeof ProductsIndexRoute
+  '/challenges/$id/teams': typeof ChallengesIdTeamsRoute
   '/challenges/$id/update': typeof ChallengesIdUpdateRoute
   '/challenges/type/individual': typeof ChallengesTypeIndividualRoute
   '/challenges/type/team': typeof ChallengesTypeTeamRoute
@@ -235,7 +235,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/challenges/create'
-    | '/challenges/teams'
     | '/posts/upsert'
     | '/products/create'
     | '/challenges'
@@ -243,6 +242,7 @@ export interface FileRouteTypes {
     | '/points'
     | '/posts'
     | '/products'
+    | '/challenges/$id/teams'
     | '/challenges/$id/update'
     | '/challenges/type/individual'
     | '/challenges/type/team'
@@ -260,7 +260,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/challenges/create'
-    | '/challenges/teams'
     | '/posts/upsert'
     | '/products/create'
     | '/challenges'
@@ -268,6 +267,7 @@ export interface FileRouteTypes {
     | '/points'
     | '/posts'
     | '/products'
+    | '/challenges/$id/teams'
     | '/challenges/$id/update'
     | '/challenges/type/individual'
     | '/challenges/type/team'
@@ -285,7 +285,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/challenges/create'
-    | '/challenges/teams'
     | '/posts/upsert'
     | '/products/create'
     | '/challenges/'
@@ -293,6 +292,7 @@ export interface FileRouteTypes {
     | '/points/'
     | '/posts/'
     | '/products/'
+    | '/challenges/$id/teams'
     | '/challenges/$id/update'
     | '/challenges/type/individual'
     | '/challenges/type/team'
@@ -311,7 +311,6 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   LoginRoute: typeof LoginRoute
   ChallengesCreateRoute: typeof ChallengesCreateRoute
-  ChallengesTeamsRoute: typeof ChallengesTeamsRoute
   PostsUpsertRoute: typeof PostsUpsertRoute
   ProductsCreateRoute: typeof ProductsCreateRoute
   ChallengesIndexRoute: typeof ChallengesIndexRoute
@@ -319,6 +318,7 @@ export interface RootRouteChildren {
   PointsIndexRoute: typeof PointsIndexRoute
   PostsIndexRoute: typeof PostsIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
+  ChallengesIdTeamsRoute: typeof ChallengesIdTeamsRoute
   ChallengesIdUpdateRoute: typeof ChallengesIdUpdateRoute
   ChallengesTypeIndividualRoute: typeof ChallengesTypeIndividualRoute
   ChallengesTypeTeamRoute: typeof ChallengesTypeTeamRoute
@@ -404,13 +404,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsUpsertRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/challenges/teams': {
-      id: '/challenges/teams'
-      path: '/challenges/teams'
-      fullPath: '/challenges/teams'
-      preLoaderRoute: typeof ChallengesTeamsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/challenges/create': {
       id: '/challenges/create'
       path: '/challenges/create'
@@ -481,6 +474,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChallengesIdUpdateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/challenges/$id/teams': {
+      id: '/challenges/$id/teams'
+      path: '/challenges/$id/teams'
+      fullPath: '/challenges/$id/teams'
+      preLoaderRoute: typeof ChallengesIdTeamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/challenges/management/verify-status/team': {
       id: '/challenges/management/verify-status/team'
       path: '/challenges/management/verify-status/team'
@@ -503,7 +503,6 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   LoginRoute: LoginRoute,
   ChallengesCreateRoute: ChallengesCreateRoute,
-  ChallengesTeamsRoute: ChallengesTeamsRoute,
   PostsUpsertRoute: PostsUpsertRoute,
   ProductsCreateRoute: ProductsCreateRoute,
   ChallengesIndexRoute: ChallengesIndexRoute,
@@ -511,6 +510,7 @@ const rootRouteChildren: RootRouteChildren = {
   PointsIndexRoute: PointsIndexRoute,
   PostsIndexRoute: PostsIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
+  ChallengesIdTeamsRoute: ChallengesIdTeamsRoute,
   ChallengesIdUpdateRoute: ChallengesIdUpdateRoute,
   ChallengesTypeIndividualRoute: ChallengesTypeIndividualRoute,
   ChallengesTypeTeamRoute: ChallengesTypeTeamRoute,

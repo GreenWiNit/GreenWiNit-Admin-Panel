@@ -57,6 +57,13 @@ function ChallengeDetail() {
       <div className="flex items-center justify-between">
         <h4>기본정보</h4>
         <div className="flex gap-2">
+          {challengeType === 'team' && (
+            <Button className="w-fit" asChild>
+              <Link to="/challenges/$id/teams" params={{ id }}>
+                팀 목록
+              </Link>
+            </Button>
+          )}
           <Button className="w-fit" asChild>
             <Link to="/challenges/$id/update" params={{ id }} search={{ challengeType }}>
               수정
