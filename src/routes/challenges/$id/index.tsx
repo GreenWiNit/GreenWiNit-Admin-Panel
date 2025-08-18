@@ -35,7 +35,7 @@ function ChallengeDetail() {
   const navigate = useNavigate()
 
   const { mutate: deleteChallenge } = useMutation({
-    mutationFn: () => challengeApi.deleteChallenge(Number(id)),
+    mutationFn: () => challengeApi.deleteChallenge(Number(id), challengeType),
     onSuccess: async () => {
       await invalidateChallenges()
       navigate({ to: '/challenges' })

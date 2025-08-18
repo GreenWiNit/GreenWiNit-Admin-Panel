@@ -224,6 +224,7 @@ export const challengeApi = {
         return res.json() as Promise<ApiResponse<CommonChallenge>>
       })
   },
+  // @MEMO v2 작업완료
   createIndividualChallenge: async (params: {
     challengeName: string
     challengePoint: number
@@ -247,6 +248,7 @@ export const challengeApi = {
         return res.json() as Promise<ApiResponse<number>>
       })
   },
+  // @MEMO v2 작업완료
   createTeamChallenge: async (params: {
     challengeName: string
     challengePoint: number
@@ -272,7 +274,7 @@ export const challengeApi = {
   },
   // @MEMO v2 작업완료
   updateChallenge: async (params: {
-    id: number
+    challengeId: number
     challengeName: string
     challengePoint: number
     beginDate: string
@@ -281,28 +283,25 @@ export const challengeApi = {
     challengeImageUrl: string
     challengeType: 'individual' | 'team'
   }) => {
+    const { challengeType, challengeId, ...bodyPayload } = params
     return await fetch(
-      `${API_URL}/admin/challenges/${params.challengeType === 'team' ? 'team' : 'personal'}/${params.id}`,
+      `${API_URL}/admin/challenges/${challengeType === 'team' ? 'team' : 'personal'}/${challengeId}`,
       {
         method: 'PUT',
-        body: JSON.stringify(params),
+        body: JSON.stringify(bodyPayload),
         headers: {
           'Content-Type': 'application/json',
         },
       },
-    ).then((res) => res.json() as Promise<ApiResponse<null>>)
+    ).then((res) => res.json() as Promise<ApiResponse<never>>)
   },
-  changeChallengeVisibility: async (challengeId: number, displayStatus: DisplayStatus) => {
-    return await fetch(`${API_URL}/admin/challenges/${challengeId}/visibility`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ displayStatus }),
-    }).then(throwResponseStatusThenChaining)
-  },
-  deleteChallenge: async (challengeId: number) => {
-    return challengeApi.changeChallengeVisibility(challengeId, 'HIDDEN')
+  // @MEMO v2 작업완료
+  deleteChallenge: async (challengeId: number, challengeType: 'individual' | 'team') => {
+    return challengeApi.patchDisplayStatus({
+      challengeId,
+      displayStatus: 'HIDDEN',
+      challengeType,
+    })
   },
   // @MEMO v2 작업완료
   getIndividualChallengeParticipants: async (params: {
@@ -398,12 +397,18 @@ export const challengeApi = {
         {
           method: 'PATCH',
           body: JSON.stringify({ displayStatus }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
       ).then(throwResponseStatusThenChaining)
     }
     return await fetch(`${API_URL}/admin/challenges/team/${challengeId}/${displayStatusToPath}`, {
       method: 'PATCH',
       body: JSON.stringify({ displayStatus }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     }).then(throwResponseStatusThenChaining)
   },
 }
