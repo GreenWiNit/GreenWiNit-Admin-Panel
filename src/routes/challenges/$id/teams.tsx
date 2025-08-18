@@ -2,7 +2,8 @@ import { teamApi, teamQueryKeys } from '@/api/team'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { Separator } from '@/components/shadcn/separator'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
+import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -12,10 +13,16 @@ export const Route = createFileRoute('/challenges/$id/teams')({
 })
 
 function Teams() {
-  const [cursor, setCursor] = useState<number | null>(null)
+  const [pageParams, setPageParams] = useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
   const { data, isLoading } = useQuery({
-    queryKey: teamQueryKeys.team.teams(cursor).queryKey,
-    queryFn: (ctx) => teamApi.getTeams(ctx.queryKey[2]),
+    queryKey: teamQueryKeys.team.teams(pageParams).queryKey,
+    queryFn: (ctx) => {
+      const [, , pageParamsFromQueryKey] = ctx.queryKey
+      return teamApi.getTeams({
+        size: pageParamsFromQueryKey?.pageSize,
+        page: pageParamsFromQueryKey?.page,
+      })
+    },
   })
   const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null)
   const { data: team } = useQuery({
@@ -34,8 +41,8 @@ function Teams() {
         columns={teamsColumns}
         loading={isLoading}
         rowCount={data?.result?.totalElements ?? 0}
-        onRowCountChange={setCursor}
-        paginationModel={{ pageSize: 10, page: cursor ?? 0 }}
+        paginationModel={pageParams}
+        onPaginationModelChange={setPageParams}
         onRowClick={(params) => {
           setSelectedTeamId(params.row.id)
         }}

@@ -5,8 +5,8 @@ import type { ApiResponse, PaginatedResponse } from '@/types/api'
 
 export const teamApi = {
   // @MEMO v2 작업완료
-  getTeams: async (cursor?: number | null) => {
-    return await fetch(`${API_URL}/admin/challenges/groups?${stringify({ cursor })}`, {
+  getTeams: async (params: { page?: number | undefined; size?: number | undefined }) => {
+    return await fetch(`${API_URL}/admin/challenges/groups?${stringify(params)}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -19,15 +19,16 @@ export const teamApi = {
             /**
              * "T-20250109-143523-C8NQ"
              */
-            teamCode: string
-            teamTitle: string
+            groupCode: string
+            groupName: string
             /**
              * "2025-08-09"
              */
-            registrationDate: string
+            challengeDate: string
             maxParticipants: number
             currentParticipants: number
-            recruitmentStatus: 'RECRUITING' | 'RECRUIT_COMPLETED'
+            recruitmentStatus: '모집중' | '완료'
+            registrationDate: string
           }>
         >,
     )
@@ -69,7 +70,8 @@ export const teamApi = {
 }
 
 const teamKey = createQueryKeys('team', {
-  teams: (cursor?: number | null) => [cursor ?? undefined] as const,
+  teams: (params?: { page?: number | undefined; pageSize?: number | undefined }) =>
+    [params] as const,
   team: (teamId?: number) => [teamId] as const,
 })
 
