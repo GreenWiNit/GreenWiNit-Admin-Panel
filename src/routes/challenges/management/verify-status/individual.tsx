@@ -5,9 +5,22 @@ import { Button } from '@/components/shadcn/button'
 import { Checkbox } from '@/components/shadcn/checkbox'
 import { Input } from '@/components/shadcn/input'
 import { Label } from '@/components/shadcn/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/shadcn/select'
 import { Separator } from '@/components/shadcn/separator'
 import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
-import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  type GridColDef,
+  type GridPaginationModel,
+  type GridRenderCellParams,
+  type GridTreeNodeWithRender,
+} from '@mui/x-data-grid'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Fragment, useState } from 'react'
@@ -146,6 +159,7 @@ function RouteComponent() {
                   certifiedDate: c.certifiedDate,
                   certificationImageUrl: c.imageUrl,
                   certificationReview: c.review,
+                  status: c.status,
                 }
               }) ?? []
             }
@@ -227,6 +241,42 @@ const columns: GridColDef<{
   {
     field: 'status',
     headerName: '포인트',
-    width: 150,
+    width: 200,
+    renderCell: StatusCell,
   },
 ]
+
+function StatusCell(
+  props: GridRenderCellParams<
+    {
+      challengeName: string
+      challengeCode: string
+      memberKey: string
+      certifiedDate: string
+      certificationImageUrl: string
+      certificationReview: string
+      status: CertificationStatus
+    },
+    CertificationStatus,
+    CertificationStatus,
+    GridTreeNodeWithRender
+  >,
+) {
+  const [selected, setSelected] = useState(props.value)
+
+  return (
+    <Select
+      value={selected ?? '인증 요청'}
+      onValueChange={(value) => setSelected(value as CertificationStatus)}
+    >
+      <SelectTrigger className="w-full">
+        <SelectValue>{props.value}</SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="인증 요청">인증 요청</SelectItem>
+        <SelectItem value="지급">지급</SelectItem>
+        <SelectItem value="미지급">미지급</SelectItem>
+      </SelectContent>
+    </Select>
+  )
+}
