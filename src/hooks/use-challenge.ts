@@ -34,13 +34,6 @@ export const useIndividualChallenges = (
   })
 }
 
-export const useIndividualChallengeTitles = () => {
-  return useQuery({
-    queryKey: challengeQueryKeys.challenges.individualTitles.queryKey,
-    queryFn: challengeApi.getIndividualChallengeTitles,
-  })
-}
-
 export const useTeamChallenges = (
   options?: Omit<
     UseQueryOptions<
@@ -67,22 +60,6 @@ export const useTeamChallenges = (
       const [, , , { page, size }] = ctx.queryKey
       return challengeApi.getTeamChallenges({ page, size })
     },
-  })
-}
-
-export const useTeamChallengeTitles = () => {
-  return useQuery({
-    queryKey: challengeQueryKeys.challenges.teamTitles.queryKey,
-    queryFn: challengeApi.getTeamChallengeTitles,
-  })
-}
-
-export const useTeamChallengeTeams = (challengeId?: number) => {
-  return useQuery({
-    queryKey: challengeQueryKeys.challenges.teamChallengeTeams(challengeId).queryKey,
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    queryFn: () => challengeApi.getTeamChallengeTeams(challengeId!),
-    enabled: !!challengeId,
   })
 }
 

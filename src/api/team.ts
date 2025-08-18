@@ -4,8 +4,8 @@ import { stringify } from '@/lib/query-string'
 import type { ApiResponse, PaginatedResponse } from '@/types/api'
 
 export const teamApi = {
-  getTeams: async (cursor?: number | null) => {
-    return await fetch(`${API_URL}/admin/challenges/groups?${stringify({ cursor })}`, {
+  getTeams: async (params: { page?: number | undefined; size?: number | undefined }) => {
+    return await fetch(`${API_URL}/admin/challenges/groups?${stringify(params)}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -18,15 +18,16 @@ export const teamApi = {
             /**
              * "T-20250109-143523-C8NQ"
              */
-            teamCode: string
-            teamTitle: string
+            groupCode: string
+            groupName: string
             /**
              * "2025-08-09"
              */
-            registrationDate: string
+            challengeDate: string
             maxParticipants: number
             currentParticipants: number
-            recruitmentStatus: 'RECRUITING' | 'RECRUIT_COMPLETED'
+            recruitmentStatus: '모집중' | '완료'
+            registrationDate: string
           }>
         >,
     )
@@ -41,14 +42,15 @@ export const teamApi = {
       (res) =>
         res.json() as Promise<
           ApiResponse<{
+            groupId: number
             // 'T-20250109-143523-C8NQ'
-            teamCode: string
+            groupCode: string
             // 'google_4534'
             leaderMemberKey: string
             // 'google_3927, naver_9174'
             participantMemberKeys: string
             // '함께 플롯길 해요~
-            teamTitle: string
+            groupName: string
             // '2025-06-08'
             date: string
             // '20:00'
@@ -56,7 +58,7 @@ export const teamApi = {
             // '21:00':
             endTime: string
             // '서울시 종로구 00강 입구'
-            location: string
+            fullAddress: string
             // '1시간 동안 함께 플롯길 하는 코스입니다.'
             description: string
             // 'https://open.kakao.com/o/sAczYWth'
@@ -68,7 +70,8 @@ export const teamApi = {
 }
 
 const teamKey = createQueryKeys('team', {
-  teams: (cursor?: number | null) => [cursor ?? undefined] as const,
+  teams: (params?: { page?: number | undefined; pageSize?: number | undefined }) =>
+    [params] as const,
   team: (teamId?: number) => [teamId] as const,
 })
 

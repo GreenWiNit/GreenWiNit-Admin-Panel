@@ -3,9 +3,9 @@ import { API_URL } from '@/constant/network'
 import { stringify } from '@/lib/query-string'
 import { downloadExcel, throwResponseStatusThenChaining } from '@/lib/network'
 import type { ApiResponse, CommonFailureMessageWithAuth, PaginatedResponse } from '@/types/api'
+import { omit } from 'es-toolkit'
 
 export const challengeApi = {
-  // @MEMO v2 작업완료
   getIndividualChallenges: async (
     pageParams: {
       page: number | undefined
@@ -31,71 +31,6 @@ export const challengeApi = {
         >,
     )
   },
-  getIndividualChallengeParticipantKeys: async (challengeId?: number | null) => {
-    return await fetch(`${API_URL}/admin/challenges/${challengeId}/participants-memberkeys`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(
-      (res) =>
-        res.json() as Promise<
-          ApiResponse<
-            Array<{
-              memberKey: string
-              nickname: string
-            }>
-          >
-        >,
-    )
-  },
-  getIndividualChallengeTitles: async () => {
-    return await fetch(`${API_URL}/admin/challenges/personal-titles`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(
-      (res) =>
-        res.json() as Promise<
-          ApiResponse<
-            Array<{
-              challengeId: number
-              challengeName: string
-              /**
-               * @deprecated 의미없으니 사용하지 말것
-               */
-              challengeType: 'PERSONAL'
-            }>
-          >
-        >,
-    )
-  },
-  getIndividualChallengeWithVerifyStatus: async (params: {
-    callengeId: number | null
-    memberKey: number | null
-    statuses: VerifyStatus[] | readonly VerifyStatus[] | null
-    cursor: number | null
-  }) => {
-    return await fetch(`${API_URL}/admin/personal-certifications?${stringify(params)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(
-      (res) =>
-        res.json() as Promise<{
-          success: boolean
-          message: string
-          result: {
-            hasNext: boolean
-            nextCursor: string | null
-            content: Array<IndividualChallengeWithVerifyStatus>
-          }
-        }>,
-    )
-  },
-  // @MEMO v2 작업완료
   getTeamChallenges: async (
     pageParams: {
       page: number | undefined
@@ -120,85 +55,6 @@ export const challengeApi = {
       >
     })
   },
-  getTeamChallengeTitles: async () => {
-    return await fetch(`${API_URL}/admin/challenges/team-titles`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(
-      (res) =>
-        res.json() as Promise<
-          ApiResponse<
-            Array<{
-              challengeId: number
-              challengeName: string
-              /**
-               * @deprecated 의미없으니 사용하지 말것
-               */
-              challengeType: 'TEAM'
-            }>
-          >
-        >,
-    )
-  },
-  getTeamChallengeTeams: async (challengeId: number) => {
-    return await fetch(`${API_URL}/admin/challenges/${challengeId}/group-codes`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((res) => {
-        return res.json() as Promise<
-          ApiResponse<
-            Array<{
-              groupCode: string
-              groupName: string
-              participantCount: number
-            }>
-          >
-        >
-      })
-      .then((res) => {
-        if (!res.success) {
-          throw new Error(res.message)
-        }
-        return res
-      })
-      .then((res) => {
-        return res.result.map((item) => ({
-          ...item,
-          teamCode: item.groupCode,
-          teamName: item.groupName,
-        }))
-      })
-  },
-  getTeamChallengeWithVerifyStatus: async (params: {
-    callengeId: number | null
-    teamCode: string | null
-    statuses: VerifyStatus[] | readonly VerifyStatus[] | null
-    cursor: number | null
-  }) => {
-    return await fetch(`${API_URL}/admin/team-certifications?${stringify(params)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(
-      (res) =>
-        res.json() as Promise<{
-          success: boolean
-          message: string
-          result: {
-            hasNext: boolean
-            nextCursor: string | null
-            content: Array<TeamChallengeWithVerifyStatus>
-          }
-        }>,
-    )
-  },
-  // @MEMO v2 작업완료
   getIndividualChallenge: async (challengeId: number) => {
     return await fetch(`${API_URL}/admin/challenges/personal/${challengeId}`, {
       method: 'GET',
@@ -211,7 +67,6 @@ export const challengeApi = {
         return res.json() as Promise<ApiResponse<CommonChallenge>>
       })
   },
-  // @MEMO v2 작업완료
   getTeamChallenge: async (challengeId: number) => {
     return await fetch(`${API_URL}/admin/challenges/team/${challengeId}`, {
       method: 'GET',
@@ -270,9 +125,8 @@ export const challengeApi = {
         return res.json() as Promise<ApiResponse<number>>
       })
   },
-  // @MEMO v2 작업완료
   updateChallenge: async (params: {
-    id: number
+    challengeId: number
     challengeName: string
     challengePoint: number
     beginDate: string
@@ -281,30 +135,25 @@ export const challengeApi = {
     challengeImageUrl: string
     challengeType: 'individual' | 'team'
   }) => {
+    const { challengeType, challengeId, ...bodyPayload } = params
     return await fetch(
-      `${API_URL}/admin/challenges/${params.challengeType === 'team' ? 'team' : 'personal'}/${params.id}`,
+      `${API_URL}/admin/challenges/${challengeType === 'team' ? 'team' : 'personal'}/${challengeId}`,
       {
         method: 'PUT',
-        body: JSON.stringify(params),
+        body: JSON.stringify(bodyPayload),
         headers: {
           'Content-Type': 'application/json',
         },
       },
-    ).then((res) => res.json() as Promise<ApiResponse<null>>)
+    ).then((res) => res.json() as Promise<ApiResponse<never>>)
   },
-  changeChallengeVisibility: async (challengeId: number, displayStatus: DisplayStatus) => {
-    return await fetch(`${API_URL}/admin/challenges/${challengeId}/visibility`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ displayStatus }),
-    }).then(throwResponseStatusThenChaining)
+  deleteChallenge: async (challengeId: number, challengeType: 'individual' | 'team') => {
+    return challengeApi.patchDisplayStatus({
+      challengeId,
+      displayStatus: 'HIDDEN',
+      challengeType,
+    })
   },
-  deleteChallenge: async (challengeId: number) => {
-    return challengeApi.changeChallengeVisibility(challengeId, 'HIDDEN')
-  },
-  // @MEMO v2 작업완료
   getIndividualChallengeParticipants: async (params: {
     challengeId: number
     page: number | undefined
@@ -325,7 +174,6 @@ export const challengeApi = {
         res.json() as Promise<PaginatedResponse<GetIndividualChallengeParticipantsResponseElement>>,
     )
   },
-  // @MEMO v2 작업완료
   downloadIndividualChallenges: async () => {
     return await fetch(`${API_URL}/admin/challenges/personal/excel`, {
       method: 'GET',
@@ -333,7 +181,6 @@ export const challengeApi = {
       .then(throwResponseStatusThenChaining)
       .then(downloadExcel)
   },
-  // @MEMO v2 작업완료
   getTeamChallengeParticipants: async (params: {
     challengeId: number
     page: number | undefined
@@ -354,7 +201,6 @@ export const challengeApi = {
         res.json() as Promise<PaginatedResponse<GetTeamChallengeParticipantsResponseElement>>,
     )
   },
-  // @MEMO v2 작업완료
   downloadTeamChallenges: async () => {
     return await fetch(`${API_URL}/admin/challenges/team/excel`, {
       method: 'GET',
@@ -362,7 +208,6 @@ export const challengeApi = {
       .then(throwResponseStatusThenChaining)
       .then(downloadExcel)
   },
-  // @MEMO v2 작업완료
   downloadParticipantsExcel: async ({
     challengeId,
     challengeType,
@@ -381,7 +226,6 @@ export const challengeApi = {
       .then(throwResponseStatusThenChaining)
       .then(downloadExcel)
   },
-  // @MEMO v2 작업완료
   patchDisplayStatus: async ({
     challengeId,
     displayStatus,
@@ -398,34 +242,79 @@ export const challengeApi = {
         {
           method: 'PATCH',
           body: JSON.stringify({ displayStatus }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
       ).then(throwResponseStatusThenChaining)
     }
     return await fetch(`${API_URL}/admin/challenges/team/${challengeId}/${displayStatusToPath}`, {
       method: 'PATCH',
       body: JSON.stringify({ displayStatus }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     }).then(throwResponseStatusThenChaining)
+  },
+  getChallengesWithVerifyStatus: async (params: {
+    challengeName?: string | null
+    groupCode?: string | null
+    memberKey?: string | null
+    status?: CertificationStatus
+    challengeType: 'individual' | 'team'
+    page?: number | undefined
+    size?: number | undefined
+  }) => {
+    return await fetch(
+      `${API_URL}/admin/certifications/challenges?${stringify(omit({ ...params, type: params.challengeType === 'individual' ? 'P' : 'T' }, ['challengeType']), { skipNull: true, skipEmptyString: true })}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+      .then(throwResponseStatusThenChaining)
+      .then((res) => {
+        return res.json() as Promise<PaginatedResponse<ChallengeWithVerifyStatus>>
+      })
+  },
+  patchVerifyStatus: async ({
+    certificationIds,
+    status,
+  }: {
+    certificationIds: number[]
+    status: Omit<CertificationStatus, '인증 요청'>
+  }) => {
+    if (certificationIds.length === 0) {
+      return
+    }
+    return await fetch(
+      `${API_URL}/admin/certifications/challenges/${status === '지급' ? 'approve' : 'reject'}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ certificationIds }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    ).then(throwResponseStatusThenChaining)
   },
 }
 
 export const CHALLENGES_TOP_KEY = 'challenges' as const
 const challengeKey = createQueryKeys(CHALLENGES_TOP_KEY, {
-  individual: ['individual'],
+  individual: [undefined] as const,
   individualChallenges: (pageParams: { page?: number | undefined; size?: number | undefined }) =>
     ['individual', pageParams] as const,
-  individualTitles: ['individual', 'titles'],
   individualWithVerifyStatus: (
-    params: Parameters<typeof challengeApi.getIndividualChallengeWithVerifyStatus>[0],
+    params: Omit<Parameters<typeof challengeApi.getChallengesWithVerifyStatus>[0], 'challengeType'>,
   ) => ['individual', 'with-verify-status', params] as const,
-  individualParticipantKeys: (challengeId?: number) =>
-    ['individual', challengeId, 'participants', 'keys'] as const,
   team: ['team'],
   teamChallenges: (pageParams: { page: number | undefined; size: number | undefined }) =>
     ['team', pageParams] as const,
-  teamTitles: ['team', 'titles'] as const,
-  teamChallengeTeams: (challengeId?: number) => ['team', challengeId, 'teams'] as const,
-  teamChallengeWithVerifyStatus: (
-    params: Parameters<typeof challengeApi.getTeamChallengeWithVerifyStatus>[0],
+  teamWithVerifyStatus: (
+    params: Omit<Parameters<typeof challengeApi.getChallengesWithVerifyStatus>[0], 'challengeType'>,
   ) => ['team', 'with-verify-status', params] as const,
   challenge: (params: { challengeId: number; challengeType: 'individual' | 'team' }) =>
     [params] as const,
@@ -499,45 +388,38 @@ export interface GetTeamChallengeParticipantsResponseElement {
    */
   groupCode: string
   memberKey: string
-  participationDate: string
+  participatingDate: string
   groupParticipatingDate: string
 }
 
 export type VerifyStatus = 'PENDING' | 'PAID' | 'REJECTED'
+export type CertificationStatus = '인증 요청' | '지급' | '미지급'
 
-export interface IndividualChallengeWithVerifyStatus {
+export interface ChallengeWithVerifyStatus {
   id: number
-  /**
-   * ex) google foo
-   */
-  memberKey: string
-  memberNickname: string
-  memberEmail: string
-  certificationImageUrl: string
-  certificationReview: string
+  challenge: {
+    id: number
+    name: string
+    code: string
+    image: string
+    point: number
+  } & (
+    | {
+        type: 'P'
+      }
+    | {
+        groupCode: string
+        type: 'T'
+      }
+  )
+  member: {
+    id: number
+    key: string
+  }
   certifiedDate: string
-  status: VerifyStatus
-  challengeId: number
-  /**
-   * CH-P-20250109-143521-A3FV
-   */
-  challengeCode: string
-  challengeTitle: string
-}
-
-export interface TeamChallengeWithVerifyStatus {
-  id: number
-  /**
-   * ex) google foo
-   * @CHECK swagger에서는 memberId
-   */
-  memberKey: string
-  memberNickname: string
-  memberEmail: string
-  certificationImageUrl: string
-  certificationReview: string
-  certifiedDate: string
-  status: VerifyStatus
+  imageUrl: string
+  review: string
+  status: CertificationStatus
 }
 
 export const challengeQueryKeys = mergeQueryKeys(challengeKey)

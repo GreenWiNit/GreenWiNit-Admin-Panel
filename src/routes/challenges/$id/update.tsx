@@ -85,7 +85,7 @@ function UpdateChallenge() {
     }
     console.debug('submit', data)
     updateChallenge({
-      id: Number(id),
+      challengeId: Number(id),
       challengeName: data.title,
       challengePoint: data.point,
       beginDate: dayjs(data.period.start).format('YYYY-MM-DD'),

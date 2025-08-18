@@ -17,7 +17,6 @@ export const Route = createFileRoute('/challenges/type/team')({
   component: TeamChallenges,
 })
 
-// @TODO: IndividualChallenges와 중복코드 정리해서 컴포넌트로 빼기
 function TeamChallenges() {
   const [paginationModel, setPaginationModel] =
     useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
