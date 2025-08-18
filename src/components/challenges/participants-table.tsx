@@ -134,7 +134,7 @@ function TeamParticipantsTable({
 }
 const teamColumns: GridColDef<GetTeamChallengeParticipantsResponseElement>[] = [
   {
-    field: 'teamCode',
+    field: 'groupCode',
     headerName: '팀 코드',
     flex: 1,
   },
@@ -144,12 +144,12 @@ const teamColumns: GridColDef<GetTeamChallengeParticipantsResponseElement>[] = [
     flex: 1,
   },
   {
-    field: 'participationDate',
+    field: 'participatingDate',
     headerName: '참여한 날짜',
     flex: 1,
   },
   {
-    field: 'teamSelectionDate',
+    field: 'groupParticipatingDate',
     headerName: '팀 선택 및 등록 날짜',
     flex: 1,
   },

@@ -404,7 +404,7 @@ export interface GetTeamChallengeParticipantsResponseElement {
    */
   groupCode: string
   memberKey: string
-  participationDate: string
+  participatingDate: string
   groupParticipatingDate: string
 }
 
