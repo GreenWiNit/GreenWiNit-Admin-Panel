@@ -1,4 +1,9 @@
-import { challengeApi, challengeQueryKeys, type CertificationStatus } from '@/api/challenge'
+import {
+  challengeApi,
+  challengeQueryKeys,
+  CHALLENGES_TOP_KEY,
+  type CertificationStatus,
+} from '@/api/challenge'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { Button } from '@/components/shadcn/button'
@@ -14,6 +19,7 @@ import {
 } from '@/components/shadcn/select'
 import { Separator } from '@/components/shadcn/separator'
 import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
+import { showMessageIfExists } from '@/lib/error'
 import {
   DataGrid,
   type GridColDef,
@@ -21,7 +27,7 @@ import {
   type GridRenderCellParams,
   type GridTreeNodeWithRender,
 } from '@mui/x-data-grid'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Fragment, useState } from 'react'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
@@ -38,6 +44,13 @@ function RouteComponent() {
   const [searchRequestParams, setSearchRequestParams] = useState<SearchForm>(DEFAULT_SEARCH_FORM)
   const [paginationModel, setPaginationModel] =
     useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
+  const [changeStatuses, setChangeStatuses] = useState<
+    {
+      certificationId: number
+      status: Omit<CertificationStatus, '인증 요청'>
+    }[]
+  >([])
+  const queryClient = useQueryClient()
 
   const { data: challengesWithVerifyStatus } = useQuery({
     queryKey: challengeQueryKeys.challenges.individualWithVerifyStatus({
@@ -58,6 +71,33 @@ function RouteComponent() {
     console.log('data', data)
     setSearchRequestParams(data)
   }
+
+  const { mutate: patchVerifyStatus } = useMutation({
+    mutationFn: async function () {
+      const statusToApprove = changeStatuses.filter((c) => c.status === '지급')
+      const statusToReject = changeStatuses.filter((c) => c.status === '미지급')
+      return challengeApi
+        .patchVerifyStatus({
+          certificationIds: statusToApprove.map((c) => c.certificationId),
+          status: '지급',
+        })
+        .then(() => {
+          return challengeApi.patchVerifyStatus({
+            certificationIds: statusToReject.map((c) => c.certificationId),
+            status: '미지급',
+          })
+        })
+    },
+    onSuccess: async () => {
+      return queryClient.invalidateQueries({
+        queryKey: [CHALLENGES_TOP_KEY],
+      })
+    },
+    onError: (error) => {
+      console.error(error)
+      showMessageIfExists(error)
+    },
+  })
 
   return (
     <PageContainer>
@@ -160,6 +200,7 @@ function RouteComponent() {
                   certificationImageUrl: c.imageUrl,
                   certificationReview: c.review,
                   status: c.status,
+                  setChangeStatuses,
                 }
               }) ?? []
             }
@@ -177,6 +218,15 @@ function RouteComponent() {
           />
         </div>
       </div>
+      <Button
+        className="self-end"
+        onClick={() => {
+          console.log('changeStatuses', changeStatuses)
+          patchVerifyStatus()
+        }}
+      >
+        저장
+      </Button>
     </PageContainer>
   )
 }
@@ -256,6 +306,14 @@ function StatusCell(
       certificationImageUrl: string
       certificationReview: string
       status: CertificationStatus
+      setChangeStatuses: React.Dispatch<
+        React.SetStateAction<
+          {
+            certificationId: number
+            status: Omit<CertificationStatus, '\uC778\uC99D \uC694\uCCAD'>
+          }[]
+        >
+      >
     },
     CertificationStatus,
     CertificationStatus,
@@ -266,21 +324,50 @@ function StatusCell(
 
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <Select
-        value={selected ?? '인증 요청'}
-        onValueChange={(value) => {
-          setSelected(value as CertificationStatus)
-        }}
-      >
-        <SelectTrigger className="w-full">
-          <SelectValue>{selected}</SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="인증 요청">인증 요청</SelectItem>
-          <SelectItem value="지급">지급</SelectItem>
-          <SelectItem value="미지급">미지급</SelectItem>
-        </SelectContent>
-      </Select>
+      {props.value === '인증 요청' ? (
+        <Select
+          value={selected ?? '인증 요청'}
+          onValueChange={(nextValue) => {
+            setSelected(nextValue as CertificationStatus)
+            props.row.setChangeStatuses((prev) => {
+              if (nextValue === '인증 요청') {
+                return prev.filter((p) => p.certificationId !== Number(props.id))
+              }
+
+              const hasPrev = prev.find((p) => p.certificationId === props.id)
+              const nextItem = {
+                certificationId: Number(props.id),
+                status: nextValue as CertificationStatus,
+              }
+
+              if (hasPrev) {
+                return prev.map((p) => {
+                  if (p.certificationId === props.id) {
+                    return nextItem
+                  }
+                  return p
+                })
+              }
+              return [...prev, nextItem]
+            })
+          }}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue>{selected}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="인증 요청">인증 요청</SelectItem>
+            <SelectItem value="지급">지급</SelectItem>
+            <SelectItem value="미지급">미지급</SelectItem>
+          </SelectContent>
+        </Select>
+      ) : (
+        <Select value={props.value ?? ''} disabled>
+          <SelectTrigger className="w-full">
+            <SelectValue>{props.value}</SelectValue>
+          </SelectTrigger>
+        </Select>
+      )}
     </div>
   )
 }

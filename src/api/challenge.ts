@@ -372,11 +372,33 @@ export const challengeApi = {
         return res.json() as Promise<PaginatedResponse<ChallengeWithVerifyStatus>>
       })
   },
+  // @MEMO v2 작업완료
+  patchVerifyStatus: async ({
+    certificationIds,
+    status,
+  }: {
+    certificationIds: number[]
+    status: Omit<CertificationStatus, '인증 요청'>
+  }) => {
+    if (certificationIds.length === 0) {
+      return
+    }
+    return await fetch(
+      `${API_URL}/admin/certifications/challenges/${status === '지급' ? 'approve' : 'reject'}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ certificationIds }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    ).then(throwResponseStatusThenChaining)
+  },
 }
 
 export const CHALLENGES_TOP_KEY = 'challenges' as const
 const challengeKey = createQueryKeys(CHALLENGES_TOP_KEY, {
-  individual: ['individual'],
+  individual: [undefined] as const,
   individualChallenges: (pageParams: { page?: number | undefined; size?: number | undefined }) =>
     ['individual', pageParams] as const,
   individualWithVerifyStatus: (
