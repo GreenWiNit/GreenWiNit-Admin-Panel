@@ -6,7 +6,6 @@ import type { ApiResponse, CommonFailureMessageWithAuth, PaginatedResponse } fro
 import { omit } from 'es-toolkit'
 
 export const challengeApi = {
-  // @MEMO v2 작업완료
   getIndividualChallenges: async (
     pageParams: {
       page: number | undefined
@@ -32,7 +31,6 @@ export const challengeApi = {
         >,
     )
   },
-  // @MEMO v2 작업완료
   getTeamChallenges: async (
     pageParams: {
       page: number | undefined
@@ -57,7 +55,6 @@ export const challengeApi = {
       >
     })
   },
-  // @MEMO v2 작업완료
   getIndividualChallenge: async (challengeId: number) => {
     return await fetch(`${API_URL}/admin/challenges/personal/${challengeId}`, {
       method: 'GET',
@@ -70,7 +67,6 @@ export const challengeApi = {
         return res.json() as Promise<ApiResponse<CommonChallenge>>
       })
   },
-  // @MEMO v2 작업완료
   getTeamChallenge: async (challengeId: number) => {
     return await fetch(`${API_URL}/admin/challenges/team/${challengeId}`, {
       method: 'GET',
@@ -83,7 +79,6 @@ export const challengeApi = {
         return res.json() as Promise<ApiResponse<CommonChallenge>>
       })
   },
-  // @MEMO v2 작업완료
   createIndividualChallenge: async (params: {
     challengeName: string
     challengePoint: number
@@ -107,7 +102,6 @@ export const challengeApi = {
         return res.json() as Promise<ApiResponse<number>>
       })
   },
-  // @MEMO v2 작업완료
   createTeamChallenge: async (params: {
     challengeName: string
     challengePoint: number
@@ -131,7 +125,6 @@ export const challengeApi = {
         return res.json() as Promise<ApiResponse<number>>
       })
   },
-  // @MEMO v2 작업완료
   updateChallenge: async (params: {
     challengeId: number
     challengeName: string
@@ -154,7 +147,6 @@ export const challengeApi = {
       },
     ).then((res) => res.json() as Promise<ApiResponse<never>>)
   },
-  // @MEMO v2 작업완료
   deleteChallenge: async (challengeId: number, challengeType: 'individual' | 'team') => {
     return challengeApi.patchDisplayStatus({
       challengeId,
@@ -162,7 +154,6 @@ export const challengeApi = {
       challengeType,
     })
   },
-  // @MEMO v2 작업완료
   getIndividualChallengeParticipants: async (params: {
     challengeId: number
     page: number | undefined
@@ -183,7 +174,6 @@ export const challengeApi = {
         res.json() as Promise<PaginatedResponse<GetIndividualChallengeParticipantsResponseElement>>,
     )
   },
-  // @MEMO v2 작업완료
   downloadIndividualChallenges: async () => {
     return await fetch(`${API_URL}/admin/challenges/personal/excel`, {
       method: 'GET',
@@ -191,7 +181,6 @@ export const challengeApi = {
       .then(throwResponseStatusThenChaining)
       .then(downloadExcel)
   },
-  // @MEMO v2 작업완료
   getTeamChallengeParticipants: async (params: {
     challengeId: number
     page: number | undefined
@@ -212,7 +201,6 @@ export const challengeApi = {
         res.json() as Promise<PaginatedResponse<GetTeamChallengeParticipantsResponseElement>>,
     )
   },
-  // @MEMO v2 작업완료
   downloadTeamChallenges: async () => {
     return await fetch(`${API_URL}/admin/challenges/team/excel`, {
       method: 'GET',
@@ -220,7 +208,6 @@ export const challengeApi = {
       .then(throwResponseStatusThenChaining)
       .then(downloadExcel)
   },
-  // @MEMO v2 작업완료
   downloadParticipantsExcel: async ({
     challengeId,
     challengeType,
@@ -239,7 +226,6 @@ export const challengeApi = {
       .then(throwResponseStatusThenChaining)
       .then(downloadExcel)
   },
-  // @MEMO v2 작업완료
   patchDisplayStatus: async ({
     challengeId,
     displayStatus,
@@ -270,7 +256,6 @@ export const challengeApi = {
       },
     }).then(throwResponseStatusThenChaining)
   },
-  // @MEMO v2 작업완료
   getChallengesWithVerifyStatus: async (params: {
     challengeName?: string | null
     groupCode?: string | null
@@ -294,7 +279,6 @@ export const challengeApi = {
         return res.json() as Promise<PaginatedResponse<ChallengeWithVerifyStatus>>
       })
   },
-  // @MEMO v2 작업완료
   patchVerifyStatus: async ({
     certificationIds,
     status,

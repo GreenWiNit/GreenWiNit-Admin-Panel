@@ -4,7 +4,6 @@ import { stringify } from '@/lib/query-string'
 import type { ApiResponse, PaginatedResponse } from '@/types/api'
 
 export const teamApi = {
-  // @MEMO v2 작업완료
   getTeams: async (params: { page?: number | undefined; size?: number | undefined }) => {
     return await fetch(`${API_URL}/admin/challenges/groups?${stringify(params)}`, {
       method: 'GET',
@@ -33,7 +32,6 @@ export const teamApi = {
         >,
     )
   },
-  // @MEMO v2 작업완료
   getTeam: async (teamId: number) => {
     return await fetch(`${API_URL}/admin/challenges/groups/${teamId}`, {
       method: 'GET',
