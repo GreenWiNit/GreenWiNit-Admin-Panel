@@ -472,11 +472,11 @@ export type CertificationStatus = '인증 요청' | '지급' | '미지급'
 export interface ChallengeWithVerifyStatus {
   id: number
   challenge: {
-    challengeId: number
-    challengeName: string
-    challengeCode: string
-    challengeImage: string
-    challengePoint: number
+    id: number
+    name: string
+    code: string
+    image: string
+    point: number
   } & (
     | {
         type: 'P'
@@ -487,8 +487,8 @@ export interface ChallengeWithVerifyStatus {
       }
   )
   member: {
-    memberId: number
-    memberKey: string
+    id: number
+    key: string
   }
   certifiedDate: string
   imageUrl: string

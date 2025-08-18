@@ -153,9 +153,9 @@ function RouteComponent() {
               challengesWithVerifyStatus?.result?.content?.map((c) => {
                 return {
                   ...c,
-                  challengeName: c.challenge.challengeName,
-                  challengeCode: c.challenge.challengeCode,
-                  memberKey: c.member.memberKey,
+                  challengeName: c.challenge.name,
+                  challengeCode: c.challenge.code,
+                  memberKey: c.member.key,
                   certifiedDate: c.certifiedDate,
                   certificationImageUrl: c.imageUrl,
                   certificationReview: c.review,
@@ -265,18 +265,22 @@ function StatusCell(
   const [selected, setSelected] = useState(props.value)
 
   return (
-    <Select
-      value={selected ?? '인증 요청'}
-      onValueChange={(value) => setSelected(value as CertificationStatus)}
-    >
-      <SelectTrigger className="w-full">
-        <SelectValue>{props.value}</SelectValue>
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="인증 요청">인증 요청</SelectItem>
-        <SelectItem value="지급">지급</SelectItem>
-        <SelectItem value="미지급">미지급</SelectItem>
-      </SelectContent>
-    </Select>
+    <div className="flex h-full w-full items-center justify-center">
+      <Select
+        value={selected ?? '인증 요청'}
+        onValueChange={(value) => {
+          setSelected(value as CertificationStatus)
+        }}
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue>{selected}</SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="인증 요청">인증 요청</SelectItem>
+          <SelectItem value="지급">지급</SelectItem>
+          <SelectItem value="미지급">미지급</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
   )
 }
