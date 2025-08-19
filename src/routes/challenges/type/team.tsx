@@ -3,28 +3,25 @@ import GlobalNavigation from '@/components/global-navigation'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { challengeApi, type GetTeamChallengesResponseElement } from '@/api/challenge'
 import dayjs from 'dayjs'
 import { Button } from '@/components/shadcn/button'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@/components/shadcn/separator'
-import { useState } from 'react'
+import usePaginationModelState from '@/hooks/use-pagination-model-state'
 import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
 import { showMessageIfExists } from '@/lib/error'
+import { gridPaginationModelToApiParams } from '@/lib/api'
 
 export const Route = createFileRoute('/challenges/type/team')({
   component: TeamChallenges,
 })
 
 function TeamChallenges() {
-  const [paginationModel, setPaginationModel] =
-    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
+  const [paginationModel, setPaginationModel] = usePaginationModelState()
   const { data } = useTeamChallenges({
-    pageParams: {
-      page: paginationModel.page + 1,
-      size: paginationModel.pageSize,
-    },
+    pageParams: gridPaginationModelToApiParams(paginationModel),
   })
   const navigate = useNavigate()
 

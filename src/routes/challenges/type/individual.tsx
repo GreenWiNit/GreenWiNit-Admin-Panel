@@ -3,28 +3,25 @@ import GlobalNavigation from '@/components/global-navigation'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { challengeApi, type GetIndividualChallengesResponseElement } from '@/api/challenge'
 import dayjs from 'dayjs'
 import { Button } from '@/components/shadcn/button'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@/components/shadcn/separator'
-import { useState } from 'react'
-import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
 import { showMessageIfExists } from '@/lib/error'
+import { gridPaginationModelToApiParams } from '@/lib/api'
+import usePaginationModelState from '@/hooks/use-pagination-model-state'
 
 export const Route = createFileRoute('/challenges/type/individual')({
   component: IndividualChallenges,
 })
 
 function IndividualChallenges() {
-  const [paginationModel, setPaginationModel] =
-    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
-  const { data } = useIndividualChallenges({
-    pageParams: {
-      page: paginationModel.page + 1,
-      size: paginationModel.pageSize,
-    },
+  const [paginationModel, setPaginationModel] = usePaginationModelState()
+
+  const { data, isLoading } = useIndividualChallenges({
+    pageParams: gridPaginationModelToApiParams(paginationModel),
   })
   const navigate = useNavigate()
 
@@ -64,14 +61,8 @@ function IndividualChallenges() {
                 createdDate: dayjs(challenge.createdDate).format('YYYY-MM-DD'),
               })) ?? []
             }
-            initialState={{
-              pagination: {
-                paginationModel: DEFAULT_PAGINATION_MODEL,
-              },
-            }}
+            pageSizeOptions={[10]}
             columns={columns}
-            checkboxSelection
-            disableRowSelectionOnClick
             onRowClick={(params) => {
               navigate({
                 to: '/challenges/$id',
@@ -86,7 +77,10 @@ function IndividualChallenges() {
             }}
             onPaginationModelChange={setPaginationModel}
             paginationModel={paginationModel}
+            disableColumnFilter
+            disableColumnSorting
             rowCount={data?.result?.totalElements ?? 0}
+            loading={isLoading}
             paginationMode="server"
           />
         </div>

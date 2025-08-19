@@ -9,8 +9,10 @@ import { Input } from '@/components/shadcn/input'
 import { Label } from '@/components/shadcn/label'
 import { Separator } from '@/components/shadcn/separator'
 import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
+import usePaginationModelState from '@/hooks/use-pagination-model-state'
 import { usePatchVerifyStatus } from '@/hooks/use-patch-verify-status'
-import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
+import { gridPaginationModelToApiParams } from '@/lib/api'
+import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Fragment, useState } from 'react'
@@ -26,13 +28,12 @@ function RouteComponent() {
   })
   /** searchFormInputing - (submit) -> update searchForm */
   const [searchRequestParams, setSearchRequestParams] = useState<SearchForm>(DEFAULT_SEARCH_FORM)
-  const [paginationModel, setPaginationModel] =
-    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
+  const [paginationModel, setPaginationModel] = usePaginationModelState()
 
   const { data: challengesWithVerifyStatus } = useQuery({
     queryKey: challengeQueryKeys.challenges.individualWithVerifyStatus({
       ...searchRequestParams,
-      ...paginationModel,
+      ...gridPaginationModelToApiParams(paginationModel),
     }).queryKey,
     queryFn: (ctx) => {
       const [, , , , apiParamsFromQueryKey] = ctx.queryKey
