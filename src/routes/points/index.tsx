@@ -4,7 +4,7 @@ import Input from '@mui/material/Input'
 import { DataGrid, type GridColDef, type GridRowParams } from '@mui/x-data-grid'
 import { Separator } from '@radix-ui/react-separator'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useUsers } from '@/hooks/use-users'
 import GlobalNavigation from '@/components/global-navigation'
 import { memberStore } from '@/store/memberStore'
@@ -19,7 +19,7 @@ function PointsPage() {
   const [size, setSize] = useState(10)
   const [searchInput, setSearchInput] = useState<string>('')
   const [keyword, setKeyword] = useState<string>('')
-  const { data: userManageData } = useUsers({ keyword: keyword, page, size })
+  const { data: userManageData, refetch } = useUsers({ keyword: keyword, page, size })
 
   const handleRowClick = (params: GridRowParams<MembersPoint>) => {
     const memberData = params.row
@@ -27,9 +27,13 @@ function PointsPage() {
     router.navigate({ to: `/points/${memberData.memberId}` })
   }
 
+  useEffect(() => {
+    refetch()
+  }, [keyword, page, size, refetch])
+
   const handleSearch = () => {
+    setPage(0)
     setKeyword(searchInput)
-    setPage(1)
   }
 
   const rows =
@@ -72,7 +76,6 @@ function PointsPage() {
               setPage(model.page)
               setSize(model.pageSize)
             }}
-            checkboxSelection={true}
           />
         </div>
       </div>

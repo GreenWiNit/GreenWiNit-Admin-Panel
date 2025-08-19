@@ -36,7 +36,7 @@ export const memberApi = {
   },
   getMembers: async ({ keyword, page, size }: PointsListProps) => {
     return await fetch(
-      `${API_URL}/admin/members/points?keyword=${keyword}&page=${page}&size=${size}`,
+      `${API_URL}/admin/members/points?keyword=${encodeURIComponent(keyword || '')}&page=${page}&size=${size}`,
       {
         method: 'GET',
         headers: {

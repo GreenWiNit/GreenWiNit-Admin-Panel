@@ -1,165 +1,130 @@
-import { productApi, productsQueryKeys, type ProductsResponseElement } from '@/api/product'
-import GlobalNavigation from '@/components/global-navigation'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { Button } from '@/components/shadcn/button'
 import { Input } from '@/components/shadcn/input'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/shadcn/select'
-import { Separator } from '@/components/shadcn/separator'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
-import { useQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
-import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
+  DataGrid,
+  type GridColDef,
+  type GridPaginationModel,
+  type GridRowParams,
+} from '@mui/x-data-grid'
+import { Separator } from '@radix-ui/react-separator'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
-import FilePresentIcon from '@mui/icons-material/FilePresent'
-import { Link } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/products/')({
-  component: Products,
-})
+import { useForm, type SubmitHandler } from 'react-hook-form'
+import { useUsers } from '@/hooks/use-users'
+import GlobalNavigation from '@/components/global-navigation'
+import { memberStore } from '@/store/memberStore'
+import type { MembersPoint } from '@/types/user'
+import type { PointManageMemberList } from '@/types/point'
 
 interface SearchForm {
-  status: 'exchangeable' | 'sold-out' | null
   keyword: string
   page: number
   size: number
 }
 
-function Products() {
+const DEFAULT_SEARCH_FORM: SearchForm = {
+  keyword: '',
+  page: 0,
+  size: 10,
+}
+
+function PointsPage() {
+  const router = useRouter()
+  const setSelectedMember = memberStore((state) => state.setSelectedMember)
+
   const searchFormBeforeSubmitting = useForm<SearchForm>({
     defaultValues: DEFAULT_SEARCH_FORM,
   })
 
   const [searchFormToSubmit, setSearchFormToSubmit] = useState<SearchForm>(DEFAULT_SEARCH_FORM)
 
-  const { data } = useQuery({
-    queryKey: productsQueryKeys.getProducts({
-      page: searchFormToSubmit.page,
-      size: searchFormToSubmit.size,
-      status: searchFormToSubmit.status,
-      keyword: searchFormToSubmit.keyword,
-    }).queryKey,
-    queryFn: (ctx) => {
-      const [, , { page, size, status, keyword }] = ctx.queryKey
-      return productApi.getProducts({ page, size, status, keyword })
-    },
+  const { data: userManageData } = useUsers({
+    keyword: searchFormToSubmit.keyword,
+    page: searchFormToSubmit.page,
+    size: searchFormToSubmit.size,
   })
 
-  const onSubmit: SubmitHandler<SearchForm> = async (data) => {
-    setSearchFormToSubmit(data)
+  if (userManageData === null) return
+
+  const handleRowClick = (params: GridRowParams<MembersPoint>) => {
+    const memberData = params.row
+    setSelectedMember(memberData)
+    router.navigate({ to: `/points/${memberData.memberId}` })
   }
+
+  const onSubmit: SubmitHandler<SearchForm> = async (data) => {
+    setSearchFormToSubmit({ ...data, page: 0 })
+  }
+
+  const handlePaginationChange = (model: GridPaginationModel) => {
+    const newFormData = {
+      ...searchFormToSubmit,
+      page: model.page,
+      size: model.pageSize,
+    }
+    setSearchFormToSubmit(newFormData)
+    searchFormBeforeSubmitting.setValue('page', model.page)
+    searchFormBeforeSubmitting.setValue('size', model.pageSize)
+  }
+
+  const rows =
+    userManageData?.result?.content.map(
+      (user: MembersPoint): MembersPoint => ({
+        memberId: user.memberId,
+        memberKey: user.memberKey,
+        memberEmail: user.memberEmail,
+        memberNickname: user.memberNickname,
+        memberPoint: user.memberPoint,
+      }),
+    ) ?? []
 
   return (
     <PageContainer className="flex-row">
       <GlobalNavigation />
-      <div className="flex w-full flex-col gap-4">
-        <PageTitle>상품목록</PageTitle>
+      <div className="mx-8 flex w-full flex-col gap-2">
+        <PageTitle>포인트 관리</PageTitle>
         <Separator />
-        <form className="flex gap-2" onSubmit={searchFormBeforeSubmitting.handleSubmit(onSubmit)}>
-          <table className="w-full max-w-120">
-            <tbody className="[&_td,th]:border [&_td,th]:px-1 [&_td,th]:py-2 [&_th]:bg-gray-50 [&_th]:text-center">
-              <tr>
-                <th>판매상태</th>
-                <td>
-                  <Controller
-                    control={searchFormBeforeSubmitting.control}
-                    name="status"
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        onValueChange={(value) => field.onChange(value)}
-                        value={field.value ?? ''}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="전체" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="exchangeable">교환가능</SelectItem>
-                          <SelectItem value="sold-out">판매완료</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </td>
-              </tr>
-              <tr>
-                <th>검색어</th>
-                <td>
-                  <Input
-                    {...searchFormBeforeSubmitting.register('keyword')}
-                    placeholder="상품코드, 상품명으로 검색이 가능합니다."
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <Button type="submit">검색</Button>
+        <form onSubmit={searchFormBeforeSubmitting.handleSubmit(onSubmit)}>
+          <div className="flex flex-row items-center gap-2 border-2 py-2">
+            <div className="shrink-0 border-r-2 px-2 py-0 font-bold">검색어</div>
+            <Input
+              {...searchFormBeforeSubmitting.register('keyword')}
+              placeholder="사용자 ID 또는 닉네임 검색"
+              className="flex flex-1 border-0 focus:outline-0"
+            />
+            <Button type="submit" className="mx-2 px-8 py-2">
+              검색
+            </Button>
+          </div>
         </form>
-        <div className="flex gap-2 self-end">
-          <Button
-            className="w-fit"
-            onClick={() => {
-              productApi.downloadProductsExcel({
-                keyword: searchFormBeforeSubmitting.watch('keyword'),
-                status: searchFormBeforeSubmitting.watch('status'),
-              })
+
+        <div className="scrollbar-hide mt-2 h-160 w-full">
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            getRowId={(row) => row.memberKey}
+            paginationModel={{
+              page: searchFormBeforeSubmitting.watch('page'),
+              pageSize: searchFormBeforeSubmitting.watch('size'),
             }}
-          >
-            <FilePresentIcon />
-            엑셀 받기
-          </Button>
-          <Button asChild>
-            <Link to="/products/create">등록</Link>
-          </Button>
+            onRowClick={handleRowClick}
+            onPaginationModelChange={handlePaginationChange}
+          />
         </div>
-        <DataGrid
-          rows={data?.result?.content ?? []}
-          columns={columns}
-          paginationModel={{
-            page: searchFormBeforeSubmitting.watch('page'),
-            pageSize: searchFormBeforeSubmitting.watch('size'),
-          }}
-          pageSizeOptions={[10, 20, 50, 100]}
-          onPaginationModelChange={(model) => {
-            searchFormBeforeSubmitting.setValue('page', model.page)
-            searchFormBeforeSubmitting.setValue('size', model.pageSize)
-          }}
-        />
       </div>
     </PageContainer>
   )
 }
 
-const columns: GridColDef<ProductsResponseElement>[] = [
-  {
-    field: 'code',
-    headerName: '상품코드',
-    flex: 1,
-    renderCell(params) {
-      return (
-        <Link to={`/products/$id`} params={{ id: params.row.id }}>
-          {params.row.code}
-        </Link>
-      )
-    },
-  },
-  { field: 'name', headerName: '상품명', flex: 1 },
-  { field: 'pointPrice', headerName: '교환 포인트', flex: 1 },
-  { field: 'stockQuantity', headerName: '수량', flex: 1 },
-  { field: 'sellingStatus', headerName: '판매상태', flex: 1 },
-  { field: 'displayStatus', headerName: '전시상태', flex: 1 },
-  { field: 'createdDate', headerName: '등록일', flex: 1 },
-]
+export const Route = createFileRoute('/products/')({
+  component: PointsPage,
+})
 
-const DEFAULT_SEARCH_FORM: SearchForm = {
-  status: null,
-  keyword: '',
-  page: 0,
-  size: 10,
-}
+const columns: GridColDef<PointManageMemberList>[] = [
+  { field: 'memberKey', headerName: 'MemberKey', flex: 1 },
+  { field: 'memberEmail', headerName: '사용자 이메일', flex: 2 },
+  { field: 'memberNickname', headerName: '닉네임', flex: 2 },
+  { field: 'memberPoint', headerName: '남은 포인트', flex: 2 },
+]
