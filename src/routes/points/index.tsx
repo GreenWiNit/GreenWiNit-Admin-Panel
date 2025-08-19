@@ -1,25 +1,35 @@
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import Input from '@mui/material/Input'
-import { DataGrid, type GridColDef, type GridRowParams } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  type GridColDef,
+  type GridPaginationModel,
+  type GridRowParams,
+} from '@mui/x-data-grid'
 import { Separator } from '@radix-ui/react-separator'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useUsers } from '@/hooks/use-users'
 import GlobalNavigation from '@/components/global-navigation'
 import { memberStore } from '@/store/memberStore'
 import type { MembersPoint } from '@/types/user'
 import type { PointManageMemberList } from '@/types/point'
+import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
 
 function PointsPage() {
   const router = useRouter()
   const setSelectedMember = memberStore((state) => state.setSelectedMember)
 
-  const [page, setPage] = useState(0)
-  const [size, setSize] = useState(10)
+  const [paginationModel, setPaginationModel] =
+    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
   const [searchInput, setSearchInput] = useState<string>('')
   const [keyword, setKeyword] = useState<string>('')
-  const { data: userManageData, refetch } = useUsers({ keyword: keyword, page, size })
+  const { data: userManageData } = useUsers({
+    keyword: keyword,
+    page: paginationModel.page + 1,
+    size: paginationModel.pageSize,
+  })
 
   const handleRowClick = (params: GridRowParams<MembersPoint>) => {
     const memberData = params.row
@@ -27,12 +37,8 @@ function PointsPage() {
     router.navigate({ to: `/points/${memberData.memberId}` })
   }
 
-  useEffect(() => {
-    refetch()
-  }, [keyword, page, size, refetch])
-
   const handleSearch = () => {
-    setPage(0)
+    paginationModel.page = 0
     setKeyword(searchInput)
   }
 
@@ -70,12 +76,16 @@ function PointsPage() {
             rows={rows}
             columns={columns}
             getRowId={(row) => row.memberKey}
-            paginationModel={{ page, pageSize: size }}
             onRowClick={handleRowClick}
-            onPaginationModelChange={(model) => {
-              setPage(model.page)
-              setSize(model.pageSize)
+            initialState={{
+              pagination: {
+                paginationModel: DEFAULT_PAGINATION_MODEL,
+              },
             }}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
+            rowCount={userManageData?.result?.totalElements ?? 0}
+            paginationMode="server"
           />
         </div>
       </div>
