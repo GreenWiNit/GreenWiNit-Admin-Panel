@@ -112,7 +112,9 @@ function ChallengeDetail() {
           </tr>
           <tr>
             <th>참여방법</th>
-            <td>{challenge.challengeContent}</td>
+            <td>
+              <p className="whitespace-pre-line">{challenge.challengeContent}</p>
+            </td>
             <th>이미지</th>
             <td>
               <div className="min-h-40">
