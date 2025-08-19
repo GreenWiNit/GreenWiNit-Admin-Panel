@@ -25,7 +25,7 @@ function UpdateProduct() {
     if (!product) return product
     return {
       ...product.result,
-      code: product.result?.pointProductCode ?? '',
+      code: product.result?.code ?? '',
       name: product.result?.pointProductName ?? '',
       description: product.result?.description ?? '',
       thumbnailUrl: product.result?.thumbnailUrl ?? '',

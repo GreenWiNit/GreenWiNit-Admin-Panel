@@ -165,7 +165,7 @@ export interface ProductsResponseElement {
 
 export interface ProductDetailResponse {
   // https://github.com/GreenWiNit/backend/issues/191
-  pointProductCode?: string
+  code?: string
   sellingStatus?: '교환가능' | '판매완료'
   displayStatus?: '전시' | '미전시'
 
