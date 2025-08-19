@@ -25,12 +25,11 @@ export const memberApi = {
     await downloadExcel(response)
   },
   deleteMemberByAdmin: async (memberKey: string) => {
-    const response = await fetch(`${API_URL}/admin/members/delete`, {
-      method: 'POST',
+    const response = await fetch(`${API_URL}/admin/members/${memberKey}`, {
+      method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ memberKey }),
     })
     return response.json() as Promise<ApiResponse>
   },
