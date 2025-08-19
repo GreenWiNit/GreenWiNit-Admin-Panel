@@ -20,15 +20,12 @@ import { Separator } from '@/components/shadcn/separator'
 import { createFileRoute } from '@tanstack/react-router'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
-import {
-  DataGrid,
-  type GridColDef,
-  type GridPaginationModel,
-  type GridRenderCellParams,
-} from '@mui/x-data-grid'
+import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import usePaginationModelState from '@/hooks/use-pagination-model-state'
+import { gridPaginationModelToApiParams } from '@/lib/api'
 
 export const Route = createFileRoute('/products/orders/')({
   component: Orders,
@@ -44,16 +41,13 @@ function Orders() {
     defaultValues: DEFAULT_SEARCH_FORM,
   })
 
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
-    page: 0,
-    pageSize: 10,
-  })
+  const [paginationModel, setPaginationModel] = usePaginationModelState()
   const [searchFormToSubmit, setSearchFormToSubmit] = useState<SearchFormState>(DEFAULT_SEARCH_FORM)
 
   const { data } = useQuery({
     queryKey: productsQueryKeys.getOrders({
       ...searchFormToSubmit,
-      ...paginationModel,
+      ...gridPaginationModelToApiParams(paginationModel),
       status: searchFormToSubmit.deliveryStatus ?? undefined,
     }).queryKey,
     queryFn: () =>

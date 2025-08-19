@@ -6,4 +6,4 @@ const DEFAULT_PAGE = 0
 export const DEFAULT_PAGINATION_MODEL = {
   page: DEFAULT_PAGE,
   pageSize: DEFAULT_PAGE_SIZE,
-} satisfies GridPaginationModel
+} as const satisfies GridPaginationModel
