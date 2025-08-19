@@ -33,7 +33,7 @@ function PointDetail() {
   const usersPointRow =
     usersPointData?.result?.content.map((point) => ({
       ...point,
-      id: point.pointTrasactionId,
+      id: point.pointTransactionId,
     })) ?? []
 
   if (!userRow) {
@@ -86,7 +86,7 @@ function PointDetail() {
               rows={usersPointRow ?? []}
               columns={pointHistoryColumns}
               paginationModel={{ page, pageSize: size }}
-              getRowId={(row) => row.pointTrasactionId}
+              getRowId={(row) => row.pointTransactionId}
               onPaginationModelChange={(model) => {
                 setPage(model.page)
                 setSize(model.pageSize)
@@ -111,10 +111,10 @@ const userColumns: GridColDef<MemberList>[] = [
 ]
 
 const pointHistoryColumns: GridColDef<PointHistory>[] = [
-  { field: 'transcationAt', headerName: '날짜', flex: 1, headerAlign: 'center' },
+  { field: 'transactionAt', headerName: '날짜', flex: 1, headerAlign: 'center' },
   { field: 'type', headerName: '구분', flex: 2, headerAlign: 'center' },
   { field: 'description', headerName: '내용', flex: 2, headerAlign: 'center' },
   { field: 'earnedAmount', headerName: '적립 포인트', flex: 1, headerAlign: 'center' },
-  { field: 'spendAmount', headerName: '차감 포인트', flex: 1, headerAlign: 'center' },
+  { field: 'spentAmount', headerName: '차감 포인트', flex: 1, headerAlign: 'center' },
   { field: 'balanceAfter', headerName: '남은 포인트', flex: 1, headerAlign: 'center' },
 ]
