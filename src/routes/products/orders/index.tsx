@@ -134,10 +134,10 @@ function Orders() {
           rows={data?.result?.content ?? []}
           columns={columns}
           paginationModel={paginationModel}
-          onPaginationModelChange={(model) => {
-            setPaginationModel(model)
-          }}
+          onPaginationModelChange={setPaginationModel}
           loading={isFetching && !data}
+          rowCount={data?.result?.totalElements ?? 0}
+          paginationMode="server"
         />
       </div>
     </PageContainer>
