@@ -25,7 +25,12 @@ function PointsPage() {
     useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
   const [searchInput, setSearchInput] = useState<string>('')
   const [keyword, setKeyword] = useState<string>('')
-  const { data: userManageData } = useUsers({
+
+  const {
+    data: userManageData,
+    isFetching,
+    isPlaceholderData,
+  } = useUsers({
     keyword: keyword,
     page: paginationModel.page + 1,
     size: paginationModel.pageSize,
@@ -85,6 +90,7 @@ function PointsPage() {
             paginationModel={paginationModel}
             onPaginationModelChange={setPaginationModel}
             rowCount={userManageData?.result?.totalElements ?? 0}
+            loading={isFetching && !isPlaceholderData}
             paginationMode="server"
           />
         </div>

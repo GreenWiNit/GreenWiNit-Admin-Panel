@@ -20,7 +20,11 @@ function PointDetail() {
   const memberId = parseInt(id)
 
   const member = memberStore((state) => state.selectedMember)
-  const { data: usersPointData } = useMemberPoint({
+  const {
+    data: usersPointData,
+    isFetching,
+    isPlaceholderData,
+  } = useMemberPoint({
     memberId,
     page: paginationModel.page + 1,
     size: paginationModel.pageSize,
@@ -81,12 +85,16 @@ function PointDetail() {
             <DataGrid
               rows={usersPointRow ?? []}
               columns={pointHistoryColumns}
+              initialState={{
+                pagination: { paginationModel: DEFAULT_PAGINATION_MODEL },
+              }}
               paginationModel={paginationModel}
               getRowId={(row) => row.pointTransactionId}
               onPaginationModelChange={setPaginationModel}
               checkboxSelection={false}
               rowCount={usersPointData?.result?.totalElements ?? 0}
               paginationMode="server"
+              loading={isFetching && !isPlaceholderData}
             />
           </div>
         </div>
