@@ -129,6 +129,7 @@ function TeamParticipantsTable({
       paginationModel={pageParams}
       rowCount={participants?.totalElements ?? 0}
       paginationMode="server"
+      getRowId={(row) => `${row.memberKey}-${row.participatingDate}`}
     />
   )
 }

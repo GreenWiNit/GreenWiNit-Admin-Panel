@@ -90,7 +90,7 @@ function ChallengeDetail() {
             </td>
           </tr>
           <tr>
-            <th>전시여부1</th>
+            <th>전시여부</th>
             <td>
               <DisplayStatusToggle
                 value={challenge.displayStatus}
