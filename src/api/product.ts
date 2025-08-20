@@ -203,7 +203,7 @@ export interface OrdersResponseElement {
   recipientName: string
   recipientPhoneNumber: string
   fullAddress: string
-  status: DeliveryStatusKo
+  display: DeliveryStatusKo
 }
 
 export type DeliveryStatusKo = '상품 신청' | '배송중' | '배송완료'

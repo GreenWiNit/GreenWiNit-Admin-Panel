@@ -21,7 +21,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import usePaginationModelState from '@/hooks/use-pagination-model-state'
@@ -33,7 +33,7 @@ export const Route = createFileRoute('/products/orders/')({
 
 interface SearchFormState {
   deliveryStatus: DeliveryStatusKo | null
-  searchKeyword: string
+  keyword: string
 }
 
 function Orders() {
@@ -44,7 +44,7 @@ function Orders() {
   const [paginationModel, setPaginationModel] = usePaginationModelState()
   const [searchFormToSubmit, setSearchFormToSubmit] = useState<SearchFormState>(DEFAULT_SEARCH_FORM)
 
-  const { data } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: productsQueryKeys.getOrders({
       ...searchFormToSubmit,
       ...gridPaginationModelToApiParams(paginationModel),
@@ -52,11 +52,14 @@ function Orders() {
     }).queryKey,
     queryFn: () =>
       productApi.getOrders({
-        ...searchFormToSubmit,
-        ...paginationModel,
+        ...gridPaginationModelToApiParams(paginationModel),
         status: searchFormToSubmit.deliveryStatus ?? undefined,
+        ...searchFormToSubmit,
       }),
+    placeholderData: keepPreviousData,
   })
+
+  if (data === null) return
 
   const onSubmit: SubmitHandler<SearchFormState> = (data) => {
     setSearchFormToSubmit(data)
@@ -98,7 +101,10 @@ function Orders() {
               <tr>
                 <th>검색어</th>
                 <td>
-                  <Input {...searchFormBeforeSubmitting.register('searchKeyword')} />
+                  <Input
+                    placeholder="상품코드로 검색이 가능합니다."
+                    {...searchFormBeforeSubmitting.register('keyword')}
+                  />
                 </td>
               </tr>
             </tbody>
@@ -131,6 +137,7 @@ function Orders() {
           onPaginationModelChange={(model) => {
             setPaginationModel(model)
           }}
+          loading={isFetching && !data}
         />
       </div>
     </PageContainer>
@@ -145,6 +152,7 @@ const DeliveryStatusCell = (params: GridRenderCellParams<OrdersResponseElement>)
       productApi.changeOrderStatus(params.row.id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.orders.queryKey })
+      if (params.value.display === '배송완료') setDeliveryStatus('배송완료')
     },
     onError: () => {
       setDeliveryStatus(params.value || '상품 신청')
@@ -189,5 +197,5 @@ const columns: GridColDef<OrdersResponseElement>[] = [
 
 const DEFAULT_SEARCH_FORM: SearchFormState = {
   deliveryStatus: null,
-  searchKeyword: '',
+  keyword: '',
 }
