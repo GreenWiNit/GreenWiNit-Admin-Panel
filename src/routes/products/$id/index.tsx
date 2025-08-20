@@ -54,8 +54,6 @@ function Product() {
     queryFn: () => productApi.getProductsOrders({ id }),
   })
 
-  console.log(product)
-
   return (
     <PageContainer className="flex-row">
       <GlobalNavigation />
