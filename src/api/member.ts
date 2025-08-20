@@ -4,6 +4,7 @@ import { downloadExcel, throwResponseStatusThenChaining } from '@/lib/network'
 import type { ApiResponse, PaginatedResponse } from '@/types/api'
 import type { PointsListProps } from '@/types/list'
 import type { MembersPoint } from '@/types/user'
+import { stringify } from '@/lib/query-string'
 
 export const memberApi = {
   getActiveMembers: async (page = 0, pageSize = 10) => {
@@ -34,15 +35,12 @@ export const memberApi = {
     return response.json() as Promise<ApiResponse>
   },
   getMembers: async ({ keyword, page, size }: PointsListProps) => {
-    return await fetch(
-      `${API_URL}/admin/members/points?keyword=${encodeURIComponent(keyword || '')}&page=${page}&size=${size}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+    return await fetch(`${API_URL}/admin/members/points?${stringify({ keyword, page, size })}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    )
+    })
       .then(throwResponseStatusThenChaining)
       .then(async (res) => {
         return res.json() as Promise<PaginatedResponse<MembersPoint>>

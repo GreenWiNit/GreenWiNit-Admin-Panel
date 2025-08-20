@@ -98,17 +98,17 @@ function Product() {
               <th>전시상태</th>
               <td>
                 <RadioGroup
-                  value={product?.displayStatus ?? null}
+                  value={`${product?.display ?? null}`}
                   onValueChange={toggleDisplayStatus}
                   className="flex gap-4"
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="전시" id={visibleElementId} />
+                    <RadioGroupItem value="true" id={visibleElementId} />
                     <Label htmlFor={visibleElementId}>전시</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="미전시" id={notVisibleElementId} />
-                    <Label htmlFor={notVisibleElementId}>미전시</Label>
+                    <RadioGroupItem value="false" id={notVisibleElementId} />
+                    <Label htmlFor={notVisibleElementId}>전시중지</Label>
                   </div>
                 </RadioGroup>
               </td>
