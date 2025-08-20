@@ -63,6 +63,7 @@ function Orders() {
 
   const onSubmit: SubmitHandler<SearchFormState> = (data) => {
     setSearchFormToSubmit(data)
+    setPaginationModel({ page: 0, pageSize: paginationModel.pageSize })
   }
 
   return (
