@@ -18,7 +18,7 @@ export type PointHistory = {
   earnedAmout: number
   spentAmount: number
   balanceAfter: number
-  transactionAt: string /* 백엔드 오타 수정 */
+  transactionAt: string
 }
 
 export type PointManageMemberList = {
