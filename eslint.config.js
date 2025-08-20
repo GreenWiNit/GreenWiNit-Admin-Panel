@@ -14,6 +14,13 @@ export default tseslint.config([
   reactPlugin.configs.flat['jsx-runtime'], // Add this if you are using React 17+
   pluginQuery.configs['flat/recommended'],
   {
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
+  },
+  {
     files: ['**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,
