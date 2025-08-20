@@ -139,29 +139,35 @@ function Orders() {
 
 const DeliveryStatusCell = (params: GridRenderCellParams<OrdersResponseElement>) => {
   const queryClient = useQueryClient()
+  const [deliveryStatus, setDeliveryStatus] = useState(params.value || '상품 신청')
   const changeOrderStatus = useMutation({
-    mutationFn: (status: 'shipping' | 'complete') =>
+    mutationFn: (status: '배송중' | '배송완료') =>
       productApi.changeOrderStatus(params.row.id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.orders.queryKey })
     },
+    onError: () => {
+      setDeliveryStatus(params.value || '상품 신청')
+    },
   })
 
   return (
-    <div>
+    <div className="mt-2 items-center">
       <Select
-        value={params.value}
+        value={deliveryStatus}
         onValueChange={(value) => {
-          changeOrderStatus.mutate(value as 'shipping' | 'complete')
+          setDeliveryStatus(value)
+          if (value === '상품 신청') return
+          changeOrderStatus.mutate(value as '배송중' | '배송완료')
         }}
       >
         <SelectTrigger>
           <SelectValue placeholder="상품 신청" />
         </SelectTrigger>
         <SelectContent>
-          {/* <SelectItem value="상품 신청">상품 신청</SelectItem> */}
-          <SelectItem value="shipping">배송중</SelectItem>
-          <SelectItem value="complete">배송완료</SelectItem>
+          <SelectItem value="상품 신청">상품 신청</SelectItem>
+          <SelectItem value="배송중">배송중</SelectItem>
+          <SelectItem value="배송완료">배송완료</SelectItem>
         </SelectContent>
       </Select>
     </div>

@@ -117,11 +117,14 @@ export const productApi = {
       return res.json() as Promise<PaginatedResponse<OrdersResponseElement>>
     })
   },
-  changeOrderStatus: async (orderId: number, status: 'shipping' | 'complete') => {
-    return await fetch(`${API_URL}/admin/orders/${orderId}/${status}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ status }),
-    }).then(throwResponseStatusThenChaining)
+  changeOrderStatus: async (orderId: number, status: '배송중' | '배송완료') => {
+    return await fetch(
+      `${API_URL}/admin/orders/${orderId}/${status === '배송중' ? 'shipping' : 'delivered'}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      },
+    ).then(throwResponseStatusThenChaining)
   },
   downloadOrdersExcel: async (params: {
     keyword?: string | null
