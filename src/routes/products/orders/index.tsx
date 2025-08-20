@@ -147,12 +147,15 @@ function Orders() {
 const DeliveryStatusCell = (params: GridRenderCellParams<OrdersResponseElement>) => {
   const queryClient = useQueryClient()
   const [deliveryStatus, setDeliveryStatus] = useState(params.value || '상품 신청')
+
+  const isCompeltedDelivery = deliveryStatus === '배송 완료'
+
   const changeOrderStatus = useMutation({
-    mutationFn: (status: '배송중' | '배송완료') =>
+    mutationFn: (status: '배송중' | '배송 완료') =>
       productApi.changeOrderStatus(params.row.id, status),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.orders.queryKey })
-      if (params.value.display === '배송완료') setDeliveryStatus('배송완료')
+      setDeliveryStatus(variables)
     },
     onError: () => {
       setDeliveryStatus(params.value || '상품 신청')
@@ -164,18 +167,19 @@ const DeliveryStatusCell = (params: GridRenderCellParams<OrdersResponseElement>)
       <Select
         value={deliveryStatus}
         onValueChange={(value) => {
-          setDeliveryStatus(value)
           if (value === '상품 신청') return
-          changeOrderStatus.mutate(value as '배송중' | '배송완료')
+          setDeliveryStatus(value)
+          changeOrderStatus.mutate(value as '배송중' | '배송 완료')
         }}
+        disabled={isCompeltedDelivery}
       >
-        <SelectTrigger>
+        <SelectTrigger className={isCompeltedDelivery ? 'cursor-not-allowed opacity-50' : ''}>
           <SelectValue placeholder="상품 신청" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="상품 신청">상품 신청</SelectItem>
           <SelectItem value="배송중">배송중</SelectItem>
-          <SelectItem value="배송완료">배송완료</SelectItem>
+          <SelectItem value="배송 완료">배송완료</SelectItem>
         </SelectContent>
       </Select>
     </div>
