@@ -24,7 +24,7 @@ export const productApi = {
       })
   },
   getProduct: async (id: number) => {
-    return await fetch(`${API_URL}/point-products/${id}`, {
+    return await fetch(`${API_URL}/admin/point-products/${id}`, {
       method: 'GET',
     }).then((res) => {
       return res.json() as Promise<ApiResponse<ProductDetailResponse>>
@@ -68,7 +68,7 @@ export const productApi = {
   },
   toggleDisplayStatus: async (id: number, status: string) => {
     return await fetch(
-      `${API_URL}/admin/point-products/${id}/display-status/${status === '전시' ? 'show' : 'hide'}`,
+      `${API_URL}/admin/point-products/${id}/${status === 'true' ? 'show' : 'hide'}`,
       {
         method: 'PATCH',
       },
@@ -167,8 +167,7 @@ export interface ProductDetailResponse {
   // https://github.com/GreenWiNit/backend/issues/191
   code?: string
   sellingStatus?: '교환가능' | '판매완료'
-  displayStatus?: '전시' | '미전시'
-
+  display: boolean
   pointProductId: number
   pointProductName: string
   description: string
