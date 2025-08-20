@@ -12,13 +12,13 @@ export type PointUserStatus = {
 }
 
 export type PointHistory = {
-  pointTrasactionId: string
+  pointTransactionId: string
   type: string
   description: string
   earnedAmout: number
   spentAmount: number
   balanceAfter: number
-  transcationAt: string /* 백엔드 오타 수정 */
+  transactionAt: string /* 백엔드 오타 수정 */
 }
 
 export type PointManageMemberList = {

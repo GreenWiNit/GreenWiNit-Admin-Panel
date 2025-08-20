@@ -72,7 +72,7 @@ function Product() {
           <tbody className="[&_td,th]:border [&_td,th]:px-1 [&_td,th]:py-2 [&_th]:bg-gray-50 [&_th]:text-left">
             <tr>
               <th>상품코드</th>
-              <td>{product?.pointProductCode}</td>
+              <td>{product?.code}</td>
               <th>포인트</th>
               <td>{product?.pointPrice}</td>
             </tr>

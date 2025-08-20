@@ -4,22 +4,31 @@ import PageTitle from '@/components/page-title'
 import { Separator } from '@/components/shadcn/separator'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { useState } from 'react'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
 import type { PointHistory } from '@/types/point'
 import { Button } from '@/components/shadcn/button'
 import { FileSpreadsheetIcon } from 'lucide-react'
 import { pointApi } from '@/api/point'
 import { memberStore, type MemberList } from '@/store/memberStore'
 import { useMemberPoint } from '@/hooks/use-member-points'
+import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
 
 function PointDetail() {
-  const [page, setPage] = useState(0)
-  const [size, setSize] = useState(10)
+  const [paginationModel, setPaginationModel] =
+    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
   const { id } = useParams({ from: '/points/$id/' })
   const memberId = parseInt(id)
 
   const member = memberStore((state) => state.selectedMember)
-  const { data: usersPointData } = useMemberPoint(memberId, page, size)
+  const {
+    data: usersPointData,
+    isFetching,
+    isPlaceholderData,
+  } = useMemberPoint({
+    memberId,
+    page: paginationModel.page + 1,
+    size: paginationModel.pageSize,
+  })
 
   const userRow = member
     ? [
@@ -33,7 +42,7 @@ function PointDetail() {
   const usersPointRow =
     usersPointData?.result?.content.map((point) => ({
       ...point,
-      id: point.pointTrasactionId,
+      id: point.pointTransactionId,
     })) ?? []
 
   if (!userRow) {
@@ -59,16 +68,7 @@ function PointDetail() {
           <PageTitle className="mb-2 flex flex-row">사용자 포인트 내역</PageTitle>
           <Separator />
           <div className="mt-2 w-200">
-            <DataGrid
-              rows={userRow}
-              columns={userColumns}
-              paginationModel={{ page, pageSize: size }}
-              onPaginationModelChange={(model) => {
-                setPage(model.page)
-                setSize(model.pageSize)
-              }}
-              hideFooter={true}
-            />
+            <DataGrid rows={userRow} columns={userColumns} hideFooter={true} />
           </div>
           <div className="flex-start mt-4 flex justify-end">
             <Button
@@ -85,13 +85,16 @@ function PointDetail() {
             <DataGrid
               rows={usersPointRow ?? []}
               columns={pointHistoryColumns}
-              paginationModel={{ page, pageSize: size }}
-              getRowId={(row) => row.pointTrasactionId}
-              onPaginationModelChange={(model) => {
-                setPage(model.page)
-                setSize(model.pageSize)
+              initialState={{
+                pagination: { paginationModel: DEFAULT_PAGINATION_MODEL },
               }}
+              paginationModel={paginationModel}
+              getRowId={(row) => row.pointTransactionId}
+              onPaginationModelChange={setPaginationModel}
               checkboxSelection={false}
+              rowCount={usersPointData?.result?.totalElements ?? 0}
+              paginationMode="server"
+              loading={isFetching && !isPlaceholderData}
             />
           </div>
         </div>
@@ -111,10 +114,10 @@ const userColumns: GridColDef<MemberList>[] = [
 ]
 
 const pointHistoryColumns: GridColDef<PointHistory>[] = [
-  { field: 'transcationAt', headerName: '날짜', flex: 1, headerAlign: 'center' },
+  { field: 'transactionAt', headerName: '날짜', flex: 1, headerAlign: 'center' },
   { field: 'type', headerName: '구분', flex: 2, headerAlign: 'center' },
   { field: 'description', headerName: '내용', flex: 2, headerAlign: 'center' },
   { field: 'earnedAmount', headerName: '적립 포인트', flex: 1, headerAlign: 'center' },
-  { field: 'spendAmount', headerName: '차감 포인트', flex: 1, headerAlign: 'center' },
+  { field: 'spentAmount', headerName: '차감 포인트', flex: 1, headerAlign: 'center' },
   { field: 'balanceAfter', headerName: '남은 포인트', flex: 1, headerAlign: 'center' },
 ]
