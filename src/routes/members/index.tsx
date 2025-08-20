@@ -5,20 +5,24 @@ import PageTitle from '@/components/page-title'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@radix-ui/react-select'
 import { createFileRoute } from '@tanstack/react-router'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
 import { memberApi, type Member } from '@/api/member'
 import { Button } from '@/components/shadcn/button'
 import { useActiveMembers } from '@/hooks/use-members'
 import { toast } from 'sonner'
 import AllertDialog from '@/components/dialog/AllertDialog'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
+import { useState } from 'react'
 
 export const Route = createFileRoute('/members/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { data } = useActiveMembers()
+  const [paginationModel, setPaginationModel] =
+    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
+  const { data } = useActiveMembers(paginationModel.page, paginationModel.pageSize)
   const queryClient = useQueryClient()
   const { mutate: deleteMutation } = useMutation({
     mutationFn: (memberKey: string) => memberApi.deleteMemberByAdmin(memberKey),
@@ -28,7 +32,7 @@ function RouteComponent() {
     },
   })
 
-  if (!data) return <div>데이터를 불러오는 중...</div> //@TODO fallback ui로 대체될 예정 (기획 미정)
+  if (!data) return <div>데이터를 불러오는 중...</div>
   if (!data.result?.content) return <div>리스트가 없습니다..</div>
 
   const columns: GridColDef<Member>[] = [
@@ -102,8 +106,14 @@ function RouteComponent() {
             }))}
             columns={columns}
             initialState={{
-              pagination: { paginationModel: { page: 0, pageSize: 10 } },
+              pagination: {
+                paginationModel: DEFAULT_PAGINATION_MODEL,
+              },
             }}
+            rowCount={data.result?.totalElements ?? 0}
+            paginationMode="server"
+            onPaginationModelChange={setPaginationModel}
+            paginationModel={paginationModel}
           />
         </div>
       </div>

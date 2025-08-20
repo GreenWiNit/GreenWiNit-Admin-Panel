@@ -5,18 +5,22 @@ import PageTitle from '@/components/page-title'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { createFileRoute } from '@tanstack/react-router'
 import { memberApi, type Member } from '@/api/member'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
 import { Button } from '@/components/shadcn/button'
 import { useWithDrawn } from '@/hooks/use-members'
 import { Separator } from '@radix-ui/react-select'
+import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
+import { useState } from 'react'
 
 export const Route = createFileRoute('/members/withdrawn/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { data } = useWithDrawn()
-  if (!data) return <div>데이터를 불러오는 중...</div> //@TODO fallback ui로 대체될 예정 (기획 미정)
+  const [paginationModel, setPaginationModel] =
+    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
+  const { data } = useWithDrawn(paginationModel.page, paginationModel.pageSize)
+  if (!data) return <div>데이터를 불러오는 중...</div>
   if (!data.result?.content) return <div>리스트가 없습니다..</div>
 
   return (
@@ -42,8 +46,14 @@ function RouteComponent() {
             }))}
             columns={columns}
             initialState={{
-              pagination: { paginationModel: { page: 0, pageSize: 10 } },
+              pagination: {
+                paginationModel: DEFAULT_PAGINATION_MODEL,
+              },
             }}
+            rowCount={data.result?.totalElements ?? 0}
+            paginationMode="server"
+            onPaginationModelChange={setPaginationModel}
+            paginationModel={paginationModel}
           />
         </div>
       </div>
