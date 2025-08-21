@@ -21,7 +21,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import usePaginationModelState from '@/hooks/use-pagination-model-state'
@@ -33,7 +33,7 @@ export const Route = createFileRoute('/products/orders/')({
 
 interface SearchFormState {
   deliveryStatus: DeliveryStatusKo | null
-  searchKeyword: string
+  keyword: string
 }
 
 function Orders() {
@@ -44,7 +44,7 @@ function Orders() {
   const [paginationModel, setPaginationModel] = usePaginationModelState()
   const [searchFormToSubmit, setSearchFormToSubmit] = useState<SearchFormState>(DEFAULT_SEARCH_FORM)
 
-  const { data } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: productsQueryKeys.getOrders({
       ...searchFormToSubmit,
       ...gridPaginationModelToApiParams(paginationModel),
@@ -52,14 +52,18 @@ function Orders() {
     }).queryKey,
     queryFn: () =>
       productApi.getOrders({
-        ...searchFormToSubmit,
-        ...paginationModel,
+        ...gridPaginationModelToApiParams(paginationModel),
         status: searchFormToSubmit.deliveryStatus ?? undefined,
+        ...searchFormToSubmit,
       }),
+    placeholderData: keepPreviousData,
   })
+
+  if (data === null) return
 
   const onSubmit: SubmitHandler<SearchFormState> = (data) => {
     setSearchFormToSubmit(data)
+    setPaginationModel({ page: 0, pageSize: paginationModel.pageSize })
   }
 
   return (
@@ -98,7 +102,10 @@ function Orders() {
               <tr>
                 <th>검색어</th>
                 <td>
-                  <Input {...searchFormBeforeSubmitting.register('searchKeyword')} />
+                  <Input
+                    placeholder="상품코드로 검색이 가능합니다."
+                    {...searchFormBeforeSubmitting.register('keyword')}
+                  />
                 </td>
               </tr>
             </tbody>
@@ -128,9 +135,10 @@ function Orders() {
           rows={data?.result?.content ?? []}
           columns={columns}
           paginationModel={paginationModel}
-          onPaginationModelChange={(model) => {
-            setPaginationModel(model)
-          }}
+          onPaginationModelChange={setPaginationModel}
+          loading={isFetching && !data}
+          rowCount={data?.result?.totalElements ?? 0}
+          paginationMode="server"
         />
       </div>
     </PageContainer>
@@ -139,29 +147,40 @@ function Orders() {
 
 const DeliveryStatusCell = (params: GridRenderCellParams<OrdersResponseElement>) => {
   const queryClient = useQueryClient()
+  const [deliveryStatus, setDeliveryStatus] = useState(params.value || '상품 신청')
+
+  const isCompeltedDelivery = deliveryStatus === '배송 완료'
+
   const changeOrderStatus = useMutation({
-    mutationFn: (status: 'shipping' | 'complete') =>
+    mutationFn: (status: '배송중' | '배송 완료') =>
       productApi.changeOrderStatus(params.row.id, status),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.orders.queryKey })
+      setDeliveryStatus(variables)
+    },
+    onError: () => {
+      setDeliveryStatus(params.value || '상품 신청')
     },
   })
 
   return (
-    <div>
+    <div className="mt-2 items-center">
       <Select
-        value={params.value}
+        value={deliveryStatus}
         onValueChange={(value) => {
-          changeOrderStatus.mutate(value as 'shipping' | 'complete')
+          if (value === '상품 신청') return
+          setDeliveryStatus(value)
+          changeOrderStatus.mutate(value as '배송중' | '배송 완료')
         }}
+        disabled={isCompeltedDelivery}
       >
-        <SelectTrigger>
+        <SelectTrigger className={isCompeltedDelivery ? 'cursor-not-allowed opacity-50' : ''}>
           <SelectValue placeholder="상품 신청" />
         </SelectTrigger>
         <SelectContent>
-          {/* <SelectItem value="상품 신청">상품 신청</SelectItem> */}
-          <SelectItem value="shipping">배송중</SelectItem>
-          <SelectItem value="complete">배송완료</SelectItem>
+          <SelectItem value="상품 신청">상품 신청</SelectItem>
+          <SelectItem value="배송중">배송중</SelectItem>
+          <SelectItem value="배송 완료">배송완료</SelectItem>
         </SelectContent>
       </Select>
     </div>
@@ -183,5 +202,5 @@ const columns: GridColDef<OrdersResponseElement>[] = [
 
 const DEFAULT_SEARCH_FORM: SearchFormState = {
   deliveryStatus: null,
-  searchKeyword: '',
+  keyword: '',
 }
