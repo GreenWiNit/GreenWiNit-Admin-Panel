@@ -62,7 +62,7 @@ export const teamApi = {
             // '1시간 동안 함께 플롯길 하는 코스입니다.'
             description: string
             // 'https://open.kakao.com/o/sAczYWth'
-            openChatRoomLink: string
+            openChatUrl: string
           }>
         >,
     )

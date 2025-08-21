@@ -30,6 +30,7 @@ function Teams() {
     queryKey: teamQueryKeys.team.team(selectedTeamId ?? undefined).queryKey,
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     queryFn: (ctx) => teamApi.getTeam(ctx.queryKey[2]!),
+    enabled: selectedTeamId != null,
   })
 
   return (
@@ -97,7 +98,7 @@ function Teams() {
               </tr>
               <tr>
                 <th>오픈채팅방 링크</th>
-                <td colSpan={3}>{team.result?.openChatRoomLink}</td>
+                <td colSpan={3}>{team.result?.openChatUrl}</td>
               </tr>
             </tbody>
           </table>
