@@ -99,9 +99,9 @@ function Teams() {
 const teamsColumns: GridColDef<
   NonNullable<Awaited<ReturnType<typeof teamApi.getTeams>>['result']>['content'][number]
 >[] = [
-  { field: 'teamCode', headerName: '팀 코드', width: 200 },
-  { field: 'teamTitle', headerName: '팀 제목', width: 200 },
-  { field: 'registrationDate', headerName: '등록 날짜', width: 200 },
+  { field: 'groupCode', headerName: '팀 코드', width: 200 },
+  { field: 'groupName', headerName: '팀 제목', width: 200 },
+  { field: 'challengeDate', headerName: '등록 날짜', width: 200 },
   { field: 'maxParticipants', headerName: '최대인원', width: 200 },
   { field: 'currentParticipants', headerName: '현재참여인원', width: 200 },
   { field: 'recruitmentStatus', headerName: '모집여부', width: 200 },
