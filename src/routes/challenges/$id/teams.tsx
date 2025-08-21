@@ -6,6 +6,7 @@ import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
 import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { dayjs } from '@/constant/globals'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/challenges/$id/teams')({
@@ -36,23 +37,25 @@ function Teams() {
       <PageTitle>팀 상세정보</PageTitle>
       <Separator />
       <h4 className="self-start">팀 목록</h4>
-      <DataGrid
-        rows={data?.result?.content ?? []}
-        columns={teamsColumns}
-        loading={isLoading}
-        rowCount={data?.result?.totalElements ?? 0}
-        paginationModel={pageParams}
-        onPaginationModelChange={setPageParams}
-        onRowClick={(params) => {
-          setSelectedTeamId(params.row.id)
-        }}
-      />
+      <div className="flex max-h-120 w-full">
+        <DataGrid
+          rows={data?.result?.content ?? []}
+          columns={teamsColumns}
+          loading={isLoading}
+          rowCount={data?.result?.totalElements ?? 0}
+          paginationModel={pageParams}
+          onPaginationModelChange={setPageParams}
+          onRowClick={(params) => {
+            setSelectedTeamId(params.row.id)
+          }}
+        />
+      </div>
       <div>
         <h4>팀 상세정보</h4>
         {team == null ? (
           <span>팀 코드를 클릭해주세요.</span>
         ) : (
-          <table className="w-full border [&_th]:bg-gray-100 [&_th,td]:border">
+          <table className="w-full border [&_td]:min-w-20 [&_th]:bg-gray-100 [&_th,td]:border">
             <tbody>
               <tr>
                 <th>팀 코드</th>
@@ -72,9 +75,17 @@ function Teams() {
               </tr>
               <tr>
                 <th>시작시간</th>
-                <td>{team.result?.startTime}</td>
+                <td>
+                  {team.result == null
+                    ? null
+                    : dayjs(team.result?.startTime, 'HH:mm:ss').format('HH:mm')}
+                </td>
                 <th>종료시간</th>
-                <td>{team.result?.endTime}</td>
+                <td>
+                  {team.result == null
+                    ? null
+                    : dayjs(team.result?.endTime, 'HH:mm:ss').format('HH:mm')}
+                </td>
               </tr>
               <tr>
                 <th>장소</th>
@@ -99,9 +110,9 @@ function Teams() {
 const teamsColumns: GridColDef<
   NonNullable<Awaited<ReturnType<typeof teamApi.getTeams>>['result']>['content'][number]
 >[] = [
-  { field: 'teamCode', headerName: '팀 코드', width: 200 },
-  { field: 'teamTitle', headerName: '팀 제목', width: 200 },
-  { field: 'registrationDate', headerName: '등록 날짜', width: 200 },
+  { field: 'groupCode', headerName: '팀 코드', width: 200 },
+  { field: 'groupName', headerName: '팀 제목', width: 200 },
+  { field: 'challengeDate', headerName: '등록 날짜', width: 200 },
   { field: 'maxParticipants', headerName: '최대인원', width: 200 },
   { field: 'currentParticipants', headerName: '현재참여인원', width: 200 },
   { field: 'recruitmentStatus', headerName: '모집여부', width: 200 },
