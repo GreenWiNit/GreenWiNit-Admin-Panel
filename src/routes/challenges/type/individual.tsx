@@ -10,19 +10,17 @@ import { Button } from '@/components/shadcn/button'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@/components/shadcn/separator'
 import { showMessageIfExists } from '@/lib/error'
-import { gridPaginationModelToApiParams } from '@/lib/api'
-import usePaginationModelState from '@/hooks/use-pagination-model-state'
 
 export const Route = createFileRoute('/challenges/type/individual')({
   component: IndividualChallenges,
 })
 
 function IndividualChallenges() {
-  const [paginationModel, setPaginationModel] = usePaginationModelState()
-
-  const { data, isLoading } = useIndividualChallenges({
-    pageParams: gridPaginationModelToApiParams(paginationModel),
-  })
+  const {
+    query: { data, isLoading },
+    paginationModel,
+    setPaginationModel,
+  } = useIndividualChallenges()
   const navigate = useNavigate()
 
   return (

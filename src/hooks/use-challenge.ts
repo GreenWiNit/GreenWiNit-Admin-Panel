@@ -1,6 +1,8 @@
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { challengeApi, challengeQueryKeys } from '@/api/challenge'
 import { omit } from 'es-toolkit'
+import useQueryDataGrid from './use-query-data-grid'
+import { gridPaginationModelToApiParams } from '@/lib/api'
 
 export const useIndividualChallenges = (
   options?: Omit<
@@ -11,27 +13,24 @@ export const useIndividualChallenges = (
       ReturnType<typeof challengeQueryKeys.challenges.individualChallenges>['queryKey']
     >,
     'queryKey' | 'queryFn'
-  > & {
-    pageParams: {
-      page?: number
-      size?: number
-    }
-  },
+  >,
 ) => {
-  return useQuery({
-    ...(options ? omit(options, ['pageParams']) : {}),
-    queryKey: challengeQueryKeys.challenges.individualChallenges({
-      page: options?.pageParams?.page,
-      size: options?.pageParams?.size,
-    }).queryKey,
+  const { query, paginationModel, setPaginationModel } = useQueryDataGrid({
+    ...options,
+    queryKeyWithPageParams: challengeQueryKeys.challenges.individualChallenges,
     queryFn: (ctx) => {
-      const [, , , { page, size }] = ctx.queryKey
-      return challengeApi.getIndividualChallenges({
-        page,
-        size,
-      })
+      const [, , , gridPaginationModel] = ctx.queryKey
+      return challengeApi.getIndividualChallenges(
+        gridPaginationModelToApiParams(gridPaginationModel),
+      )
     },
   })
+
+  return {
+    query,
+    paginationModel,
+    setPaginationModel,
+  }
 }
 
 export const useTeamChallenges = (
@@ -73,7 +72,6 @@ export const useChallenge = ({
   return useQuery({
     queryKey: challengeQueryKeys.challenges.challenge({ challengeId, challengeType }).queryKey,
     queryFn: (ctx) => {
-      // challengeApi.getChallenge({ challengeId, challengeType })
       const [, , { challengeId, challengeType }] = ctx.queryKey
       if (challengeType !== 'individual') {
         return challengeApi.getTeamChallenge(challengeId)
