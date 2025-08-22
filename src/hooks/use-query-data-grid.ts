@@ -7,6 +7,7 @@ import {
 import { useState } from 'react'
 import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
 import type { GridPaginationModel } from '@mui/x-data-grid'
+import { DEFAULT_DATA_GRID_PROPS } from '@/constant/data-grid'
 
 /**
  * useQuery에 페이지 파라미터를 추가해서 사용하는 훅입니다.
@@ -43,6 +44,11 @@ function useQueryDataGrid<
     query,
     paginationModel,
     setPaginationModel,
+    defaultDataGridProps: {
+      ...DEFAULT_DATA_GRID_PROPS,
+      paginationMode: 'server',
+      loading: query.isLoading,
+    } as const,
   }
 }
 /**

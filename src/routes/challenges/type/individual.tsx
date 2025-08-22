@@ -17,9 +17,10 @@ export const Route = createFileRoute('/challenges/type/individual')({
 
 function IndividualChallenges() {
   const {
-    query: { data, isLoading },
+    query: { data },
     paginationModel,
     setPaginationModel,
+    defaultDataGridProps,
   } = useIndividualChallenges()
   const navigate = useNavigate()
 
@@ -52,6 +53,7 @@ function IndividualChallenges() {
         </div>
         <div className="flex w-full">
           <DataGrid
+            {...defaultDataGridProps}
             rows={
               data?.result?.content.map((challenge) => ({
                 ...challenge,
@@ -59,7 +61,6 @@ function IndividualChallenges() {
                 createdDate: dayjs(challenge.createdDate).format('YYYY-MM-DD'),
               })) ?? []
             }
-            pageSizeOptions={[10]}
             columns={columns}
             onRowClick={(params) => {
               navigate({
@@ -68,18 +69,9 @@ function IndividualChallenges() {
                 search: { challengeType: 'individual' },
               })
             }}
-            sx={{
-              '& .MuiDataGrid-row': {
-                cursor: 'pointer',
-              },
-            }}
             onPaginationModelChange={setPaginationModel}
             paginationModel={paginationModel}
-            disableColumnFilter
-            disableColumnSorting
             rowCount={data?.result?.totalElements ?? 0}
-            loading={isLoading}
-            paginationMode="server"
           />
         </div>
       </div>

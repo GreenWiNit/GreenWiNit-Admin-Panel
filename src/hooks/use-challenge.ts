@@ -15,7 +15,7 @@ export const useIndividualChallenges = (
     'queryKey' | 'queryFn'
   >,
 ) => {
-  const { query, paginationModel, setPaginationModel } = useQueryDataGrid({
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } = useQueryDataGrid({
     ...options,
     queryKeyWithPageParams: challengeQueryKeys.challenges.individualChallenges,
     queryFn: (ctx) => {
@@ -30,6 +30,7 @@ export const useIndividualChallenges = (
     query,
     paginationModel,
     setPaginationModel,
+    defaultDataGridProps,
   }
 }
 
