@@ -9,20 +9,15 @@ import dayjs from 'dayjs'
 import { Button } from '@/components/shadcn/button'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@/components/shadcn/separator'
-import usePaginationModelState from '@/hooks/use-pagination-model-state'
-import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
 import { showMessageIfExists } from '@/lib/error'
-import { gridPaginationModelToApiParams } from '@/lib/api'
 
 export const Route = createFileRoute('/challenges/type/team')({
   component: TeamChallenges,
 })
 
 function TeamChallenges() {
-  const [paginationModel, setPaginationModel] = usePaginationModelState()
-  const { data } = useTeamChallenges({
-    pageParams: gridPaginationModelToApiParams(paginationModel),
-  })
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } = useTeamChallenges()
+  const data = query.data
   const navigate = useNavigate()
 
   return (
@@ -54,6 +49,7 @@ function TeamChallenges() {
         </div>
         <div className="flex w-full">
           <DataGrid
+            {...defaultDataGridProps}
             rows={
               data?.result?.content.map((challenge) => ({
                 ...challenge,
@@ -61,14 +57,8 @@ function TeamChallenges() {
                 createdDate: dayjs(challenge.createdDate).format('YYYY-MM-DD'),
               })) ?? []
             }
-            initialState={{
-              pagination: {
-                paginationModel: DEFAULT_PAGINATION_MODEL,
-              },
-            }}
+            rowCount={data?.result?.totalElements ?? 0}
             columns={columns}
-            checkboxSelection
-            disableRowSelectionOnClick
             onRowClick={(params) => {
               navigate({
                 to: '/challenges/$id',
@@ -76,15 +66,8 @@ function TeamChallenges() {
                 search: { challengeType: 'team' },
               })
             }}
-            sx={{
-              '& .MuiDataGrid-row': {
-                cursor: 'pointer',
-              },
-            }}
             onPaginationModelChange={setPaginationModel}
             paginationModel={paginationModel}
-            rowCount={data?.result?.totalElements ?? 0}
-            paginationMode="server"
           />
         </div>
       </div>

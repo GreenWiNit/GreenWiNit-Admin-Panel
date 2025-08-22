@@ -4,6 +4,7 @@ import { stringify } from '@/lib/query-string'
 import { downloadExcel, throwResponseStatusThenChaining } from '@/lib/network'
 import type { ApiResponse, CommonFailureMessageWithAuth, PaginatedResponse } from '@/types/api'
 import { omit } from 'es-toolkit'
+import type { GridPaginationModel } from '@mui/x-data-grid'
 
 export const challengeApi = {
   getIndividualChallenges: async (
@@ -263,7 +264,7 @@ export const challengeApi = {
     status?: CertificationStatus
     challengeType: 'individual' | 'team'
     page?: number | undefined
-    size?: number | undefined
+    pageSize?: number | undefined
   }) => {
     return await fetch(
       `${API_URL}/admin/certifications/challenges?${stringify(omit({ ...params, type: params.challengeType === 'individual' ? 'P' : 'T' }, ['challengeType']), { skipNull: true, skipEmptyString: true })}`,
@@ -305,14 +306,12 @@ export const challengeApi = {
 export const CHALLENGES_TOP_KEY = 'challenges' as const
 const challengeKey = createQueryKeys(CHALLENGES_TOP_KEY, {
   individual: [undefined] as const,
-  individualChallenges: (pageParams: { page?: number | undefined; size?: number | undefined }) =>
-    ['individual', pageParams] as const,
+  individualChallenges: (pageParams: GridPaginationModel) => ['individual', pageParams] as const,
   individualWithVerifyStatus: (
     params: Omit<Parameters<typeof challengeApi.getChallengesWithVerifyStatus>[0], 'challengeType'>,
   ) => ['individual', 'with-verify-status', params] as const,
   team: ['team'],
-  teamChallenges: (pageParams: { page: number | undefined; size: number | undefined }) =>
-    ['team', pageParams] as const,
+  teamChallenges: (pageParams: GridPaginationModel) => ['team', pageParams] as const,
   teamWithVerifyStatus: (
     params: Omit<Parameters<typeof challengeApi.getChallengesWithVerifyStatus>[0], 'challengeType'>,
   ) => ['team', 'with-verify-status', params] as const,
@@ -321,12 +320,8 @@ const challengeKey = createQueryKeys(CHALLENGES_TOP_KEY, {
   challengesParticipants: (params: {
     challengeId?: number
     challengeType?: 'individual' | 'team'
-    pageParams:
-      | {
-          page?: number
-          size?: number
-        }
-      | undefined
+    pageSize: GridPaginationModel['pageSize']
+    page: GridPaginationModel['page']
   }) => ['participants', params] as const,
 })
 

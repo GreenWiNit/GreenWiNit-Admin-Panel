@@ -10,19 +10,15 @@ import { Button } from '@/components/shadcn/button'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Separator } from '@/components/shadcn/separator'
 import { showMessageIfExists } from '@/lib/error'
-import { gridPaginationModelToApiParams } from '@/lib/api'
-import usePaginationModelState from '@/hooks/use-pagination-model-state'
 
 export const Route = createFileRoute('/challenges/type/individual')({
   component: IndividualChallenges,
 })
 
 function IndividualChallenges() {
-  const [paginationModel, setPaginationModel] = usePaginationModelState()
-
-  const { data, isLoading } = useIndividualChallenges({
-    pageParams: gridPaginationModelToApiParams(paginationModel),
-  })
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } =
+    useIndividualChallenges()
+  const data = query.data
   const navigate = useNavigate()
 
   return (
@@ -54,6 +50,7 @@ function IndividualChallenges() {
         </div>
         <div className="flex w-full">
           <DataGrid
+            {...defaultDataGridProps}
             rows={
               data?.result?.content.map((challenge) => ({
                 ...challenge,
@@ -61,8 +58,7 @@ function IndividualChallenges() {
                 createdDate: dayjs(challenge.createdDate).format('YYYY-MM-DD'),
               })) ?? []
             }
-            pageSizeOptions={[10]}
-            columns={columns}
+            rowCount={data?.result?.totalElements ?? 0}
             onRowClick={(params) => {
               navigate({
                 to: '/challenges/$id',
@@ -70,18 +66,9 @@ function IndividualChallenges() {
                 search: { challengeType: 'individual' },
               })
             }}
-            sx={{
-              '& .MuiDataGrid-row': {
-                cursor: 'pointer',
-              },
-            }}
+            columns={columns}
             onPaginationModelChange={setPaginationModel}
             paginationModel={paginationModel}
-            disableColumnFilter
-            disableColumnSorting
-            rowCount={data?.result?.totalElements ?? 0}
-            loading={isLoading}
-            paginationMode="server"
           />
         </div>
       </div>

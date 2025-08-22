@@ -21,10 +21,10 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid'
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import useQueryDataGrid from '@/hooks/use-query-data-grid'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import usePaginationModelState from '@/hooks/use-pagination-model-state'
 import { gridPaginationModelToApiParams } from '@/lib/api'
 
 export const Route = createFileRoute('/products/orders/')({
@@ -41,25 +41,25 @@ function Orders() {
     defaultValues: DEFAULT_SEARCH_FORM,
   })
 
-  const [paginationModel, setPaginationModel] = usePaginationModelState()
   const [searchFormToSubmit, setSearchFormToSubmit] = useState<SearchFormState>(DEFAULT_SEARCH_FORM)
 
-  const { data, isFetching } = useQuery({
-    queryKey: productsQueryKeys.getOrders({
-      ...searchFormToSubmit,
-      ...gridPaginationModelToApiParams(paginationModel),
-      status: searchFormToSubmit.deliveryStatus ?? undefined,
-    }).queryKey,
-    queryFn: () =>
-      productApi.getOrders({
-        ...gridPaginationModelToApiParams(paginationModel),
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } = useQueryDataGrid({
+    queryKeyWithPageParams: (pageParams) =>
+      productsQueryKeys.getOrders({
+        ...searchFormToSubmit,
+        ...pageParams,
+        status: searchFormToSubmit.deliveryStatus ?? undefined,
+      }),
+    queryFn: (ctx) => {
+      const [, , , { page, pageSize }] = ctx.queryKey
+      return productApi.getOrders({
+        ...gridPaginationModelToApiParams({ page, pageSize }),
         status: searchFormToSubmit.deliveryStatus ?? undefined,
         ...searchFormToSubmit,
-      }),
-    placeholderData: keepPreviousData,
+      })
+    },
   })
-
-  if (data === null) return
+  const { data } = query
 
   const onSubmit: SubmitHandler<SearchFormState> = (data) => {
     setSearchFormToSubmit(data)
@@ -131,15 +131,19 @@ function Orders() {
           <FilePresentIcon />
           엑셀 받기
         </Button>
-        <DataGrid
-          rows={data?.result?.content ?? []}
-          columns={columns}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          loading={isFetching && !data}
-          rowCount={data?.result?.totalElements ?? 0}
-          paginationMode="server"
-        />
+        <div>
+          <DataGrid
+            {...defaultDataGridProps}
+            rows={data?.result?.content ?? []}
+            rowCount={data?.result?.totalElements ?? 0}
+            sx={{
+              '& .MuiDataGrid-row': null,
+            }}
+            columns={columns}
+            onPaginationModelChange={setPaginationModel}
+            paginationModel={paginationModel}
+          />
+        </div>
       </div>
     </PageContainer>
   )
@@ -189,14 +193,14 @@ const DeliveryStatusCell = (params: GridRenderCellParams<OrdersResponseElement>)
 
 const columns: GridColDef<OrdersResponseElement>[] = [
   { field: 'exchangedAt', headerName: '신청날짜', flex: 1 },
-  { field: 'memberKey', headerName: 'MemberKey', flex: 1 },
-  { field: 'memberEmail', headerName: '사용자\n이메일', flex: 1 },
+  { field: 'memberKey', headerName: 'MemberKey', flex: 2 },
+  { field: 'memberEmail', headerName: '사용자\n이메일', flex: 2 },
   { field: 'pointProductCode', headerName: '상품 코드', flex: 1 },
   { field: 'quantity', headerName: '수량', flex: 1 },
   { field: 'totalPrice', headerName: '차감\n포인트', flex: 1 },
   { field: 'recipientName', headerName: '이름', flex: 1 },
   { field: 'recipientPhoneNumber', headerName: '전화번호', flex: 1 },
-  { field: 'fullAddress', headerName: '주소', flex: 1 },
+  { field: 'fullAddress', headerName: '주소', flex: 3 },
   { field: 'status', headerName: '상품 처리 상태', flex: 1, renderCell: DeliveryStatusCell },
 ]
 

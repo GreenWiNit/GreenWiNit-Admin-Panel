@@ -8,12 +8,10 @@ import { Checkbox } from '@/components/shadcn/checkbox'
 import { Input } from '@/components/shadcn/input'
 import { Label } from '@/components/shadcn/label'
 import { Separator } from '@/components/shadcn/separator'
-import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
-import usePaginationModelState from '@/hooks/use-pagination-model-state'
 import { usePatchVerifyStatus } from '@/hooks/use-patch-verify-status'
 import { gridPaginationModelToApiParams } from '@/lib/api'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
-import { useQuery } from '@tanstack/react-query'
+import useQueryDataGrid from '@/hooks/use-query-data-grid'
 import { createFileRoute } from '@tanstack/react-router'
 import { Fragment, useState } from 'react'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
@@ -28,13 +26,12 @@ function RouteComponent() {
   })
   /** searchFormInputing - (submit) -> update searchForm */
   const [searchRequestParams, setSearchRequestParams] = useState<SearchForm>(DEFAULT_SEARCH_FORM)
-  const [paginationModel, setPaginationModel] = usePaginationModelState()
-
-  const { data: challengesWithVerifyStatus } = useQuery({
-    queryKey: challengeQueryKeys.challenges.individualWithVerifyStatus({
-      ...searchRequestParams,
-      ...gridPaginationModelToApiParams(paginationModel),
-    }).queryKey,
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } = useQueryDataGrid({
+    queryKeyWithPageParams: (pageParams) =>
+      challengeQueryKeys.challenges.individualWithVerifyStatus({
+        ...searchRequestParams,
+        ...gridPaginationModelToApiParams(pageParams),
+      }),
     queryFn: (ctx) => {
       const [, , , , apiParamsFromQueryKey] = ctx.queryKey
 
@@ -44,6 +41,7 @@ function RouteComponent() {
       })
     },
   })
+  const challengesWithVerifyStatus = query.data
 
   const submitHandler: SubmitHandler<SearchForm> = (data) => {
     console.log('data', data)
@@ -142,6 +140,7 @@ function RouteComponent() {
         </form>
         <div className="flex w-full">
           <DataGrid
+            {...defaultDataGridProps}
             rows={
               challengesWithVerifyStatus?.result?.content?.map((c) => {
                 return {
@@ -157,17 +156,14 @@ function RouteComponent() {
                 }
               }) ?? []
             }
-            initialState={{
-              pagination: {
-                paginationModel: DEFAULT_PAGINATION_MODEL,
-              },
-            }}
+            rowCount={challengesWithVerifyStatus?.result?.totalElements ?? 0}
+            columns={columns}
             onPaginationModelChange={setPaginationModel}
             paginationModel={paginationModel}
-            rowCount={challengesWithVerifyStatus?.result?.totalElements ?? 0}
-            paginationMode="server"
-            columns={columns}
             disableRowSelectionOnClick
+            sx={{
+              '& .MuiDataGrid-row': null,
+            }}
           />
         </div>
       </div>
@@ -230,7 +226,7 @@ const columns: GridColDef<{
   {
     field: 'certificationImageUrl',
     headerName: '인증 이미지',
-    width: 150,
+    width: 300,
     renderCell: CertificationImageUrlCell,
   },
   {

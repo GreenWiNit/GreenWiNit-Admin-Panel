@@ -3,32 +3,21 @@ import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { Separator } from '@/components/shadcn/separator'
 import { createFileRoute, useParams } from '@tanstack/react-router'
-import { useState } from 'react'
-import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import type { PointHistory } from '@/types/point'
 import { Button } from '@/components/shadcn/button'
 import { FileSpreadsheetIcon } from 'lucide-react'
 import { pointApi } from '@/api/point'
 import { memberStore, type MemberList } from '@/store/memberStore'
 import { useMemberPoint } from '@/hooks/use-member-points'
-import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
 
 function PointDetail() {
-  const [paginationModel, setPaginationModel] =
-    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
   const { id } = useParams({ from: '/points/$id/' })
   const memberId = parseInt(id)
-
   const member = memberStore((state) => state.selectedMember)
-  const {
-    data: usersPointData,
-    isFetching,
-    isPlaceholderData,
-  } = useMemberPoint({
-    memberId,
-    page: paginationModel.page + 1,
-    size: paginationModel.pageSize,
-  })
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } =
+    useMemberPoint(memberId)
+  const usersPointData = query.data
 
   const userRow = member
     ? [
@@ -83,18 +72,17 @@ function PointDetail() {
           </div>
           <div className="mt-4">
             <DataGrid
+              {...defaultDataGridProps}
               rows={usersPointRow ?? []}
-              columns={pointHistoryColumns}
-              initialState={{
-                pagination: { paginationModel: DEFAULT_PAGINATION_MODEL },
-              }}
-              paginationModel={paginationModel}
               getRowId={(row) => row.pointTransactionId}
-              onPaginationModelChange={setPaginationModel}
-              checkboxSelection={false}
               rowCount={usersPointData?.result?.totalElements ?? 0}
-              paginationMode="server"
-              loading={isFetching && !isPlaceholderData}
+              columns={pointHistoryColumns}
+              checkboxSelection={false}
+              sx={{
+                '& .MuiDataGrid-row': null,
+              }}
+              onPaginationModelChange={setPaginationModel}
+              paginationModel={paginationModel}
             />
           </div>
         </div>

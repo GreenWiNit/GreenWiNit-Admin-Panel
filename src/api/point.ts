@@ -1,11 +1,13 @@
 import { API_URL } from '@/constant/network'
 import { downloadExcel, throwResponseStatusThenChaining } from '@/lib/network'
+import { stringify } from '@/lib/query-string'
 import type { PaginatedResponse } from '@/types/api'
 import type { PointHistory } from '@/types/point'
+import { createQueryKeys } from '@lukemorales/query-key-factory'
 
 export const pointApi = {
-  getMembersPoint: async (id: number, page: number, size: number) => {
-    return await fetch(`${API_URL}/admin/points/members/${id}?page=${page}&size=${size}`, {
+  getMembersPoint: async ({ id, page, size }: { id: number; page: number; size: number }) => {
+    return await fetch(`${API_URL}/admin/points/members/${id}?${stringify({ page, size })}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -28,3 +30,7 @@ export const pointApi = {
       .then((res) => downloadExcel(res))
   },
 }
+
+export const pointQueryKeys = createQueryKeys('points', {
+  memberPoints: (params: { memberId: number; page: number; pageSize: number }) => [params] as const,
+})

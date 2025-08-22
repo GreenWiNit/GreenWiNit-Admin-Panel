@@ -9,8 +9,8 @@ export const productApi = {
   getProducts: async (params: {
     status: SellingStatus | null
     keyword: string | null
-    page: number | null
-    size: number | null
+    page: number
+    size: number
   }) => {
     return await fetch(`${API_URL}/admin/point-products?${stringify(params)}`, {
       method: 'GET',
@@ -82,9 +82,9 @@ export const productApi = {
       method: 'GET',
     }).then(downloadExcel)
   },
-  getProductsOrders: async ({ id, page, size }: { id: number; page?: number; size?: number }) => {
+  getProductsOrders: async ({ id, page, size }: { id: number; page: number; size: number }) => {
     return await fetch(
-      `${API_URL}/admin/point-products/${id}/orders?${stringify({ page, size })}`,
+      `${API_URL}/admin/orders/point-products/${id}?${stringify({ page, size })}`,
       {
         method: 'GET',
       },
@@ -211,30 +211,30 @@ export type DeliveryStatusKo = '상품 신청' | '배송중' | '배송완료'
 export const productsQueryKeys = createQueryKeys('products', {
   getProducts: ({
     page,
-    size,
+    pageSize,
     status,
     keyword,
   }: {
-    page: number | null
-    size: number | null
+    page: number
+    pageSize: number
     status: SellingStatus | null
     keyword: string | null
-  }) => [{ page, size, status, keyword }] as const,
+  }) => [{ page, pageSize, status, keyword }] as const,
   getProduct: (id?: number | null) => [id ?? undefined] as const,
   orders: ['orders'],
   getOrders: ({
     page,
-    size,
+    pageSize,
     status,
     keyword,
   }: {
-    page?: number
-    size?: number
+    page: number
+    pageSize: number
     status?: DeliveryStatusKo | undefined
     keyword?: string
-  }) => ['orders', { page, size, status, keyword }] as const,
-  getProductsOrders: ({ id, page, size }: { id?: number; page?: number; size?: number }) =>
-    ['orders', { id, page, size }] as const,
+  }) => ['orders', { page, pageSize, status, keyword }] as const,
+  getProductsOrders: ({ id, page, pageSize }: { id: number; page: number; pageSize: number }) =>
+    ['orders', { id, page, pageSize }] as const,
 })
 
 function transferDeliveryStatusKoToDeliveryStatus(status?: DeliveryStatusKo | undefined) {

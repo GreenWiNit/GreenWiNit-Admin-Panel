@@ -13,12 +13,13 @@ import {
 } from '@/components/shadcn/select'
 import { Separator } from '@/components/shadcn/separator'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
-import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
 import { useState } from 'react'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { Link } from '@tanstack/react-router'
+import useQueryDataGrid from '@/hooks/use-query-data-grid'
+import { gridPaginationModelToApiParams } from '@/lib/api'
 
 export const Route = createFileRoute('/products/')({
   component: Products,
@@ -27,8 +28,6 @@ export const Route = createFileRoute('/products/')({
 interface SearchForm {
   status: 'exchangeable' | 'sold-out' | null
   keyword: string
-  page: number
-  size: number
 }
 
 function Products() {
@@ -38,18 +37,23 @@ function Products() {
 
   const [searchFormToSubmit, setSearchFormToSubmit] = useState<SearchForm>(DEFAULT_SEARCH_FORM)
 
-  const { data } = useQuery({
-    queryKey: productsQueryKeys.getProducts({
-      page: searchFormToSubmit.page,
-      size: searchFormToSubmit.size,
-      status: searchFormToSubmit.status,
-      keyword: searchFormToSubmit.keyword,
-    }).queryKey,
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } = useQueryDataGrid({
+    queryKeyWithPageParams: (pageParams) =>
+      productsQueryKeys.getProducts({
+        ...pageParams,
+        status: searchFormToSubmit.status,
+        keyword: searchFormToSubmit.keyword,
+      }),
     queryFn: (ctx) => {
-      const [, , { page, size, status, keyword }] = ctx.queryKey
-      return productApi.getProducts({ page, size, status, keyword })
+      const [, , { page, pageSize, status, keyword }] = ctx.queryKey
+      return productApi.getProducts({
+        ...gridPaginationModelToApiParams({ page, pageSize }),
+        status,
+        keyword,
+      })
     },
   })
+  const { data } = query
 
   const onSubmit: SubmitHandler<SearchForm> = async (data) => {
     setSearchFormToSubmit(data)
@@ -119,17 +123,15 @@ function Products() {
           </Button>
         </div>
         <DataGrid
+          {...defaultDataGridProps}
           rows={data?.result?.content ?? []}
+          rowCount={data?.result?.totalElements ?? 0}
+          sx={{
+            '& .MuiDataGrid-row': null,
+          }}
           columns={columns}
-          paginationModel={{
-            page: searchFormBeforeSubmitting.watch('page'),
-            pageSize: searchFormBeforeSubmitting.watch('size'),
-          }}
-          pageSizeOptions={[10, 20, 50, 100]}
-          onPaginationModelChange={(model) => {
-            searchFormBeforeSubmitting.setValue('page', model.page)
-            searchFormBeforeSubmitting.setValue('size', model.pageSize)
-          }}
+          onPaginationModelChange={setPaginationModel}
+          paginationModel={paginationModel}
         />
       </div>
     </PageContainer>
@@ -160,6 +162,4 @@ const columns: GridColDef<ProductsResponseElement>[] = [
 const DEFAULT_SEARCH_FORM: SearchForm = {
   status: null,
   keyword: '',
-  page: 0,
-  size: 10,
 }

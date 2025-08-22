@@ -7,10 +7,12 @@ import { Label } from '@/components/shadcn/label'
 import { RadioGroup, RadioGroupItem } from '@/components/shadcn/radio-group'
 import { Separator } from '@/components/shadcn/separator'
 import useProduct from '@/hooks/use-product'
-import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { gridPaginationModelToApiParams } from '@/lib/api'
+import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import useQueryDataGrid from '@/hooks/use-query-data-grid'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useId, useState } from 'react'
+import { useId } from 'react'
 
 export const Route = createFileRoute('/products/$id/')({
   component: Product,
@@ -45,14 +47,18 @@ function Product() {
     },
   })
 
-  const [ordersPageModel, setOrdersPageModel] = useState<GridPaginationModel>({
-    page: 0,
-    pageSize: 10,
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } = useQueryDataGrid({
+    queryKeyWithPageParams: (pageParams) =>
+      productsQueryKeys.getProductsOrders({ ...pageParams, id }),
+    queryFn: (ctx) => {
+      const [, , , { page, pageSize, id }] = ctx.queryKey
+      return productApi.getProductsOrders({
+        id,
+        ...gridPaginationModelToApiParams({ page, pageSize }),
+      })
+    },
   })
-  const { data: ordersResponse } = useQuery({
-    queryKey: productsQueryKeys.getProductsOrders({ id }).queryKey,
-    queryFn: () => productApi.getProductsOrders({ id }),
-  })
+  const { data: ordersResponse } = query
 
   return (
     <PageContainer className="flex-row">
@@ -116,13 +122,17 @@ function Product() {
           </tbody>
         </table>
         <h4>교환 신청자 정보</h4>
-        <DataGrid
-          rows={ordersResponse?.result?.content ?? []}
-          columns={columns}
-          rowCount={ordersResponse?.result?.totalElements ?? 0}
-          paginationModel={ordersPageModel}
-          onPaginationModelChange={setOrdersPageModel}
-        />
+        <div>
+          <DataGrid
+            {...defaultDataGridProps}
+            rows={ordersResponse?.result?.content ?? []}
+            rowCount={ordersResponse?.result?.totalElements ?? 0}
+            getRowId={(row) => `${row.memberKey}-${row.exchangedAt}`}
+            columns={columns}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
+          />
+        </div>
       </div>
     </PageContainer>
   )

@@ -4,6 +4,7 @@ import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import type { UpsertFormProps } from '@/components/products/type'
 import UpsertForm from '@/components/products/upsert-form'
+import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
@@ -20,8 +21,8 @@ function CreateProduct() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.getProducts({
-          page: 0,
-          size: 10,
+          page: DEFAULT_PAGINATION_MODEL.page,
+          pageSize: DEFAULT_PAGINATION_MODEL.pageSize,
           status: null,
           keyword: '',
         }).queryKey,

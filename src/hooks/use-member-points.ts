@@ -1,17 +1,18 @@
-import { pointApi } from '@/api/point'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { pointApi, pointQueryKeys } from '@/api/point'
+import useQueryDataGrid from './use-query-data-grid'
+import { gridPaginationModelToApiParams } from '@/lib/api'
 
-export const useMemberPoint = ({ memberId, page, size }: MemberPointProps) =>
-  useQuery({
-    queryKey: ['user-points', { memberId, page, size }],
-    queryFn: () => pointApi.getMembersPoint(memberId, page, size),
+export const useMemberPoint = (memberId: number) =>
+  useQueryDataGrid({
+    queryKeyWithPageParams: (pageParams) =>
+      pointQueryKeys.memberPoints({ ...pageParams, memberId }),
+    queryFn: (ctx) => {
+      const [, , gridPaginationModel] = ctx.queryKey
+      return pointApi.getMembersPoint({
+        id: memberId,
+        ...gridPaginationModelToApiParams(gridPaginationModel),
+      })
+    },
     retry: false,
     refetchOnWindowFocus: false,
-    placeholderData: keepPreviousData,
   })
-
-type MemberPointProps = {
-  memberId: number
-  page: number
-  size: number
-}
