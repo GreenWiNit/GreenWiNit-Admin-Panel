@@ -4,73 +4,53 @@ import {
   type GetIndividualChallengeParticipantsResponseElement,
   type GetTeamChallengeParticipantsResponseElement,
 } from '@/api/challenge'
-import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
-import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
-import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import useQueryDataGrid from '@/hooks/use-query-data-grid'
+import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 
 interface ParticipantsTableProps {
   challengeId: number
   challengeType: 'individual' | 'team'
 }
 const ParticipantsTable = ({ challengeId, challengeType }: ParticipantsTableProps) => {
-  const [pageParams, setPageParams] = useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
   if (challengeType === 'individual') {
-    return (
-      <IndividualParticipantsTable
-        challengeId={challengeId}
-        pageParams={pageParams}
-        setPageParams={setPageParams}
-      />
-    )
+    return <IndividualParticipantsTable challengeId={challengeId} />
   }
-  return (
-    <TeamParticipantsTable
-      challengeId={challengeId}
-      pageParams={pageParams}
-      setPageParams={setPageParams}
-    />
-  )
+  return <TeamParticipantsTable challengeId={challengeId} />
 }
 
 interface IndividualParticipantsTableProps {
   challengeId: number
-  pageParams: GridPaginationModel
-  setPageParams: (pageParams: GridPaginationModel) => void
 }
-function IndividualParticipantsTable({
-  challengeId,
-  pageParams,
-  setPageParams,
-}: IndividualParticipantsTableProps) {
-  const { data: participants } = useQuery({
-    queryKey: challengeQueryKeys.challenges.challengesParticipants({
-      challengeId,
-      challengeType: 'individual',
-      pageParams,
-    }).queryKey,
-    queryFn: () =>
-      challengeApi.getIndividualChallengeParticipants({
+function IndividualParticipantsTable({ challengeId }: IndividualParticipantsTableProps) {
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } = useQueryDataGrid({
+    queryKeyWithPageParams: (pageParams) =>
+      challengeQueryKeys.challenges.challengesParticipants({
         challengeId,
+        challengeType: 'individual',
+        pageSize: pageParams.pageSize,
         page: pageParams.page,
-        size: pageParams.pageSize,
       }),
+    queryFn: (ctx) => {
+      const [, , , paginationModelFromQueryKey] = ctx.queryKey
+      return challengeApi.getIndividualChallengeParticipants({
+        challengeId,
+        page: paginationModelFromQueryKey.page,
+        size: paginationModelFromQueryKey.pageSize,
+      })
+    },
     select: (data) => data.result,
   })
+  const participants = query.data
+
   return (
     <DataGrid
+      {...defaultDataGridProps}
       rows={participants?.content ?? []}
       getRowId={(row) => row.memberKey}
-      initialState={{
-        pagination: {
-          paginationModel: DEFAULT_PAGINATION_MODEL,
-        },
-      }}
-      columns={individualColumns}
-      onPaginationModelChange={setPageParams}
-      paginationModel={pageParams}
       rowCount={participants?.totalElements ?? 0}
-      paginationMode="server"
+      columns={individualColumns}
+      onPaginationModelChange={setPaginationModel}
+      paginationModel={paginationModel}
     />
   )
 }
@@ -94,42 +74,37 @@ const individualColumns: GridColDef<GetIndividualChallengeParticipantsResponseEl
 
 interface TeamParticipantsTableProps {
   challengeId: number
-  pageParams: GridPaginationModel
-  setPageParams: (pageParams: GridPaginationModel) => void
 }
-function TeamParticipantsTable({
-  challengeId,
-  pageParams,
-  setPageParams,
-}: TeamParticipantsTableProps) {
-  const { data: participants } = useQuery({
-    queryKey: challengeQueryKeys.challenges.challengesParticipants({
-      challengeId,
-      challengeType: 'team',
-      pageParams,
-    }).queryKey,
-    queryFn: () =>
-      challengeApi.getTeamChallengeParticipants({
+function TeamParticipantsTable({ challengeId }: TeamParticipantsTableProps) {
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } = useQueryDataGrid({
+    queryKeyWithPageParams: (pageParams) =>
+      challengeQueryKeys.challenges.challengesParticipants({
         challengeId,
+        challengeType: 'team',
+        pageSize: pageParams.pageSize,
         page: pageParams.page,
-        size: pageParams.pageSize,
       }),
+    queryFn: (ctx) => {
+      const [, , , paginationModelFromQueryKey] = ctx.queryKey
+      return challengeApi.getTeamChallengeParticipants({
+        challengeId,
+        page: paginationModelFromQueryKey.page,
+        size: paginationModelFromQueryKey.pageSize,
+      })
+    },
     select: (data) => data.result,
   })
+  const participants = query.data
+
   return (
     <DataGrid
+      {...defaultDataGridProps}
       rows={participants?.content ?? []}
-      initialState={{
-        pagination: {
-          paginationModel: DEFAULT_PAGINATION_MODEL,
-        },
-      }}
-      columns={teamColumns}
-      onPaginationModelChange={setPageParams}
-      paginationModel={pageParams}
-      rowCount={participants?.totalElements ?? 0}
-      paginationMode="server"
       getRowId={(row) => `${row.memberKey}-${row.participatingDate}`}
+      columns={teamColumns}
+      onPaginationModelChange={setPaginationModel}
+      paginationModel={paginationModel}
+      rowCount={participants?.totalElements ?? 0}
     />
   )
 }

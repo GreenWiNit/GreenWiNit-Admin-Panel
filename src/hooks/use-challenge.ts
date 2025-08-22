@@ -1,6 +1,5 @@
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { challengeApi, challengeQueryKeys } from '@/api/challenge'
-import { omit } from 'es-toolkit'
 import useQueryDataGrid from './use-query-data-grid'
 import { gridPaginationModelToApiParams } from '@/lib/api'
 
@@ -43,22 +42,14 @@ export const useTeamChallenges = (
       ReturnType<typeof challengeQueryKeys.challenges.teamChallenges>['queryKey']
     >,
     'queryKey' | 'queryFn'
-  > & {
-    pageParams: {
-      page?: number
-      size?: number
-    }
-  },
+  >,
 ) => {
-  return useQuery({
-    ...(options ? omit(options, ['pageParams']) : {}),
-    queryKey: challengeQueryKeys.challenges.teamChallenges({
-      page: options?.pageParams?.page,
-      size: options?.pageParams?.size,
-    }).queryKey,
+  return useQueryDataGrid({
+    ...options,
+    queryKeyWithPageParams: challengeQueryKeys.challenges.teamChallenges,
     queryFn: (ctx) => {
-      const [, , , { page, size }] = ctx.queryKey
-      return challengeApi.getTeamChallenges({ page, size })
+      const [, , , gridPaginationModel] = ctx.queryKey
+      return challengeApi.getTeamChallenges(gridPaginationModelToApiParams(gridPaginationModel))
     },
   })
 }

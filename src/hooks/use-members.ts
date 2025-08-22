@@ -1,17 +1,30 @@
 import { useQuery } from '@tanstack/react-query'
 import { memberApi, memberQueryKeys } from '@/api/member'
+import useQueryDataGrid from './use-query-data-grid'
 
-export const useActiveMembers = (page?: number, pageSize?: number) => {
-  return useQuery({
-    queryKey: memberQueryKeys.members.active(page, pageSize).queryKey,
-    queryFn: () => memberApi.getActiveMembers(page, pageSize),
+export const useActiveMembers = () => {
+  return useQueryDataGrid({
+    queryKeyWithPageParams: memberQueryKeys.members.active,
+    queryFn: (ctx) => {
+      const [, , , gridPaginationModel] = ctx.queryKey
+      return memberApi.getActiveMembers({
+        page: gridPaginationModel.page,
+        size: gridPaginationModel.pageSize,
+      })
+    },
   })
 }
 
-export const useWithDrawn = (page?: number, pageSize?: number) => {
-  return useQuery({
-    queryKey: memberQueryKeys.members.withdrawn(page, pageSize).queryKey,
-    queryFn: () => memberApi.getWithdrawn(page, pageSize),
+export const useWithDrawn = () => {
+  return useQueryDataGrid({
+    queryKeyWithPageParams: memberQueryKeys.members.withdrawn,
+    queryFn: (ctx) => {
+      const [, , , gridPaginationModel] = ctx.queryKey
+      return memberApi.getWithdrawn({
+        page: gridPaginationModel.page,
+        size: gridPaginationModel.pageSize,
+      })
+    },
   })
 }
 

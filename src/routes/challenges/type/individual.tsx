@@ -16,12 +16,9 @@ export const Route = createFileRoute('/challenges/type/individual')({
 })
 
 function IndividualChallenges() {
-  const {
-    query: { data },
-    paginationModel,
-    setPaginationModel,
-    defaultDataGridProps,
-  } = useIndividualChallenges()
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } =
+    useIndividualChallenges()
+  const data = query.data
   const navigate = useNavigate()
 
   return (
@@ -61,7 +58,7 @@ function IndividualChallenges() {
                 createdDate: dayjs(challenge.createdDate).format('YYYY-MM-DD'),
               })) ?? []
             }
-            columns={columns}
+            rowCount={data?.result?.totalElements ?? 0}
             onRowClick={(params) => {
               navigate({
                 to: '/challenges/$id',
@@ -69,9 +66,9 @@ function IndividualChallenges() {
                 search: { challengeType: 'individual' },
               })
             }}
+            columns={columns}
             onPaginationModelChange={setPaginationModel}
             paginationModel={paginationModel}
-            rowCount={data?.result?.totalElements ?? 0}
           />
         </div>
       </div>

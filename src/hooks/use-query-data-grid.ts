@@ -34,7 +34,10 @@ function useQueryDataGrid<
      */
     placeholderData: keepPreviousData,
     ...params,
-    queryKey: params.queryKeyWithPageParams(paginationModel).queryKey,
+    queryKey:
+      typeof params.queryKeyWithPageParams === 'function'
+        ? params.queryKeyWithPageParams(paginationModel).queryKey
+        : params.queryKeyWithPageParams,
   })
 
   query.isLoading = params.placeholderData
@@ -46,6 +49,12 @@ function useQueryDataGrid<
     setPaginationModel,
     defaultDataGridProps: {
       ...DEFAULT_DATA_GRID_PROPS,
+      pageSizeOptions: [10, 15, 20],
+      initialState: {
+        pagination: {
+          paginationModel: DEFAULT_PAGINATION_MODEL,
+        },
+      },
       paginationMode: 'server',
       loading: query.isLoading,
     } as const,
@@ -61,7 +70,7 @@ type QueryOptionsRequiredQueryKey<
   TData = TQueryFnData,
   TQueryKey extends QueryKey = readonly unknown[],
 > = Omit<UndefinedInitialDataOptions<TQueryFnData, TError, TData, TQueryKey>, 'queryKey'> & {
-  queryKeyWithPageParams: (pageParams: GridPaginationModel) => { queryKey: TQueryKey }
+  queryKeyWithPageParams: TQueryKey | ((pageParams: GridPaginationModel) => { queryKey: TQueryKey })
 }
 
 export default useQueryDataGrid

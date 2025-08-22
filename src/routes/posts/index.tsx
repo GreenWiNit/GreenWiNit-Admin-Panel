@@ -5,29 +5,35 @@ import PageTitle from '@/components/page-title'
 import { Button } from '@/components/shadcn/button'
 import { Separator } from '@/components/shadcn/separator'
 import { DataGrid, type GridColDef, type GridRowSelectionModel } from '@mui/x-data-grid'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import useQueryDataGrid from '@/hooks/use-query-data-grid'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
+import { gridPaginationModelToApiParams } from '@/lib/api'
 
 export const Route = createFileRoute('/posts/')({
   component: Posts,
 })
 
 function Posts() {
-  const [page, setPage] = useState(0)
-  const [size, setSize] = useState(10)
-  const { data } = useQuery({
-    queryKey: postsQueryKeys.getPosts(page, size).queryKey,
-    queryFn: () => postApi.getPosts(page, size),
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } = useQueryDataGrid({
+    queryKeyWithPageParams: (pageParams) => postsQueryKeys.getPosts(pageParams),
+    queryFn: (ctx) => {
+      const [, , pageParamsFromQueryKey] = ctx.queryKey
+      return postApi.getPosts(gridPaginationModelToApiParams(pageParamsFromQueryKey))
+    },
   })
+  const { data } = query
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel | null>(null)
   const queryClient = useQueryClient()
 
   const { mutate: deletePost } = useMutation({
     mutationFn: (id: string) => postApi.deletePost(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: postsQueryKeys.getPosts(page, size).queryKey })
+      queryClient.invalidateQueries({
+        queryKey: postsQueryKeys.getPosts(paginationModel).queryKey,
+      })
     },
   })
   const handleDelete = () => {
@@ -68,6 +74,7 @@ function Posts() {
             </div>
           </div>
           <DataGrid
+            {...defaultDataGridProps}
             checkboxSelection
             columns={columns}
             rows={
@@ -79,11 +86,9 @@ function Posts() {
                   }) as const,
               ) ?? []
             }
-            paginationModel={{ page, pageSize: size }}
-            onPaginationModelChange={(model) => {
-              setPage(model.page)
-              setSize(model.pageSize)
-            }}
+            rowCount={data?.result?.totalElements ?? 0}
+            onPaginationModelChange={setPaginationModel}
+            paginationModel={paginationModel}
             onRowSelectionModelChange={(model) => {
               setSelectedRows(model)
             }}
@@ -104,6 +109,7 @@ const columns: GridColDef<PostsElement & { isDisplayKo: '전시' | '미전시' }
         {params.row.id}
       </Link>
     ),
+    flex: 1,
   },
   {
     field: 'title',
@@ -113,7 +119,8 @@ const columns: GridColDef<PostsElement & { isDisplayKo: '전시' | '미전시' }
         {params.row.title}
       </Link>
     ),
+    flex: 2,
   },
-  { field: 'createdBy', headerName: '작성자' },
-  { field: 'isDisplayKo', headerName: '전시' },
+  { field: 'createdBy', headerName: '작성자', flex: 1 },
+  { field: 'isDisplayKo', headerName: '전시', flex: 1 },
 ]

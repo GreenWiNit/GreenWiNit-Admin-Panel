@@ -5,23 +5,18 @@ import PageTitle from '@/components/page-title'
 import FilePresentIcon from '@mui/icons-material/FilePresent'
 import { createFileRoute } from '@tanstack/react-router'
 import { memberApi, type Member } from '@/api/member'
-import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { Button } from '@/components/shadcn/button'
 import { useWithDrawn } from '@/hooks/use-members'
 import { Separator } from '@radix-ui/react-select'
-import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
-import { useState } from 'react'
 
 export const Route = createFileRoute('/members/withdrawn/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const [paginationModel, setPaginationModel] =
-    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
-  const { data } = useWithDrawn(paginationModel.page, paginationModel.pageSize)
-  if (!data) return <div>데이터를 불러오는 중...</div>
-  if (!data.result?.content) return <div>리스트가 없습니다..</div>
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } = useWithDrawn()
+  const data = query.data
 
   return (
     <PageContainer className="flex-row">
@@ -30,7 +25,7 @@ function RouteComponent() {
         <PageTitle className="self-start">탈퇴회원목록</PageTitle>
         <Separator />
         <div className="flex justify-between">
-          <span className="text-2xl">Title : {data.result?.totalElements}</span>
+          <span className="text-2xl">Title : {data?.result?.totalElements}</span>
           <Button className="w-fit" onClick={memberApi.getWithdrawnExcel}>
             <FilePresentIcon />
             엑셀 받기
@@ -38,20 +33,17 @@ function RouteComponent() {
         </div>
         <div className="flex w-full">
           <DataGrid
-            rows={data.result?.content.map((item) => ({
-              ...item,
-              id: item.memberKey,
-              joinDate: dayjs(item.joinDate).format('YYYY-MM-DD'),
-              withdrawalDate: dayjs(item.withdrawalDate).format('YYYY-MM-DD'),
-            }))}
+            {...defaultDataGridProps}
+            rows={
+              data?.result?.content.map((item) => ({
+                ...item,
+                id: item.memberKey,
+                joinDate: dayjs(item.joinDate).format('YYYY-MM-DD'),
+                withdrawalDate: dayjs(item.withdrawalDate).format('YYYY-MM-DD'),
+              })) ?? []
+            }
+            rowCount={data?.result?.totalElements ?? 0}
             columns={columns}
-            initialState={{
-              pagination: {
-                paginationModel: DEFAULT_PAGINATION_MODEL,
-              },
-            }}
-            rowCount={data.result?.totalElements ?? 0}
-            paginationMode="server"
             onPaginationModelChange={setPaginationModel}
             paginationModel={paginationModel}
           />

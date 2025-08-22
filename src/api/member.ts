@@ -2,18 +2,20 @@ import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from './../constant/network'
 import { downloadExcel, throwResponseStatusThenChaining } from '@/lib/network'
 import type { ApiResponse, PaginatedResponse } from '@/types/api'
-import type { PointsListProps } from '@/types/list'
 import type { MembersPoint } from '@/types/user'
 import { stringify } from '@/lib/query-string'
+import type { GridPaginationModel } from '@mui/x-data-grid'
 
 export const memberApi = {
-  getActiveMembers: async (page = 0, pageSize = 10) => {
-    const response = await fetch(`${API_URL}/admin/members?page=${page}&pageSize=${pageSize}`)
+  getActiveMembers: async (params: { page: number; size: number }) => {
+    const response = await fetch(
+      `${API_URL}/admin/members?${stringify({ page: params.page, size: params.size })}`,
+    )
     return response.json() as Promise<GetActiveMembersReponse>
   },
-  getWithdrawn: async (page = 0, pageSize = 10) => {
+  getWithdrawn: async (params: { page: number; size: number }) => {
     const response = await fetch(
-      `${API_URL}/admin/members/withdrawn?page=${page}&pageSize=${pageSize}`,
+      `${API_URL}/admin/members/withdrawn?${stringify({ page: params.page, size: params.size })}`,
     )
     return response.json() as Promise<GetWithdrawnReponse>
   },
@@ -34,7 +36,7 @@ export const memberApi = {
     })
     return response.json() as Promise<ApiResponse>
   },
-  getMembers: async ({ keyword, page, size }: PointsListProps) => {
+  getMembers: async ({ keyword, page, size }: GetMembersParameters) => {
     return await fetch(`${API_URL}/admin/members/points?${stringify({ keyword, page, size })}`, {
       method: 'GET',
       headers: {
@@ -65,15 +67,20 @@ type WithdrawnData = Member & {
   withdrawalDate: '2025-01-20T14:20:00'
 }
 
+interface GetMembersParameters {
+  keyword: string
+  page: number
+  size: number
+}
+
 export type GetActiveMembersReponse = PaginatedResponse<Member>
 
 export type GetWithdrawnReponse = PaginatedResponse<WithdrawnData>
 
 const memberKey = createQueryKeys('members', {
-  active: (page?: number, pageSize?: number) =>
-    ['active', { page: page ?? 0, pageSize: pageSize ?? 10 }] as const,
-  withdrawn: (page?: number, pageSize?: number) =>
-    ['withdrawn', { page: page ?? 0, pageSize: pageSize ?? 10 }] as const,
+  list: (params: { keyword: string; page: number; pageSize: number }) => [params] as const,
+  active: (pageParams: GridPaginationModel) => ['active', pageParams] as const,
+  withdrawn: (pageParams: GridPaginationModel) => ['withdrawn', pageParams] as const,
   deleteMember: (memberKey: string) => ['delete', { memberKey: memberKey }] as const,
   activeExcel: ['active', 'excel'],
   withdrawnExcel: ['withdrawn', 'excel'],

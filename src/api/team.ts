@@ -2,6 +2,7 @@ import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { API_URL } from '@/constant/network'
 import { stringify } from '@/lib/query-string'
 import type { ApiResponse, PaginatedResponse } from '@/types/api'
+import type { GridPaginationModel } from '@mui/x-data-grid'
 
 export const teamApi = {
   getTeams: async (params: { page?: number | undefined; size?: number | undefined }) => {
@@ -70,8 +71,7 @@ export const teamApi = {
 }
 
 const teamKey = createQueryKeys('team', {
-  teams: (params?: { page?: number | undefined; pageSize?: number | undefined }) =>
-    [params] as const,
+  teams: (pageParams?: GridPaginationModel) => [pageParams] as const,
   team: (teamId?: number) => [teamId] as const,
 })
 

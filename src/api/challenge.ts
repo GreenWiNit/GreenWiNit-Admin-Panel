@@ -264,7 +264,7 @@ export const challengeApi = {
     status?: CertificationStatus
     challengeType: 'individual' | 'team'
     page?: number | undefined
-    size?: number | undefined
+    pageSize?: number | undefined
   }) => {
     return await fetch(
       `${API_URL}/admin/certifications/challenges?${stringify(omit({ ...params, type: params.challengeType === 'individual' ? 'P' : 'T' }, ['challengeType']), { skipNull: true, skipEmptyString: true })}`,
@@ -311,8 +311,7 @@ const challengeKey = createQueryKeys(CHALLENGES_TOP_KEY, {
     params: Omit<Parameters<typeof challengeApi.getChallengesWithVerifyStatus>[0], 'challengeType'>,
   ) => ['individual', 'with-verify-status', params] as const,
   team: ['team'],
-  teamChallenges: (pageParams: { page: number | undefined; size: number | undefined }) =>
-    ['team', pageParams] as const,
+  teamChallenges: (pageParams: GridPaginationModel) => ['team', pageParams] as const,
   teamWithVerifyStatus: (
     params: Omit<Parameters<typeof challengeApi.getChallengesWithVerifyStatus>[0], 'challengeType'>,
   ) => ['team', 'with-verify-status', params] as const,
@@ -321,12 +320,8 @@ const challengeKey = createQueryKeys(CHALLENGES_TOP_KEY, {
   challengesParticipants: (params: {
     challengeId?: number
     challengeType?: 'individual' | 'team'
-    pageParams:
-      | {
-          page?: number
-          size?: number
-        }
-      | undefined
+    pageSize: GridPaginationModel['pageSize']
+    page: GridPaginationModel['page']
   }) => ['participants', params] as const,
 })
 

@@ -2,29 +2,31 @@ import { teamApi, teamQueryKeys } from '@/api/team'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { Separator } from '@/components/shadcn/separator'
-import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
-import { DataGrid, type GridColDef, type GridPaginationModel } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { dayjs } from '@/constant/globals'
 import { useState } from 'react'
+import useQueryDataGrid from '@/hooks/use-query-data-grid'
+import { gridPaginationModelToApiParams } from '@/lib/api'
 
 export const Route = createFileRoute('/challenges/$id/teams')({
   component: Teams,
 })
 
 function Teams() {
-  const [pageParams, setPageParams] = useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
-  const { data, isLoading } = useQuery({
-    queryKey: teamQueryKeys.team.teams(pageParams).queryKey,
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } = useQueryDataGrid({
+    queryKeyWithPageParams: teamQueryKeys.team.teams,
     queryFn: (ctx) => {
       const [, , pageParamsFromQueryKey] = ctx.queryKey
+      const { page, size } = gridPaginationModelToApiParams(pageParamsFromQueryKey)
       return teamApi.getTeams({
-        size: pageParamsFromQueryKey?.pageSize,
-        page: pageParamsFromQueryKey?.page,
+        size,
+        page,
       })
     },
   })
+  const data = query.data
   const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null)
   const { data: team } = useQuery({
     queryKey: teamQueryKeys.team.team(selectedTeamId ?? undefined).queryKey,
@@ -40,15 +42,15 @@ function Teams() {
       <h4 className="self-start">팀 목록</h4>
       <div className="flex max-h-120 w-full">
         <DataGrid
+          {...defaultDataGridProps}
           rows={data?.result?.content ?? []}
-          columns={teamsColumns}
-          loading={isLoading}
           rowCount={data?.result?.totalElements ?? 0}
-          paginationModel={pageParams}
-          onPaginationModelChange={setPageParams}
           onRowClick={(params) => {
             setSelectedTeamId(params.row.id)
           }}
+          columns={teamsColumns}
+          onPaginationModelChange={setPaginationModel}
+          paginationModel={paginationModel}
         />
       </div>
       <div>

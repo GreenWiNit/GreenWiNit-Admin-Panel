@@ -5,7 +5,7 @@ import type { ApiResponse, PaginatedResponse } from '@/types/api'
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 
 export const postApi = {
-  getPosts: async (page: number, size: number) => {
+  getPosts: async ({ page, size }: { page: number; size: number }) => {
     return await fetch(`${API_URL}/admin/info?${stringify({ page, size })}`, {
       method: 'GET',
       headers: {
@@ -85,7 +85,7 @@ export const postApi = {
 }
 
 export const postsQueryKeys = createQueryKeys('posts', {
-  getPosts: (page: number, size: number) => [page, size] as const,
+  getPosts: (pageParams: { page: number; pageSize: number }) => [pageParams] as const,
   getPost: (id: string) => [id] as const,
   getCategories: ['categories'],
 })

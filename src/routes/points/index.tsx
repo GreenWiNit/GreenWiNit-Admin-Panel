@@ -1,12 +1,7 @@
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import Input from '@mui/material/Input'
-import {
-  DataGrid,
-  type GridColDef,
-  type GridPaginationModel,
-  type GridRowParams,
-} from '@mui/x-data-grid'
+import { DataGrid, type GridColDef, type GridRowParams } from '@mui/x-data-grid'
 import { Separator } from '@radix-ui/react-separator'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -15,26 +10,17 @@ import GlobalNavigation from '@/components/global-navigation'
 import { memberStore } from '@/store/memberStore'
 import type { MembersPoint } from '@/types/user'
 import type { PointManageMemberList } from '@/types/point'
-import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
 
 function PointsPage() {
   const router = useRouter()
   const setSelectedMember = memberStore((state) => state.setSelectedMember)
-
-  const [paginationModel, setPaginationModel] =
-    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
   const [searchInput, setSearchInput] = useState<string>('')
   const [keyword, setKeyword] = useState<string>('')
 
-  const {
-    data: userManageData,
-    isFetching,
-    isPlaceholderData,
-  } = useUsers({
-    keyword: keyword,
-    page: paginationModel.page + 1,
-    size: paginationModel.pageSize,
+  const { query, paginationModel, setPaginationModel, defaultDataGridProps } = useUsers({
+    keyword,
   })
+  const userManageData = query.data
 
   const handleRowClick = (params: GridRowParams<MembersPoint>) => {
     const memberData = params.row
@@ -78,20 +64,14 @@ function PointsPage() {
         </div>
         <div className="scrollbar-hide mt-2 h-160 w-full">
           <DataGrid
+            {...defaultDataGridProps}
             rows={rows}
-            columns={columns}
             getRowId={(row) => row.memberKey}
             onRowClick={handleRowClick}
-            initialState={{
-              pagination: {
-                paginationModel: DEFAULT_PAGINATION_MODEL,
-              },
-            }}
+            rowCount={userManageData?.result?.totalElements ?? 0}
+            columns={columns}
             paginationModel={paginationModel}
             onPaginationModelChange={setPaginationModel}
-            rowCount={userManageData?.result?.totalElements ?? 0}
-            loading={isFetching && !isPlaceholderData}
-            paginationMode="server"
           />
         </div>
       </div>
