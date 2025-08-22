@@ -32,6 +32,7 @@ import { omit } from 'es-toolkit'
 import { useEffect, useId } from 'react'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
 import { toast } from 'sonner'
+import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
 
 export const Route = createFileRoute('/posts/upsert')({
   component: UpsertPost,
@@ -105,7 +106,9 @@ function UpsertPost() {
       return id ? postApi.updatePost(id, payload) : postApi.createPost(payload)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: postsQueryKeys.getPosts(0, 10).queryKey })
+      queryClient.invalidateQueries({
+        queryKey: postsQueryKeys.getPosts(DEFAULT_PAGINATION_MODEL).queryKey,
+      })
       if (id) {
         queryClient.invalidateQueries({ queryKey: postsQueryKeys.getPost(id).queryKey })
       }
