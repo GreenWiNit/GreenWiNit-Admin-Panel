@@ -4,7 +4,8 @@ import {
   type QueryKey,
   type UndefinedInitialDataOptions,
 } from '@tanstack/react-query'
-import usePaginationModelState from './use-pagination-model-state'
+import { useState } from 'react'
+import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
 import type { GridPaginationModel } from '@mui/x-data-grid'
 
 /**
@@ -16,8 +17,8 @@ function useQueryDataGrid<
   TData = TQueryFnData,
   TQueryKey extends QueryKey = QueryKey,
 >(params: QueryOptionsRequiredQueryKey<TQueryFnData, TError, TData, TQueryKey>) {
-  // @TODO use state instead of usePaginationModelState
-  const [paginationModel, setPaginationModel] = usePaginationModelState()
+  const [paginationModel, setPaginationModel] =
+    useState<GridPaginationModel>(DEFAULT_PAGINATION_MODEL)
   const query = useQuery({
     /**
      * 0page에서 1페이지로 클릭
