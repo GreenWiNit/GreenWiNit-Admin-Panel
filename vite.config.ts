@@ -6,6 +6,7 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import path from 'node:path'
 import fs from 'node:fs'
 import type { ResolvedConfig } from 'vite'
+import { cloudflare } from '@cloudflare/vite-plugin'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -21,6 +22,7 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       // https://community.cloudflare.com/t/cloudflare-pages-truncates-urls-by-removing-the-html-extension/609238
       renameIndexHtmlPlugin('quux_hidden_app.html.html'),
+      cloudflare(),
     ],
     resolve: {
       alias: {
