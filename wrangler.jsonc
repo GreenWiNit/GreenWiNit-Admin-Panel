@@ -7,4 +7,9 @@
   "name": "greenwinit-admin-panel",
   "compatibility_date": "2025-08-23",
   "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "dist",
+    // SPA default
+    "not_found_handling": "single-page-application",
+  },
 }
