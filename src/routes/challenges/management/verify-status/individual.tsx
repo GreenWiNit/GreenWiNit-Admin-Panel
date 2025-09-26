@@ -160,6 +160,7 @@ function RouteComponent() {
             columns={columns}
             onPaginationModelChange={setPaginationModel}
             paginationModel={paginationModel}
+            checkboxSelection={true}
             disableRowSelectionOnClick
             sx={{
               '& .MuiDataGrid-row': null,
@@ -210,34 +211,34 @@ const columns: GridColDef<{
   {
     field: 'challengeName',
     headerName: '챌린지 제목',
-    width: 300,
+    flex: 1,
   },
   { field: 'challengeCode', headerName: '챌린지 코드', width: 200 },
   {
     field: 'memberKey',
     headerName: 'MemberKey',
-    width: 300,
+    flex: 1,
   },
   {
     field: 'certifiedDate',
     headerName: '인증하기 날짜',
-    width: 150,
+    flex: 0.6,
   },
   {
     field: 'certificationImageUrl',
     headerName: '인증 이미지',
-    width: 300,
+    flex: 1.2,
     renderCell: CertificationImageUrlCell,
   },
   {
     field: 'certificationReview',
     headerName: '간단한 후기',
-    width: 150,
+    flex: 1,
   },
   {
     field: 'status',
     headerName: '포인트',
-    width: 200,
+    flex: 0.6,
     renderCell: StatusCell,
   },
 ]
