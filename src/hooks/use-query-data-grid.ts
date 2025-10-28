@@ -49,7 +49,7 @@ function useQueryDataGrid<
     setPaginationModel,
     defaultDataGridProps: {
       ...DEFAULT_DATA_GRID_PROPS,
-      pageSizeOptions: [10, 15, 20],
+      pageSizeOptions: [10, 20, 50, 100],
       initialState: {
         pagination: {
           paginationModel: DEFAULT_PAGINATION_MODEL,
