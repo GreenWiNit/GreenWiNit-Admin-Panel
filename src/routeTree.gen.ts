@@ -22,6 +22,7 @@ import { Route as PostsUpsertRouteImport } from './routes/posts/upsert'
 import { Route as ChallengesCreateRouteImport } from './routes/challenges/create'
 import { Route as ProductsOrdersIndexRouteImport } from './routes/products/orders/index'
 import { Route as ProductsIdIndexRouteImport } from './routes/products/$id/index'
+import { Route as PostsIdIndexRouteImport } from './routes/posts/$id/index'
 import { Route as PointsIdIndexRouteImport } from './routes/points/$id/index'
 import { Route as MembersWithdrawnIndexRouteImport } from './routes/members/withdrawn/index'
 import { Route as ChallengesIdIndexRouteImport } from './routes/challenges/$id/index'
@@ -98,6 +99,11 @@ const ProductsIdIndexRoute = ProductsIdIndexRouteImport.update({
   path: '/products/$id/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PostsIdIndexRoute = PostsIdIndexRouteImport.update({
+  id: '/posts/$id/',
+  path: '/posts/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PointsIdIndexRoute = PointsIdIndexRouteImport.update({
   id: '/points/$id/',
   path: '/points/$id/',
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/challenges/$id': typeof ChallengesIdIndexRoute
   '/members/withdrawn': typeof MembersWithdrawnIndexRoute
   '/points/$id': typeof PointsIdIndexRoute
+  '/posts/$id': typeof PostsIdIndexRoute
   '/products/$id': typeof ProductsIdIndexRoute
   '/products/orders': typeof ProductsOrdersIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
@@ -197,6 +204,7 @@ export interface FileRoutesByTo {
   '/challenges/$id': typeof ChallengesIdIndexRoute
   '/members/withdrawn': typeof MembersWithdrawnIndexRoute
   '/points/$id': typeof PointsIdIndexRoute
+  '/posts/$id': typeof PostsIdIndexRoute
   '/products/$id': typeof ProductsIdIndexRoute
   '/products/orders': typeof ProductsOrdersIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
@@ -223,6 +231,7 @@ export interface FileRoutesById {
   '/challenges/$id/': typeof ChallengesIdIndexRoute
   '/members/withdrawn/': typeof MembersWithdrawnIndexRoute
   '/points/$id/': typeof PointsIdIndexRoute
+  '/posts/$id/': typeof PostsIdIndexRoute
   '/products/$id/': typeof ProductsIdIndexRoute
   '/products/orders/': typeof ProductsOrdersIndexRoute
   '/challenges/management/verify-status/individual': typeof ChallengesManagementVerifyStatusIndividualRoute
@@ -250,6 +259,7 @@ export interface FileRouteTypes {
     | '/challenges/$id'
     | '/members/withdrawn'
     | '/points/$id'
+    | '/posts/$id'
     | '/products/$id'
     | '/products/orders'
     | '/challenges/management/verify-status/individual'
@@ -275,6 +285,7 @@ export interface FileRouteTypes {
     | '/challenges/$id'
     | '/members/withdrawn'
     | '/points/$id'
+    | '/posts/$id'
     | '/products/$id'
     | '/products/orders'
     | '/challenges/management/verify-status/individual'
@@ -300,6 +311,7 @@ export interface FileRouteTypes {
     | '/challenges/$id/'
     | '/members/withdrawn/'
     | '/points/$id/'
+    | '/posts/$id/'
     | '/products/$id/'
     | '/products/orders/'
     | '/challenges/management/verify-status/individual'
@@ -326,6 +338,7 @@ export interface RootRouteChildren {
   ChallengesIdIndexRoute: typeof ChallengesIdIndexRoute
   MembersWithdrawnIndexRoute: typeof MembersWithdrawnIndexRoute
   PointsIdIndexRoute: typeof PointsIdIndexRoute
+  PostsIdIndexRoute: typeof PostsIdIndexRoute
   ProductsIdIndexRoute: typeof ProductsIdIndexRoute
   ProductsOrdersIndexRoute: typeof ProductsOrdersIndexRoute
   ChallengesManagementVerifyStatusIndividualRoute: typeof ChallengesManagementVerifyStatusIndividualRoute
@@ -425,6 +438,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/posts/$id/': {
+      id: '/posts/$id/'
+      path: '/posts/$id'
+      fullPath: '/posts/$id'
+      preLoaderRoute: typeof PostsIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/points/$id/': {
       id: '/points/$id/'
       path: '/points/$id'
@@ -518,6 +538,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChallengesIdIndexRoute: ChallengesIdIndexRoute,
   MembersWithdrawnIndexRoute: MembersWithdrawnIndexRoute,
   PointsIdIndexRoute: PointsIdIndexRoute,
+  PostsIdIndexRoute: PostsIdIndexRoute,
   ProductsIdIndexRoute: ProductsIdIndexRoute,
   ProductsOrdersIndexRoute: ProductsOrdersIndexRoute,
   ChallengesManagementVerifyStatusIndividualRoute:
