@@ -1,7 +1,6 @@
 import { postApi, postsQueryKeys } from '@/api/post'
 import DatePickerSingle from '@/components/date-picker-single'
 import GlobalNavigation from '@/components/global-navigation'
-import InputImage from '@/components/input-image'
 import PageContainer from '@/components/page-container'
 import PageTitle from '@/components/page-title'
 import { Button } from '@/components/shadcn/button'
@@ -33,6 +32,7 @@ import { useEffect, useId } from 'react'
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form'
 import { toast } from 'sonner'
 import { DEFAULT_PAGINATION_MODEL } from '@/constant/pagination'
+import InputImageMultiple from '@/components/input-image-multiple'
 
 export const Route = createFileRoute('/posts/upsert')({
   component: UpsertPost,
@@ -47,7 +47,7 @@ interface FormState {
   title: string
   content: string
   categoryId: string | null
-  imageUrl: string
+  imageUrl: string[]
   isDisplay: 'Y' | 'N'
 }
 
@@ -72,7 +72,7 @@ function UpsertPost() {
         title: post?.title ?? '',
         content: post?.content ?? '',
         categoryId: post?.infoCategoryCode ?? categories?.[0]?.id ?? null,
-        imageUrl: post?.imageurl ?? '',
+        imageUrl: post?.imageUrls ? post.imageUrls : [],
         isDisplay: post?.isDisplay ?? 'Y',
       },
     })
@@ -82,7 +82,7 @@ function UpsertPost() {
         title: post.title,
         content: post.content,
         categoryId: post.infoCategoryCode,
-        imageUrl: post.imageurl,
+        imageUrl: post.imageUrls ? post.imageUrls : [],
         isDisplay: post.isDisplay,
       })
     }
@@ -214,13 +214,11 @@ function UpsertPost() {
                 <th>이미지</th>
                 <td colSpan={3}>
                   <div className="flex flex-col gap-2">
-                    <InputImage
-                      {...register('imageUrl')}
+                    <InputImageMultiple
+                      value={watch('imageUrl') ?? []}
                       purpose="info"
-                      value={watch('imageUrl') ?? null}
-                      onChange={(src) => {
-                        setValue('imageUrl', src ?? '')
-                      }}
+                      onChange={(url) => setValue('imageUrl', url)}
+                      maxImages={5}
                     />
                     <ErrorMessage errors={errors} name="imageUrl" />
                   </div>
