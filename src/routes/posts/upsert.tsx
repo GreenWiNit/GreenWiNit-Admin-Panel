@@ -47,7 +47,7 @@ interface FormState {
   title: string
   content: string
   categoryId: string | null
-  imageUrl: string[]
+  imageUrls: string[]
   isDisplay: 'Y' | 'N'
 }
 
@@ -66,13 +66,14 @@ function UpsertPost() {
     refetchOnWindowFocus: false,
   })
   const post = data?.result
+  console.log(post)
   const { register, handleSubmit, control, setValue, setError, formState, reset, watch } =
     useForm<FormState>({
       defaultValues: {
         title: post?.title ?? '',
         content: post?.content ?? '',
         categoryId: post?.infoCategoryCode ?? categories?.[0]?.id ?? null,
-        imageUrl: post?.imageUrls ? post.imageUrls : [],
+        imageUrls: post?.imageUrls ? post.imageUrls : [],
         isDisplay: post?.isDisplay ?? 'Y',
       },
     })
@@ -82,7 +83,7 @@ function UpsertPost() {
         title: post.title,
         content: post.content,
         categoryId: post.infoCategoryCode,
-        imageUrl: post.imageUrls ? post.imageUrls : [],
+        imageUrls: post.imageUrls ? post.imageUrls : [],
         isDisplay: post.isDisplay,
       })
     }
@@ -123,7 +124,7 @@ function UpsertPost() {
               [
                 'title' satisfies keyof FormState,
                 'content' satisfies keyof FormState,
-                'imageUrl' satisfies keyof FormState,
+                'imageUrls' satisfies keyof FormState,
                 'categoryId' satisfies keyof FormState,
                 'isDisplay' satisfies keyof FormState,
               ] as string[]
@@ -215,9 +216,9 @@ function UpsertPost() {
                 <td colSpan={3}>
                   <div className="flex flex-col gap-2">
                     <InputImageMultiple
-                      value={watch('imageUrl') ?? []}
+                      value={watch('imageUrls') ?? []}
                       purpose="info"
-                      onChange={(url) => setValue('imageUrl', url)}
+                      onChange={(url) => setValue('imageUrls', url)}
                       maxImages={5}
                     />
                     <ErrorMessage errors={errors} name="imageUrl" />

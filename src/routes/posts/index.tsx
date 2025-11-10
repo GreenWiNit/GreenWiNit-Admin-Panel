@@ -25,6 +25,7 @@ function Posts() {
     },
   })
   const { data } = query
+  console.log(data?.result)
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel | null>(null)
   const queryClient = useQueryClient()
 

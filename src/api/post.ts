@@ -27,7 +27,7 @@ export const postApi = {
       title: string
       content: string
       infoCategory: string
-      imageUrl: string[]
+      imageUrls: string[]
       isDisplay: 'Y' | 'N'
     },
   ) => {
@@ -43,7 +43,7 @@ export const postApi = {
     title: string
     content: string
     infoCategory: string
-    imageUrl: string[]
+    imageUrls: string[]
     isDisplay: 'Y' | 'N'
   }) => {
     return await fetch(`${API_URL}/admin/info`, {
