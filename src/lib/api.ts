@@ -17,7 +17,7 @@ export function gridPaginationModelToApiParams(model?: GridPaginationModel | nul
   }
 
   return {
-    page: model.page + 1,
+    page: model.page,
     size: model.pageSize,
   }
 }
