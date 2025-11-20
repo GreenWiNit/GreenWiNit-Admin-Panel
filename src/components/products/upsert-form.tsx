@@ -1,4 +1,4 @@
-import { useForm, type SubmitHandler } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { Input } from '../shadcn/input'
 import InputImage from '../input-image'
 import { Textarea } from '../shadcn/textarea'
@@ -7,11 +7,14 @@ import ErrorMessage from '../form/ErrorMessage'
 import type { FormState, UpsertFormProps } from './type'
 import { useEffect } from 'react'
 import { useCanGoBack, useRouter } from '@tanstack/react-router'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../shadcn/select'
 
 const UpsertForm = ({
   defaultValues,
   onSubmit: onSubmitFromProps,
   renderBackButton,
+  category,
+  categoryOnChange,
 }: UpsertFormProps) => {
   const router = useRouter()
   const canGoBack = useCanGoBack()
@@ -22,7 +25,7 @@ const UpsertForm = ({
       description: '',
       thumbnailUrl: null,
       price: 0,
-      stock: 0,
+      stock: null,
     },
   })
 
@@ -32,24 +35,52 @@ const UpsertForm = ({
     }
   }, [defaultValues, form])
 
-  const onSubmit: SubmitHandler<FormState> = async (data) => {
+  const onSubmit = async (data: FormState) => {
     const { thumbnailUrl, ...restFormData } = data
 
     if (!thumbnailUrl) {
       form.setError('thumbnailUrl', { message: '이미지를 선택해주세요.' })
       return
+    } else {
+      if (category === '배송상품') {
+        onSubmitFromProps({
+          ...restFormData,
+          thumbnailUrl: thumbnailUrl,
+          stock: data.stock,
+        })
+      } else {
+        onSubmitFromProps({
+          ...restFormData,
+          thumbnailUrl: thumbnailUrl,
+        })
+      }
     }
-
-    onSubmitFromProps({
-      ...restFormData,
-      thumbnailUrl,
-    })
   }
 
   return (
     <form className="flex w-full max-w-160 flex-row gap-4" onSubmit={form.handleSubmit(onSubmit)}>
       <table className="w-full">
         <tbody className="[&_td,th]:border [&_td,th]:px-1 [&_td,th]:py-2 [&_th]:bg-gray-50 [&_th]:text-center">
+          <tr>
+            <th>카테고리</th>
+            <td>
+              <Select
+                defaultValue={category ? category : ''}
+                value={category ? category : ''}
+                onValueChange={(val) =>
+                  categoryOnChange && categoryOnChange(val as '배송상품' | '아이템')
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="카테고리 선택" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="배송상품">배송상품</SelectItem>
+                  <SelectItem value="아이템">아이템</SelectItem>
+                </SelectContent>
+              </Select>
+            </td>
+          </tr>
           <tr>
             <th>상품코드</th>
             <td>
@@ -71,7 +102,11 @@ const UpsertForm = ({
           <tr>
             <th>수량</th>
             <td>
-              <Input {...form.register('stock')} inputMode="numeric" />
+              <Input
+                {...form.register('stock')}
+                inputMode="numeric"
+                disabled={category === '아이템'}
+              />
             </td>
           </tr>
           <tr>

@@ -36,7 +36,7 @@ export const productApi = {
     description: string
     thumbnailUrl: string
     price: number
-    stock: number
+    stock: number | null
   }) => {
     return await fetch(`${API_URL}/admin/point-products`, {
       method: 'POST',

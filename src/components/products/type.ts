@@ -1,12 +1,12 @@
 import type { SubmitHandler } from 'react-hook-form'
 
-export interface FormState {
+export type FormState = {
   code: string
   name: string
   description: string
   thumbnailUrl: string | null
   price: number
-  stock: number
+  stock: number | null
 }
 
 export interface UpsertFormProps {
@@ -15,4 +15,6 @@ export interface UpsertFormProps {
     Omit<FormState, 'thumbnailUrl'> & { thumbnailUrl: NonNullable<FormState['thumbnailUrl']> }
   >
   renderBackButton?: boolean
+  category?: '배송상품' | '아이템'
+  categoryOnChange?: (category: '배송상품' | '아이템') => void
 }
