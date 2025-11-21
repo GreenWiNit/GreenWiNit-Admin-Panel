@@ -84,7 +84,10 @@ const UpsertForm = ({
           <tr>
             <th>상품코드</th>
             <td>
-              <Input {...form.register('code')} placeholder="PRD-AA-000" />
+              <Input
+                {...form.register('code')}
+                placeholder={category === '배송상품' ? 'PRD-AA-000' : 'ITM-AA-000'}
+              />
             </td>
           </tr>
           <tr>
